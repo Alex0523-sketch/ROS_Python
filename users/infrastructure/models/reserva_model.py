@@ -6,7 +6,7 @@ class ReservaModel(models.Model):
     
     # Relación ManyToOne con User (nullable=true)
     user = models.ForeignKey(
-        'UserModel', 
+        'User', 
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 

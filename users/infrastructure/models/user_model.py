@@ -18,7 +18,7 @@ class User(models.Model):
 
     # Relación @ManyToOne con Rol
     # Suponiendo que tu modelo Rol está en el mismo archivo o importado
-    rol = models.ForeignKey('Rol', on_delete=models.PROTECT, db_column='id_rol', null=True)
+    rol = models.ForeignKey('RolModel', on_delete=models.PROTECT, db_column='id_rol', null=True)
 
     class Meta:
         db_table = 'users'  # Equivalente a @Table(name = "users")

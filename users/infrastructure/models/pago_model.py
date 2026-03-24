@@ -3,7 +3,7 @@ from django.db import models
 class PagoModel(models.Model):
     # Relación opcional con el usuario que realiza el pago
     user = models.ForeignKey(
-        'UserModel', 
+        'User', 
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 

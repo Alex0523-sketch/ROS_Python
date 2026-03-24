@@ -3,7 +3,7 @@ from django.db import models
 class HorarioModel(models.Model):
     # Relación con el empleado (User)
     user = models.ForeignKey(
-        'UserModel', 
+        'User', 
         on_delete=models.CASCADE, 
         db_column='user_id',
         related_name='horarios_empleado'

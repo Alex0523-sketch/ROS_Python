@@ -3,7 +3,7 @@ from django.db import models
 class PedidoModel(models.Model):
     # Cliente (puede ser nulo si es venta directa)
     user = models.ForeignKey(
-        'UserModel', 
+        'User', 
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True, 
@@ -25,7 +25,7 @@ class PedidoModel(models.Model):
     
     # Empleado asignado (mesero o cajero)
     empleado_asignado = models.ForeignKey(
-        'UserModel', 
+        'User', 
         on_delete=models.PROTECT, 
         null=True, 
         blank=True, 
