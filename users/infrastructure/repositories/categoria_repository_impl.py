@@ -1,13 +1,14 @@
 from users.domain.entities.categoria import Categoria
+from users.domain.repositories.categoria_repository import CategoriaRepository
 from users.infrastructure.models.categoria_model import CategoriaModel
 
 
-class CategoriaRepositoryImpl:
+class CategoriaRepositoryImpl(CategoriaRepository):
 
     def _to_entity(self, model: CategoriaModel) -> Categoria:
         return Categoria(
-            id_categoria=model.id_categoria,
             nombre=model.nombre,
+            id_categoria=model.id_categoria,
             descripcion=model.descripcion,
             created_at=model.created_at,
             updated_at=model.updated_at,

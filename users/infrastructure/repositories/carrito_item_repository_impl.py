@@ -1,8 +1,9 @@
 from users.domain.entities.carrito_item import CarritoItem
+from users.domain.repositories.carrito_item_repository import CarritoItemRepository
 from users.infrastructure.models.carrito_item_model import CarritoItemModel
 
 
-class CarritoItemRepositoryImpl:
+class CarritoItemRepositoryImpl(CarritoItemRepository):
 
     def _to_entity(self, model: CarritoItemModel) -> CarritoItem:
         return CarritoItem(

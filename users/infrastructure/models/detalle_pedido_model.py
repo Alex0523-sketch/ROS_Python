@@ -25,5 +25,9 @@ class DetallePedidoModel(models.Model):
         db_table = 'detalle_pedidos'
         app_label = 'users'
 
+    @property
+    def subtotal_linea(self):
+        return float(self.precio) * int(self.cantidad)
+
     def __str__(self):
         return f"{self.cantidad}x {self.producto.nombre} (Pedido {self.pedido.id})"

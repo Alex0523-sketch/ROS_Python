@@ -1,11 +1,14 @@
 from users.domain.entities.pedido import Pedido
+from users.domain.repositories.pedido_repository import PedidoRepository
 from users.infrastructure.models.pedido_model import PedidoModel
 
 
-class PedidoRepositoryImpl:
+class PedidoRepositoryImpl(PedidoRepository):
 
     def _to_entity(self, model: PedidoModel) -> Pedido:
         return Pedido(
+            total=model.total,
+            estado=model.estado,
             id=model.id,
             user_id=model.user_id,
             cliente_nombre=model.cliente_nombre,
@@ -13,8 +16,6 @@ class PedidoRepositoryImpl:
             reserva_id=model.reserva_id,
             empleado_id=model.empleado_asignado_id,
             comentarios=model.comentarios,
-            total=model.total,
-            estado=model.estado,
             fecha_creacion=model.fecha_creacion,
             fecha_actualizacion=model.fecha_actualizacion,
         )

@@ -58,15 +58,38 @@ class ActualizarProductoUseCase:
         if not producto_existente:
             raise LookupError("Producto no existe.")
 
+        nombre = (producto_data.get("nombre") if "nombre" in producto_data else producto_existente.nombre) or ""
+        nombre = nombre.strip()
+        if not nombre:
+            raise ValueError("El nombre del producto es obligatorio.")
+
+        nombre_anterior = (producto_existente.nombre or "").strip()
+        if nombre.lower() != nombre_anterior.lower():
+            otro = self.producto_repository.get_by_nombre(nombre)
+            if otro is not None and otro.id_producto != producto_id:
+                raise ValueError("Ya existe un producto con ese nombre.")
+
         if producto_data.get("precio") is not None and producto_data.get("precio") <= 0:
             raise ValueError("El precio debe ser mayor que 0.")
 
+        descripcion = (
+            producto_data["descripcion"]
+            if "descripcion" in producto_data
+            else producto_existente.descripcion
+        )
+        if descripcion is not None:
+            descripcion = (descripcion or "").strip() or None
+
         producto_actualizado = Producto(
             id_producto=producto_existente.id_producto,
-            nombre=producto_data.get("nombre", producto_existente.nombre),
-            descripcion=producto_data.get("descripcion", producto_existente.descripcion),
+            nombre=nombre,
+            descripcion=descripcion,
             precio=producto_data.get("precio", producto_existente.precio),
-            imagen_url=producto_data.get("imagen_url", producto_existente.imagen_url),
+            imagen_url=(
+                producto_data["imagen_url"]
+                if "imagen_url" in producto_data
+                else producto_existente.imagen_url
+            ),
             categoria_id=producto_data.get("categoria_id", producto_existente.categoria_id),
         )
 

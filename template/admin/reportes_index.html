@@ -1,0 +1,241 @@
+{% extends 'layout/base.html' %}
+{% block title %}Reportes{% endblock %}
+{% block page_title %}Reportes{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <div>
+      <h1 class="panel-page-title mb-1"><i class="bi bi-graph-up me-2"></i>Reportes</h1>
+      <p class="text-muted mb-0">Filtra por periodo y criterios; previsualiza y descarga un PDF con todas las secciones seleccionadas.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{% url 'reportes_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-warning text-dark fw-semibold"><i class="bi bi-file-earmark-pdf me-1"></i>Descargar PDF</a>
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<form method="get" class="content-section" id="form-reportes">
+  <input type="hidden" name="aplicar" value="1">
+
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <h2 class="h5 text-white mb-3"><i class="bi bi-funnel me-2"></i>Periodo y búsqueda</h2>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="fecha_desde">Desde</label>
+      <input type="date" class="form-control" id="fecha_desde" name="fecha_desde" value="{{ f.fecha_desde|date:'Y-m-d' }}">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="fecha_hasta">Hasta</label>
+      <input type="date" class="form-control" id="fecha_hasta" name="fecha_hasta" value="{{ f.fecha_hasta|date:'Y-m-d' }}">
+    </div>
+    <div class="col-md-6">
+      <label class="form-label" for="buscar">Buscar (cliente, email, producto, título…)</label>
+      <input type="text" class="form-control" id="buscar" name="buscar" value="{{ f.buscar }}" placeholder="Texto opcional en varias tablas">
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <h2 class="h5 text-white mb-3"><i class="bi bi-sliders me-2"></i>Filtros por tipo</h2>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="estado_pedido">Estado pedido</label>
+      <select class="form-select" id="estado_pedido" name="estado_pedido">
+        <option value="">Todos</option>
+        {% for e in estados_pedido %}
+        <option value="{{ e }}" {% if f.estado_pedido == e %}selected{% endif %}>{{ e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="estado_pago">Estado pago</label>
+      <select class="form-select" id="estado_pago" name="estado_pago">
+        <option value="">Todos</option>
+        {% for e in estados_pago %}
+        <option value="{{ e }}" {% if f.estado_pago == e %}selected{% endif %}>{{ e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="estado_reserva">Estado reserva</label>
+      <select class="form-select" id="estado_reserva" name="estado_reserva">
+        <option value="">Todos</option>
+        {% for e in estados_reserva %}
+        <option value="{{ e }}" {% if f.estado_reserva == e %}selected{% endif %}>{{ e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label" for="estado_mesa">Estado mesa</label>
+      <select class="form-select" id="estado_mesa" name="estado_mesa">
+        <option value="">Todos</option>
+        {% for e in estados_mesa %}
+        <option value="{{ e }}" {% if f.estado_mesa == e %}selected{% endif %}>{{ e }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="categoria_id">Categoría (productos)</label>
+      <select class="form-select" id="categoria_id" name="categoria_id">
+        <option value="">Todas</option>
+        {% for c in categorias %}
+        <option value="{{ c.id_categoria }}" {% if f.categoria_id == c.id_categoria|stringformat:"s" %}selected{% endif %}>{{ c.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="rol_id">Rol (usuarios)</label>
+      <select class="form-select" id="rol_id" name="rol_id">
+        <option value="">Todos</option>
+        {% for r in roles %}
+        <option value="{{ r.id_rol }}" {% if f.rol_id == r.id_rol|stringformat:"s" %}selected{% endif %}>{{ r.nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label" for="mesas_modo">Mesas</label>
+      <select class="form-select" id="mesas_modo" name="mesas_modo">
+        <option value="todas" {% if f.mesas_modo == 'todas' %}selected{% endif %}>Todas (solo filtro de estado)</option>
+        <option value="creadas" {% if f.mesas_modo == 'creadas' %}selected{% endif %}>Solo creadas en el periodo</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12">
+      <h2 class="h5 text-white mb-3"><i class="bi bi-check2-square me-2"></i>Incluir en el PDF</h2>
+      <p class="text-muted small">Marca las secciones que quieres exportar. Pulsa <strong>Aplicar filtros</strong> para actualizar la vista previa.</p>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_pedidos" value="1" id="incl_pedidos" {% if f.secciones.pedidos %}checked{% endif %}>
+        <label class="form-check-label" for="incl_pedidos">Pedidos</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_pagos" value="1" id="incl_pagos" {% if f.secciones.pagos %}checked{% endif %}>
+        <label class="form-check-label" for="incl_pagos">Pagos</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_reservas" value="1" id="incl_reservas" {% if f.secciones.reservas %}checked{% endif %}>
+        <label class="form-check-label" for="incl_reservas">Reservas</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_mesas" value="1" id="incl_mesas" {% if f.secciones.mesas %}checked{% endif %}>
+        <label class="form-check-label" for="incl_mesas">Mesas</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_usuarios" value="1" id="incl_usuarios" {% if f.secciones.usuarios %}checked{% endif %}>
+        <label class="form-check-label" for="incl_usuarios">Usuarios</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_productos" value="1" id="incl_productos" {% if f.secciones.productos %}checked{% endif %}>
+        <label class="form-check-label" for="incl_productos">Productos</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_noticias" value="1" id="incl_noticias" {% if f.secciones.noticias %}checked{% endif %}>
+        <label class="form-check-label" for="incl_noticias">Noticias</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_horarios" value="1" id="incl_horarios" {% if f.secciones.horarios %}checked{% endif %}>
+        <label class="form-check-label" for="incl_horarios">Horarios</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_inventario" value="1" id="incl_inventario" {% if f.secciones.inventario %}checked{% endif %}>
+        <label class="form-check-label" for="incl_inventario">Inventario</label>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="incl_promociones" value="1" id="incl_promociones" {% if f.secciones.promociones %}checked{% endif %}>
+        <label class="form-check-label" for="incl_promociones">Promociones</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Aplicar filtros</button>
+    <a href="{% url 'reportes_admin' %}" class="btn btn-outline-light">Limpiar</a>
+  </div>
+</form>
+
+<div class="content-section">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="h5 text-white mb-0"><i class="bi bi-table me-2"></i>Vista previa (resumen)</h2>
+    <a href="{% url 'reportes_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-sm btn-warning text-dark fw-semibold"><i class="bi bi-download me-1"></i>PDF con estos filtros</a>
+  </div>
+  <div class="row g-2 text-white-50 small mb-3">
+    <div class="col-md-6">Periodo: <strong class="text-white">{{ f.fecha_desde|date:"d/m/Y" }}</strong> — <strong class="text-white">{{ f.fecha_hasta|date:"d/m/Y" }}</strong></div>
+    <div class="col-md-6">Totales pedidos (S/): <strong class="text-warning">{{ report.total_pedidos_monto|money }}</strong> · Pagos (S/): <strong class="text-warning">{{ report.total_pagos_monto|money }}</strong></div>
+  </div>
+  <div class="row g-3">
+    {% if f.secciones.pedidos %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Pedidos</strong>: {{ report.pedidos_count }} registro(s)</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.pagos %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Pagos</strong>: {{ report.pagos_count }}</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.reservas %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Reservas</strong>: {{ report.reservas_count }}</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.mesas %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Mesas</strong>: {{ report.mesas_count }}</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.usuarios %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Usuarios</strong>: {{ report.usuarios_count }}</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.productos %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Productos</strong>: {{ report.productos_count }}</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.noticias %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Noticias</strong>: {{ report.noticias_count }}</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.horarios %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Horarios</strong>: {{ report.horarios_count }}</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.inventario %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Inventario</strong>: {{ report.inventario_count }}</div>
+    </div>
+    {% endif %}
+    {% if f.secciones.promociones %}
+    <div class="col-md-6">
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Promociones</strong>: {{ report.promociones_count }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

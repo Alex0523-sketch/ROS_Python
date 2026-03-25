@@ -1,14 +1,15 @@
 from users.domain.entities.noticia import Noticia
+from users.domain.repositories.noticia_repository import NoticiaRepository
 from users.infrastructure.models.noticia_model import NoticiaModel
 
 
-class NoticiaRepositoryImpl:
+class NoticiaRepositoryImpl(NoticiaRepository):
 
     def _to_entity(self, model: NoticiaModel) -> Noticia:
         return Noticia(
-            id=model.id,
             titulo=model.titulo,
             contenido=model.contenido,
+            id=model.id,
             imagen=model.imagen,
             fecha_publicacion=model.fecha_publicacion,
             fecha_actualizacion=model.fecha_actualizacion,

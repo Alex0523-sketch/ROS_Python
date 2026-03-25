@@ -1,18 +1,19 @@
 from users.domain.entities.promocion import Promocion
+from users.domain.repositories.promocion_repository import PromocionRepository
 from users.infrastructure.models.promocion_model import PromocionModel
 
 
-class PromocionRepositoryImpl:
+class PromocionRepositoryImpl(PromocionRepository):
 
     def _to_entity(self, model: PromocionModel) -> Promocion:
         return Promocion(
-            id_promocion=model.id_promocion,
             titulo=model.titulo,
-            descripcion=model.descripcion,
-            imagen_url=model.imagen_url,
             descuento=model.descuento,
             fecha_inicio=model.fecha_inicio,
             fecha_fin=model.fecha_fin,
+            id_promocion=model.id_promocion,
+            descripcion=model.descripcion,
+            imagen_url=model.imagen_url,
             productos=list(model.productos.values_list('id_producto', flat=True)),
             created_at=model.created_at,
             updated_at=model.updated_at,

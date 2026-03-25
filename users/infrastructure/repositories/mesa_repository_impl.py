@@ -1,15 +1,16 @@
 from users.domain.entities.mesa import Mesa
+from users.domain.repositories.mesa_repository import MesaRepository
 from users.infrastructure.models.mesa_model import MesaModel
 
 
-class MesaRepositoryImpl:
+class MesaRepositoryImpl(MesaRepository):
 
     def _to_entity(self, model: MesaModel) -> Mesa:
         return Mesa(
-            id_mesa=model.id_mesa,
             numero_mesa=model.numero_mesa,
             capacidad=model.capacidad,
             estado=model.estado,
+            id_mesa=model.id_mesa,
             ubicacion=model.ubicacion,
             fecha_creacion=model.fecha_creacion,
         )

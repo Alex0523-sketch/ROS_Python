@@ -1,8 +1,9 @@
 from users.domain.entities.rol import Rol
+from users.domain.repositories.rol_repository import RolRepository
 from users.infrastructure.models.rol_model import RolModel
 
 
-class RolRepositoryImpl:
+class RolRepositoryImpl(RolRepository):
 
     def _to_entity(self, model: RolModel) -> Rol:
         return Rol(

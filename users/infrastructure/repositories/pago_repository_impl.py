@@ -1,17 +1,18 @@
 from users.domain.entities.pago import Pago
+from users.domain.repositories.pago_repository import PagoRepository
 from users.infrastructure.models.pago_model import PagoModel
 
 
-class PagoRepositoryImpl:
+class PagoRepositoryImpl(PagoRepository):
 
     def _to_entity(self, model: PagoModel) -> Pago:
         return Pago(
-            id=model.id,
-            pedido_id=model.pedido_id,
-            user_id=model.user_id,
             metodo_pago=model.metodo_pago,
             monto_total=model.monto_total,
             estado=model.estado,
+            pedido_id=model.pedido_id,
+            id=model.id,
+            user_id=model.user_id,
             fecha_pago=model.fecha_pago,
             fecha_creacion=model.fecha_creacion,
             fecha_actualizacion=model.fecha_actualizacion,

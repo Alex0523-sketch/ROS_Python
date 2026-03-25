@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from users.domain.entities.noticia import Noticia
 
 class CrearNoticiaUseCase:
@@ -9,7 +9,8 @@ class CrearNoticiaUseCase:
         if not titulo or not contenido:
             raise ValueError('Título y contenido son obligatorios')
 
-        noticia = Noticia(titulo=titulo, contenido=contenido, imagen=imagen, fecha_publicacion=fecha_publicacion or datetime.now())
+        fecha_pub = fecha_publicacion if fecha_publicacion is not None else date.today()
+        noticia = Noticia(titulo=titulo, contenido=contenido, imagen=imagen, fecha_publicacion=fecha_pub)
         return self.noticia_repository.create(noticia)
 
 
@@ -67,7 +68,7 @@ class ActualizarNoticiaUseCase:
         noticia.imagen = imagen if imagen is not None else noticia.imagen
         noticia.fecha_publicacion = fecha_publicacion or noticia.fecha_publicacion
 
-        return self.noticia_repository.update(noticia)
+        return self.noticia_repository.update(noticia_id, noticia)
 
 
 class EliminarNoticiaUseCase:

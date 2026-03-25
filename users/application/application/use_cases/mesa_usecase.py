@@ -55,7 +55,7 @@ class ActualizarMesaUseCase:
         mesa.estado = estado if estado is not None else mesa.estado
         mesa.ubicacion = ubicacion if ubicacion is not None else mesa.ubicacion
 
-        return self.mesa_repository.update(mesa)
+        return self.mesa_repository.update(mesa_id, mesa)
 
 
 class EliminarMesaUseCase:

@@ -1,14 +1,15 @@
 from users.domain.entities.detalle_pago import DetallePago
+from users.domain.repositories.detalle_pago_repository import DetallePagoRepository
 from users.infrastructure.models.detalle_pago_model import DetallePagoModel
 
 
-class DetallePagoRepositoryImpl:
+class DetallePagoRepositoryImpl(DetallePagoRepository):
 
     def _to_entity(self, model: DetallePagoModel) -> DetallePago:
         return DetallePago(
-            id=model.id,
             pago_id=model.pago_id,
             monto=model.monto,
+            id=model.id,
             descripcion=model.descripcion,
             fecha_creacion=model.fecha_creacion,
             fecha_actualizacion=model.fecha_actualizacion,

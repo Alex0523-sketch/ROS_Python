@@ -46,7 +46,7 @@ class ActualizarCategoriaUseCase:
         categoria.descripcion = descripcion if descripcion is not None else categoria.descripcion
 
         if hasattr(self.categoria_repository, 'update'):
-            return self.categoria_repository.update(categoria)
+            return self.categoria_repository.update(categoria_id, categoria)
         raise AttributeError('Repositorio no soporta update')
 
 

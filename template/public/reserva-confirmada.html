@@ -1,78 +1,60 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reserva Confirmada - OLLA Y Sazón</title>
+    <title>Reserva confirmada — OLLA Y Sazón</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link th:href="@{/css/public-style.css}" rel="stylesheet">
+    <link href="{% static 'css/public-style.css' %}" rel="stylesheet">
 </head>
-<body class="wrapper">
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">
-                <i class="fas fa-utensils me-2"></i>OLLA Y Sazón
-            </a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/menu">Menú</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/reserva">Reservas</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<body class="wrapper typography-public reserva-confirmada-page">
+    {% include 'public/partials/nav_public.html' %}
 
     <div class="content">
-        <section class="py-5" style="padding-top: 120px;">
-            <div class="container">
+        <section class="reserva-confirmada-hero">
+            <div class="reserva-confirmada-hero__glow" aria-hidden="true"></div>
+            <div class="container py-5">
                 <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-body text-center py-5">
-                                <div class="mb-4">
-                                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
-                                </div>
-                                <h2 class="text-success mb-3">¡Reserva Confirmada!</h2>
-                                
-                                <div th:if="${mensaje}" class="alert alert-success">
-                                    <span th:text="${mensaje}"></span>
-                                </div>
-                                
-                                <p class="lead mb-4">
-                                    Tu reserva ha sido registrada exitosamente. 
-                                    Nos pondremos en contacto contigo pronto para confirmar todos los detalles.
-                                </p>
-                                
-                                <div class="row mt-4">
-                                    <div class="col-md-6 mb-3">
-                                        <a href="/menu" class="btn btn-primary w-100">
-                                            <i class="fas fa-utensils me-2"></i>Ver Menú
-                                        </a>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <a href="/" class="btn btn-outline-primary w-100">
-                                            <i class="fas fa-home me-2"></i>Volver al Inicio
-                                        </a>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 p-3 bg-light rounded">
-                                    <h6><i class="fas fa-info-circle me-2"></i>Información Importante</h6>
-                                    <small class="text-muted">
-                                        • Te contactaremos dentro de las próximas 2 horas<br>
-                                        • Confirmaremos disponibilidad y detalles de tu reserva<br>
-                                        • Si tienes alguna pregunta, llámanos al +57 (1) 234-5678
-                                    </small>
-                                </div>
+                    <div class="col-lg-8 col-xl-7">
+                        <div class="reserva-confirmada-card">
+                            <div class="reserva-confirmada-card__icon" aria-hidden="true">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <h1 class="reserva-confirmada-card__title">¡Reserva confirmada!</h1>
+                            <p class="reserva-confirmada-card__subtitle">
+                                Tu mesa quedó registrada. Te enviaremos la confirmación con los detalles.
+                            </p>
+
+                            {% if codigo %}
+                            <div class="reserva-confirmada-code">
+                                <span class="reserva-confirmada-code__label">Código de reserva</span>
+                                <span class="reserva-confirmada-code__value">{{ codigo }}</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="reserva-confirmada-actions">
+                                <a href="{% url 'menu' %}" class="btn reserva-confirmada-btn reserva-confirmada-btn--primary">
+                                    <i class="fas fa-utensils me-2"></i>Ver menú
+                                </a>
+                                <a href="{% url 'index' %}" class="btn reserva-confirmada-btn reserva-confirmada-btn--ghost">
+                                    <i class="fas fa-home me-2"></i>Volver al inicio
+                                </a>
+                            </div>
+
+                            <div class="reserva-confirmada-info">
+                                <h2 class="reserva-confirmada-info__title">
+                                    <i class="fas fa-circle-info me-2" aria-hidden="true"></i>Información importante
+                                </h2>
+                                <ul class="reserva-confirmada-info__list">
+                                    <li>Te contactaremos en las próximas <strong>2 horas</strong> en horario laboral.</li>
+                                    <li>Confirmaremos disponibilidad y cualquier detalle de tu reserva.</li>
+                                    <li>¿Dudas? Llámanos al <a href="tel:+5712345678">+57 (1) 234-5678</a>.</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -81,12 +63,7 @@
         </section>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-4">
-        <div class="container text-center">
-            <p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+    {% include 'public/partials/footer_public.html' with footer_mode='minimal' footer_extra_class='reserva-confirmada-footer' %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -5,75 +5,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OLLA Y Sazón - Restaurante</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="{% static 'css/public-style.css' %}" rel="stylesheet">
 </head>
-<body class="wrapper">
-    <!-- Header -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/"><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/menu">Menú</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/reserva">Reservas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/public/noticias">Noticias</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/login/">Iniciar Sesión</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<body class="wrapper typography-public hero-landing">
+    {% include 'public/partials/nav_public.html' %}
 
     <div class="content">
         <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="container-fluid">
-                <div class="row align-items-center min-vh-100 justify-content-center">
-                    <!-- Cuadrado Izquierdo -->
-                    <div class="col-lg-2 col-md-4">
-                        <div class="feature-square left-square">
-                            <div class="square-icon"><i class="fas fa-percent"></i></div>
-                            <h3>Promoción del Día</h3>
-                            {% if promocion_del_dia %}
-                            <p>{{ promocion_del_dia.titulo|truncatechars:30 }}</p>
-                            <span class="price">-{{ promocion_del_dia.descuento }}%</span>
+        <section class="hero-section hero-section--premium">
+            <div class="hero-section__vignette" aria-hidden="true"></div>
+            <div class="container-fluid hero-section__content">
+                <div class="row align-items-stretch min-vh-100 justify-content-center g-3 g-lg-4 py-4 py-lg-0 hero-panels-row">
+                    <!-- Panel promoción -->
+                    <div class="col-12 col-md-6 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-lg-end">
+                        <div class="feature-square feature-square--promo feature-square--balanced left-square{% if promocion_del_dia and promocion_del_dia.imagen_url %} feature-square--has-promo-img{% endif %}">
+                            {% if promocion_del_dia and promocion_del_dia.imagen_url %}
+                            <div class="hero-promo-image" aria-hidden="true">
+                                <img src="{{ promocion_del_dia.imagen_url }}" alt="{{ promocion_del_dia.titulo }}">
+                            </div>
                             {% else %}
-                            <p>No hay promociones disponibles</p>
-                            <span class="price">-</span>
+                            <div class="square-icon square-icon--sm"><i class="fas fa-percent"></i></div>
                             {% endif %}
-                            <a href="/menu" class="btn btn-outline-dark mt-3">Ver Menú</a>
+                            <div class="feature-square__body">
+                                <p class="feature-square__eyebrow">Hoy</p>
+                                <h3 class="feature-square__title">Promoción del día</h3>
+                                {% if promocion_del_dia %}
+                                <p class="feature-square__text">{{ promocion_del_dia.titulo|truncatechars:34 }}</p>
+                                {% if promocion_del_dia.descuento >= 100 %}
+                                <span class="price price--special">Oferta especial</span>
+                                {% else %}
+                                <span class="price"><span class="price__value">-{{ promocion_del_dia.descuento|money:0 }}</span><span class="price__unit">%</span></span>
+                                {% endif %}
+                                {% else %}
+                                <p class="feature-square__text text-white-50">Pronto nuevas ofertas</p>
+                                <span class="price price--muted">—</span>
+                                {% endif %}
+                            </div>
+                            <div class="feature-square__footer">
+                                <a href="{% url 'menu' %}" class="btn btn-outline-dark w-100">Ver menú</a>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Círculo Central -->
-                    <div class="col-lg-6 col-md-4">
-                        <div class="hero-circle">
+                    <!-- Círculo central -->
+                    <div class="col-12 col-md-10 col-lg-6 col-xl-5 d-flex align-items-center justify-content-center order-first order-lg-0">
+                        <div class="hero-circle hero-circle--premium">
+                            <div class="hero-circle__ring" aria-hidden="true"></div>
                             <div class="circle-content">
+                                <p class="hero-kicker">Restaurante · Cocina tradicional</p>
                                 <h1 class="restaurant-name">OLLA Y Sazón</h1>
                                 <p class="restaurant-subtitle">Sabores auténticos que conquistan</p>
                                 <div class="circle-buttons">
-                                    <a href="/menu" class="btn btn-warning btn-lg me-3">Ver Menú</a>
-                                    <a href="/reserva" class="btn btn-outline-light btn-lg">Reservar</a>
+                                    <a href="{% url 'menu' %}" class="btn btn-warning btn-lg">Ver menú</a>
+                                    <a href="{% url 'reserva' %}" class="btn btn-outline-light btn-lg">Reservar mesa</a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Cuadrado Derecho -->
-                    <div class="col-lg-2 col-md-4">
-                        <a href="/reserva" style="text-decoration: none; color: inherit;">
-                            <div class="feature-square right-square">
-                                <div class="square-icon"><i class="fas fa-calendar-alt"></i></div>
-                                <h3>Reserva tu Mesa</h3>
-                                <p>Ambiente acogedor para toda la familia</p>
-                                <span class="price">Gratis</span>
+                    <!-- Panel reserva -->
+                    <div class="col-12 col-md-6 col-lg-3 col-xl-2 d-flex justify-content-center justify-content-lg-start">
+                        <div class="feature-square feature-square--right feature-square--balanced right-square">
+                            <div class="square-icon square-icon--sm"><i class="fas fa-calendar-check"></i></div>
+                            <div class="feature-square__body">
+                                <p class="feature-square__eyebrow">Reservas</p>
+                                <h3 class="feature-square__title">Tu mesa</h3>
+                                <p class="feature-square__text">Ambiente acogedor para compartir en familia o con amigos.</p>
+                                <span class="price price--muted">Sin costo de reserva</span>
                             </div>
-                        </a>
+                            <div class="feature-square__footer">
+                                <a href="{% url 'reserva' %}" class="btn btn-outline-dark w-100">Reservar</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -82,24 +90,31 @@
         <!-- Promociones Section -->
         <section class="promociones-section py-5">
             <div class="container">
-                <h2 class="text-center mb-5">Nuestras Promociones</h2>
-                <div class="row">
+                <header class="promociones-section__header text-center mb-4 mb-lg-5">
+                    <h2 class="promociones-section__title">Nuestras Promociones</h2>
+                    <p class="promociones-section__lead">Ofertas y combos para disfrutar en familia o con amigos.</p>
+                </header>
+                <div class="row justify-content-center g-4 promociones-section__row">
                     {% for promocion in promociones %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="promo-card">
+                    <div class="col-lg-4 col-md-6">
+                        <article class="promo-card">
                             <div class="promo-image">
                                 {% if promocion.imagen_url %}
                                 <img src="{{ promocion.imagen_url }}" alt="{{ promocion.titulo }}">
                                 {% else %}
-                                <i class="fas fa-percent"></i>
+                                <i class="fas fa-percent" aria-hidden="true"></i>
                                 {% endif %}
                             </div>
                             <div class="promo-content">
-                                <h4>{{ promocion.titulo }}</h4>
-                                <p>{{ promocion.descripcion }}</p>
-                                <span class="promo-badge">-{{ promocion.descuento }}%</span>
+                                <h3 class="promo-content__title">{{ promocion.titulo }}</h3>
+                                <p class="promo-content__desc">{{ promocion.descripcion|truncatechars:140 }}</p>
+                                {% if promocion.descuento >= 100 %}
+                                <span class="promo-badge">Oferta especial</span>
+                                {% else %}
+                                <span class="promo-badge">-{{ promocion.descuento|money:0 }}%</span>
+                                {% endif %}
                             </div>
-                        </div>
+                        </article>
                     </div>
                     {% empty %}
                     <div class="col-12 text-center">
@@ -113,23 +128,41 @@
         </section>
 
         <!-- Noticias Section -->
-        <section class="eventos-section py-5" style="background: #FFF8ED;">
+        <section class="eventos-section py-5">
             <div class="container">
-                <h2 class="text-center mb-5">Noticias y Eventos</h2>
-                <div class="row">
+                <header class="eventos-section__header text-center mb-4 mb-lg-5">
+                    <h2 class="eventos-section__title">Noticias y Eventos</h2>
+                    <p class="eventos-section__lead">Novedades del restaurante y fechas que no querrás perderte.</p>
+                </header>
+                <div class="row justify-content-center g-4">
                     {% for noticia in noticias %}
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="evento-card">
-                            <div class="evento-date">
-                                <span class="day">{{ noticia.fecha_publicacion|date:"d" }}</span>
-                                <span class="month">{{ noticia.fecha_publicacion|date:"M"|upper }}</span>
+                    <div class="col-lg-4 col-md-6">
+                        <article class="evento-card{% if noticia.imagen %} evento-card--stacked{% endif %}">
+                            {% if noticia.imagen %}
+                            <div class="evento-card__image">
+                                <img src="{{ noticia.imagen }}" alt="{{ noticia.titulo }}">
                             </div>
-                            <div class="evento-content">
-                                <h4>{{ noticia.titulo }}</h4>
-                                <p><i class="fas fa-calendar me-2"></i>{{ noticia.fecha_publicacion|date:"d/m/Y" }}</p>
-                                <p>{{ noticia.contenido|truncatechars:80 }}</p>
+                            {% endif %}
+                            <div class="evento-card__row">
+                                <div class="evento-date" aria-hidden="true">
+                                    {% if noticia.fecha_publicacion %}
+                                    <span class="day">{{ noticia.fecha_publicacion|date:"d" }}</span>
+                                    <span class="month">{{ noticia.fecha_publicacion|date:"M"|upper }}</span>
+                                    {% else %}
+                                    <span class="day">—</span>
+                                    <span class="month">N/D</span>
+                                    {% endif %}
+                                </div>
+                                <div class="evento-content">
+                                    <h3 class="evento-content__title">{{ noticia.titulo }}</h3>
+                                    <p class="evento-content__meta">
+                                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                                        {% if noticia.fecha_publicacion %}{{ noticia.fecha_publicacion|date:"d/m/Y" }}{% else %}Sin fecha{% endif %}
+                                    </p>
+                                    <p class="evento-content__excerpt">{{ noticia.contenido|truncatechars:120 }}</p>
+                                </div>
                             </div>
-                        </div>
+                        </article>
                     </div>
                     {% empty %}
                     <div class="col-12 text-center">
@@ -140,9 +173,9 @@
                     {% endfor %}
                 </div>
                 {% if noticias %}
-                <div class="text-center mt-4">
-                    <a href="/public/noticias" class="btn btn-primary">
-                        <i class="fas fa-newspaper me-2"></i>Ver todas las noticias
+                <div class="text-center mt-4 mt-lg-5">
+                    <a href="{% url 'noticias' %}" class="btn eventos-section__cta">
+                        <i class="fas fa-newspaper me-2" aria-hidden="true"></i>Ver todas las noticias
                     </a>
                 </div>
                 {% endif %}
@@ -150,38 +183,7 @@
         </section>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</h5>
-                    <p>Restaurante de comida tradicional colombiana con más de 15 años de experiencia.</p>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <h5>Contacto</h5>
-                    <p><i class="fas fa-map-marker-alt me-2"></i>Calle 45 #23-67, Bogotá, Colombia</p>
-                    <p><i class="fas fa-phone me-2"></i>+57 (1) 234-5678</p>
-                    <p><i class="fas fa-envelope me-2"></i>info@ollaysazon.com</p>
-                </div>
-                <div class="col-lg-4 mb-4">
-                    <h5>Horarios</h5>
-                    <p><i class="fas fa-clock me-2"></i>Lunes a Viernes: 11:00 AM - 10:00 PM</p>
-                    <p><i class="fas fa-clock me-2"></i>Sábados: 12:00 PM - 11:00 PM</p>
-                    <p><i class="fas fa-clock me-2"></i>Domingos: 12:00 PM - 9:00 PM</p>
-                </div>
-            </div>
-            <hr class="my-4">
-            <div class="row align-items-center">
-                <div class="col-md-6"><p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p></div>
-                <div class="col-md-6 text-md-end">
-                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    {% include 'public/partials/footer_public.html' %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

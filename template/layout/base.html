@@ -4,6 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private">
+  <meta http-equiv="Pragma" content="no-cache">
   <title>{% block title %}Panel{% endblock %}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
@@ -20,39 +22,45 @@
     </div>
     <div class="list-group list-group-flush">
 
-      {% if user.is_authenticated %}
+      {% if user.is_authenticated and user.rol %}
         {% with rol=user.rol.nombre %}
 
-          {% if rol == 'ADMINISTRADOR' %}
+          {% if rol == 'ADMINISTRADOR' or rol == 'ADMIN' %}
+            <div class="px-3 py-2"><small class="text-muted text-uppercase fw-bold">Dashboard</small></div>
+            <a href="{% url 'admin_dashboard' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-speedometer2 me-2"></i>Inicio</a>
             <div class="px-3 py-2"><small class="text-muted text-uppercase fw-bold">Gestión</small></div>
-            <a href="/users" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-people-fill me-2"></i>Usuarios</a>
+            <a href="{% url 'admin_users' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-people-fill me-2"></i>Usuarios</a>
+            <a href="{% url 'admin_empleados' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-person-badge me-2"></i>Empleados</a>
             <div class="px-3 py-2 mt-2"><small class="text-muted text-uppercase fw-bold">Catálogo</small></div>
-            <a href="/categorias" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-tags me-2"></i>Categorías</a>
-            <a href="/productos" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-box me-2"></i>Productos</a>
-            <a href="/promociones" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-percent me-2"></i>Promociones</a>
-            <a href="/inventario" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-boxes me-2"></i>Inventario</a>
+            <a href="{% url 'admin_categorias' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-tags me-2"></i>Categorías</a>
+            <a href="{% url 'admin_productos' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-box me-2"></i>Productos</a>
+            <a href="{% url 'admin_promociones' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-percent me-2"></i>Promociones</a>
+            <a href="{% url 'admin_inventario' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-boxes me-2"></i>Inventario</a>
             <div class="px-3 py-2 mt-2"><small class="text-muted text-uppercase fw-bold">Operaciones</small></div>
-            <a href="/mesas" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-table me-2"></i>Mesas</a>
-            <a href="/reservas" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-calendar-check me-2"></i>Reservas</a>
-            <a href="/pedidos" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-cart me-2"></i>Pedidos</a>
-            <a href="/pagos" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-credit-card me-2"></i>Pagos</a>
-            <a href="/horarios" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-clock me-2"></i>Horarios</a>
-            <a href="/noticias" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-newspaper me-2"></i>Noticias</a>
+            <a href="{% url 'admin_mesas' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-table me-2"></i>Mesas</a>
+            <a href="{% url 'admin_reservas' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-calendar-check me-2"></i>Reservas</a>
+            <a href="{% url 'admin_pedidos' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-cart me-2"></i>Pedidos</a>
+            <a href="{% url 'admin_pagos' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-credit-card me-2"></i>Pagos</a>
+            <a href="{% url 'admin_horarios' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-clock me-2"></i>Horarios</a>
+            <a href="{% url 'noticias' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-newspaper me-2"></i>Noticias (sitio)</a>
+            <a href="{% url 'admin_noticia_nuevo' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-plus-circle me-2"></i>Nueva noticia</a>
             <div class="px-3 py-2 mt-2"><small class="text-muted text-uppercase fw-bold">Reportes</small></div>
-            <a href="/admin/reportes" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-graph-up me-2"></i>Reportes</a>
+            <a href="{% url 'reportes_admin' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-graph-up me-2"></i>Reportes</a>
 
           {% elif rol == 'CLIENTE' %}
-            <div class="px-3 py-2"><small class="text-muted text-uppercase fw-bold">Mi Cuenta</small></div>
-            <a href="/mi-perfil" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-person-circle me-2"></i>Mi Perfil</a>
-            <div class="px-3 py-2 mt-2"><small class="text-muted text-uppercase fw-bold">Mis Servicios</small></div>
-            <a href="/mis-pedidos" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-cart me-2"></i>Mis Pedidos</a>
-            <a href="/mis-reservas" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-calendar-check me-2"></i>Mis Reservas</a>
-            <a href="/mis-pagos" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-credit-card me-2"></i>Mis Pagos</a>
+            <div class="px-3 py-2"><small class="text-muted text-uppercase fw-bold">Mi cuenta</small></div>
+            <a href="{% url 'mi_perfil' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-speedometer2 me-2"></i>Resumen</a>
+            <a href="{% url 'mi_perfil' %}#pedidos" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-cart me-2"></i>Mis pedidos</a>
+            <a href="{% url 'mi_perfil' %}#reservas" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-calendar-check me-2"></i>Mis reservas</a>
+            <div class="px-3 py-2 mt-2"><small class="text-muted text-uppercase fw-bold">Sitio</small></div>
+            <a href="{% url 'index' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-house me-2"></i>Inicio web</a>
+            <a href="{% url 'menu' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-menu-button-wide me-2"></i>Menú</a>
+            <a href="{% url 'carrito' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-basket me-2"></i>Carrito</a>
 
           {% elif rol == 'EMPLEADO' %}
             <div class="px-3 py-2"><small class="text-muted text-uppercase fw-bold">Mi Trabajo</small></div>
-            <a href="/mi-horario" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-clock me-2"></i>Mi Horario</a>
-            <a href="/pedidos-asignados" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-cart-check me-2"></i>Pedidos Asignados</a>
+            <a href="{% url 'mi_horario' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-clock me-2"></i>Mi Horario</a>
+            <a href="{% url 'pedidos_asignados' %}" class="list-group-item list-group-item-action bg-dark text-white"><i class="bi bi-cart-check me-2"></i>Pedidos Asignados</a>
           {% endif %}
 
         {% endwith %}
@@ -65,19 +73,19 @@
   <div id="page-content-wrapper" class="w-100">
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg bg-light border-bottom">
+    <nav class="navbar navbar-expand-lg navbar-dark border-bottom panel-top-navbar">
       <div class="container-fluid">
         <button class="btn btn-primary" id="menu-toggle"><i class="bi bi-list"></i></button>
         <span class="navbar-text ms-3"><small>{% block page_title %}Panel{% endblock %}</small></span>
         <div class="ms-auto d-flex align-items-center">
           <div class="dropdown me-3">
             <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-              <i class="bi bi-person-circle me-1"></i>{{ user.username }}
+              <i class="bi bi-person-circle me-1"></i>{{ user.get_username }}
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
               <li><h6 class="dropdown-header">Cuenta</h6></li>
-              {% if user.rol.nombre == 'CLIENTE' %}
-              <li><a class="dropdown-item" href="/mi-perfil"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
+              {% if user.rol and user.rol.nombre == 'CLIENTE' %}
+              <li><a class="dropdown-item" href="{% url 'mi_perfil' %}"><i class="bi bi-person me-2"></i>Mi panel</a></li>
               {% endif %}
               <li><hr class="dropdown-divider"></li>
               <li>
@@ -96,6 +104,16 @@
 
     <!-- BODY -->
     <div class="container-fluid mt-4">
+      {% if messages %}
+      <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert {% if 'error' in message.tags %}alert-danger{% elif 'success' in message.tags %}alert-success{% elif 'warning' in message.tags %}alert-warning{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
       {% block content %}{% endblock %}
       {% include 'fragments/footer.html' %}
     </div>
@@ -107,6 +125,24 @@
   document.getElementById('menu-toggle').addEventListener('click', function(e) {
     e.preventDefault();
     document.getElementById('wrapper').classList.toggle('toggled');
+  });
+  /* bfcache (persisted) y caché HTTP al usar «Atrás»: sin recargar, el navegador puede mostrar el panel viejo aunque la sesión ya se cerró. */
+  window.addEventListener('pageshow', function(event) {
+    var backForward = false;
+    try {
+      var nav = performance.getEntriesByType('navigation')[0];
+      if (nav && nav.type === 'back_forward') {
+        backForward = true;
+      }
+    } catch (e) {}
+    if (!backForward && window.performance && window.performance.navigation) {
+      try {
+        backForward = window.performance.navigation.type === 2;
+      } catch (e2) {}
+    }
+    if (event.persisted || backForward) {
+      window.location.reload();
+    }
   });
 </script>
 {% block extra_js %}{% endblock %}

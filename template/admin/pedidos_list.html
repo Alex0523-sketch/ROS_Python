@@ -1,0 +1,88 @@
+{% extends 'layout/base.html' %}
+{% block title %}Pedidos{% endblock %}
+{% block page_title %}Pedidos{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1 class="panel-page-title mb-0"><i class="bi bi-cart me-2"></i>Pedidos</h1>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{% url 'admin_pedido_nuevo' %}" class="btn btn-warning text-dark fw-semibold btn-sm"><i class="bi bi-plus-lg me-1"></i>Nuevo pedido</a>
+      <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
+    </div>
+  </div>
+  <p class="text-white-50 small mb-0 mt-2">Actualiza el estado de cada pedido (misma lógica que en cocina/servicio).</p>
+</div>
+<div class="content-section">
+  <div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Mesa</th>
+          <th>Cliente</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Fecha</th>
+          <th class="text-end">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pedidos %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td>{{ p.numero_mesa|default:"—" }}</td>
+          <td>
+            {% if p.user %}{{ p.user.nombre }} {{ p.user.apellido }}{% elif p.cliente_nombre %}{{ p.cliente_nombre }}{% else %}—{% endif %}
+          </td>
+          <td>$ {{ p.total|money }}</td>
+          <td>
+            {% if p.estado == 'PENDIENTE' %}
+            <span class="badge bg-warning text-dark">{{ p.estado }}</span>
+            {% elif p.estado == 'EN_PREPARACION' %}
+            <span class="badge bg-info text-dark">{{ p.estado }}</span>
+            {% elif p.estado == 'LISTO' %}
+            <span class="badge bg-primary">{{ p.estado }}</span>
+            {% elif p.estado == 'ENTREGADO' %}
+            <span class="badge bg-success">{{ p.estado }}</span>
+            {% elif p.estado == 'CANCELADO' %}
+            <span class="badge bg-secondary">{{ p.estado }}</span>
+            {% else %}
+            <span class="badge bg-warning text-dark">{{ p.estado }}</span>
+            {% endif %}
+          </td>
+          <td>{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
+          <td class="text-end">
+            {% if p.allowed_next %}
+            <div class="d-flex flex-wrap justify-content-end gap-1">
+              {% for next in p.allowed_next %}
+              <form method="post" class="d-inline">
+                {% csrf_token %}
+                <input type="hidden" name="pedido_id" value="{{ p.id }}">
+                <input type="hidden" name="nuevo_estado" value="{{ next }}">
+                {% if next == 'EN_PREPARACION' %}
+                <button type="submit" class="btn btn-sm btn-success">A preparación</button>
+                {% elif next == 'LISTO' %}
+                <button type="submit" class="btn btn-sm btn-primary">Listo</button>
+                {% elif next == 'ENTREGADO' %}
+                <button type="submit" class="btn btn-sm btn-success">Entregado</button>
+                {% elif next == 'CANCELADO' %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">Cancelar</button>
+                {% else %}
+                <button type="submit" class="btn btn-sm btn-outline-light">{{ next }}</button>
+                {% endif %}
+              </form>
+              {% endfor %}
+            </div>
+            {% else %}
+            <span class="text-muted small">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No hay pedidos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

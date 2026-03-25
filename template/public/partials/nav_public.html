@@ -1,0 +1,78 @@
+{% load static %}
+{# Navbar sitio público: enlaces según sesión y rol. Requiere request (context processor auth). #}
+{% with name=request.resolver_match.url_name|default:'' %}
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top public-navbar {{ nav_extra_class|default:'' }}">
+    <div class="container public-navbar__container">
+        <a class="navbar-brand public-navbar__brand" href="{% url 'index' %}">
+            <span class="public-navbar__brand-icon" aria-hidden="true"><i class="fas fa-utensils"></i></span>
+            <span class="public-navbar__brand-text">OLLA Y <span class="public-navbar__brand-accent">Sazón</span></span>
+        </a>
+        <button class="navbar-toggler public-navbar__toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavPublic" aria-controls="navbarNavPublic" aria-expanded="false" aria-label="Abrir menú">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavPublic">
+            <ul class="navbar-nav ms-auto align-items-lg-center public-navbar__nav">
+                <li class="nav-item">
+                    <a class="nav-link public-navbar__link{% if name == 'index' %} active{% endif %}" href="{% url 'index' %}"{% if name == 'index' %} aria-current="page"{% endif %}>Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link public-navbar__link{% if name == 'menu' %} active{% endif %}" href="{% url 'menu' %}"{% if name == 'menu' %} aria-current="page"{% endif %}>Menú</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link public-navbar__link{% if name == 'reserva' %} active{% endif %}" href="{% url 'reserva' %}"{% if name == 'reserva' %} aria-current="page"{% endif %}>Reservas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link public-navbar__link{% if name == 'noticias' %} active{% endif %}" href="{% url 'noticias' %}"{% if name == 'noticias' %} aria-current="page"{% endif %}>Noticias</a>
+                </li>
+
+                {% if user.is_authenticated %}
+                    {% with r=user.rol.nombre|default:''|upper %}
+                        {% if r == 'ADMIN' or r == 'ADMINISTRADOR' %}
+                            <li class="nav-item">
+                                <a class="nav-link public-navbar__link" href="{% url 'admin_dashboard' %}"><i class="fas fa-tachometer-alt me-1"></i>Panel admin</a>
+                            </li>
+                        {% elif r == 'EMPLEADO' %}
+                            <li class="nav-item">
+                                <a class="nav-link public-navbar__link" href="{% url 'mi_horario' %}"><i class="fas fa-clock me-1"></i>Mi horario</a>
+                            </li>
+                        {% elif r == 'CLIENTE' %}
+                            <li class="nav-item">
+                                <a class="nav-link public-navbar__link{% if name == 'mi_perfil' %} active{% endif %}" href="{% url 'mi_perfil' %}"{% if name == 'mi_perfil' %} aria-current="page"{% endif %}><i class="fas fa-user-circle me-1"></i>Mi panel</a>
+                            </li>
+                        {% endif %}
+                    {% endwith %}
+                    <li class="nav-item public-navbar__cart-wrap">
+                        <a class="public-navbar__cart{% if name == 'carrito' %} public-navbar__cart--active{% endif %}" href="{% url 'carrito' %}"{% if name == 'carrito' %} aria-current="page"{% endif %}>
+                            <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                            <span>Carrito</span>
+                            <span class="public-navbar__cart-count">{{ carrito_count }}</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link nav-link text-white text-decoration-none py-2 px-2 border-0 public-navbar__logout">
+                                <i class="fas fa-sign-out-alt me-1"></i>Cerrar sesión
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link public-navbar__link{% if name == 'login' %} active{% endif %}" href="{% url 'login' %}">Iniciar sesión</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link public-navbar__link public-navbar__link--register{% if name == 'register' %} active{% endif %}" href="{% url 'register' %}">Registrarse</a>
+                    </li>
+                    <li class="nav-item public-navbar__cart-wrap">
+                        <a class="public-navbar__cart{% if name == 'carrito' %} public-navbar__cart--active{% endif %}" href="{% url 'carrito' %}"{% if name == 'carrito' %} aria-current="page"{% endif %}>
+                            <i class="fas fa-shopping-bag" aria-hidden="true"></i>
+                            <span>Carrito</span>
+                            <span class="public-navbar__cart-count">{{ carrito_count }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endwith %}

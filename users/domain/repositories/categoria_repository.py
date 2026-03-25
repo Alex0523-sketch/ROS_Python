@@ -1,48 +1,28 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import List, Optional
 
-from ..entities.categoria import Categoria, EstadoCategoria
+from ..entities.categoria import Categoria
 
 
 class CategoriaRepository(ABC):
-    """Interfaz del repositorio de categorías"""
-    
-    @abstractmethod
-    def get_by_id(self, categoria_id: int) -> Optional[Categoria]:
-        """Obtiene una categoría por su ID"""
-        pass
-    
-    @abstractmethod
-    def get_by_nombre(self, nombre: str) -> Optional[Categoria]:
-        """Obtiene una categoría por su nombre"""
-        pass
-    
-    @abstractmethod
-    def get_by_estado(self, estado: EstadoCategoria) -> List[Categoria]:
-        """Obtiene categorías por su estado"""
-        pass
-    
-    @abstractmethod
-    def get_activas(self) -> List[Categoria]:
-        """Obtiene categorías activas"""
-        pass
-    
+    """Contrato alineado con `CategoriaRepositoryImpl`."""
+
     @abstractmethod
     def get_all(self) -> List[Categoria]:
-        """Obtiene todas las categorías"""
         pass
-    
+
     @abstractmethod
-    def save(self, categoria: Categoria) -> Categoria:
-        """Guarda una categoría"""
+    def get_by_id(self, categoria_id: int) -> Optional[Categoria]:
         pass
-    
+
     @abstractmethod
-    def update(self, categoria: Categoria) -> Categoria:
-        """Actualiza una categoría"""
+    def create(self, categoria: Categoria) -> Categoria:
         pass
-    
+
+    @abstractmethod
+    def update(self, categoria_id: int, categoria: Categoria) -> Categoria:
+        pass
+
     @abstractmethod
     def delete(self, categoria_id: int) -> bool:
-        """Elimina una categoría"""
         pass

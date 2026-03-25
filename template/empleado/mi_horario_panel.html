@@ -1,0 +1,95 @@
+{% extends 'layout/base.html' %}
+
+{% block title %}Mi Horario{% endblock %}
+{% block page_title %}Mi Horario{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1 class="panel-page-title mb-0"><i class="bi bi-calendar-week me-2"></i>Mi horario</h1>
+    <div class="text-muted small">
+      <span class="fw-semibold text-warning">{{ total_turnos|default:0 }}</span> turnos asignados ·
+      <span class="fw-semibold text-warning">{{ dias_count|default:0 }}</span> días
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="square-icon" style="width:56px;height:56px;margin:0;display:flex;align-items:center;justify-content:center;">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <div>
+          <div class="text-muted small text-uppercase fw-bold">Entrada más temprana</div>
+          <div class="h4 mb-0 text-warning">{{ proxima_entrada|default:'—' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="square-icon" style="width:56px;height:56px;margin:0;display:flex;align-items:center;justify-content:center;">
+          <i class="bi bi-calendar2-week"></i>
+        </div>
+        <div>
+          <div class="text-muted small text-uppercase fw-bold">Cobertura semanal</div>
+          <div class="h4 mb-0">{{ dias_count|default:0 }}/7</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body d-flex align-items-center gap-3">
+        <div class="square-icon" style="width:56px;height:56px;margin:0;display:flex;align-items:center;justify-content:center;">
+          <i class="bi bi-person-workspace"></i>
+        </div>
+        <div>
+          <div class="text-muted small text-uppercase fw-bold">Estado</div>
+          <div class="h4 mb-0 text-success">{% if total_turnos %}Activo{% else %}Sin turnos{% endif %}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header">
+    <h5 class="mb-0"><i class="bi bi-calendar-week me-2"></i>Horarios asignados</h5>
+  </div>
+  <div class="card-body">
+    {% if dias_horarios and dias_horarios|length > 0 %}
+      {% for item in dias_horarios %}
+        <div class="mb-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
+            <h6 class="mb-0 text-warning"><i class="bi bi-clock me-2"></i>{{ item.dia }}</h6>
+            <span class="badge bg-secondary">{{ item.intervalos|length }} intervalo(s)</span>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            {% for h in item.intervalos %}
+              <div class="p-2 rounded-3 border border-secondary" style="min-width: 220px;">
+                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                  <span class="text-muted small text-uppercase fw-bold">Entrada</span>
+                  <span class="badge bg-success fs-6">{{ h.hora_inicio }}</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mt-2">
+                  <span class="text-muted small text-uppercase fw-bold">Salida</span>
+                  <span class="badge bg-danger fs-6">{{ h.hora_fin }}</span>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center py-5 text-muted">
+        <i class="bi bi-calendar-x display-4 d-block mb-3"></i>
+        <p class="mb-0">No tienes horarios registrados todavía.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

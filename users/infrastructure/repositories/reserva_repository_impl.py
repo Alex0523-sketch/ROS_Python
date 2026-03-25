@@ -1,22 +1,23 @@
 from users.domain.entities.reserva import Reserva
+from users.domain.repositories.reserva_repository import ReservaRepository
 from users.infrastructure.models.reserva_model import ReservaModel
 
 
-class ReservaRepositoryImpl:
+class ReservaRepositoryImpl(ReservaRepository):
 
     def _to_entity(self, model: ReservaModel) -> Reserva:
         return Reserva(
-            id=model.id,
-            codigo_reserva=model.codigo_reserva,
-            user_id=model.user_id,
-            nombre_cliente=model.nombre_cliente,
-            email_cliente=model.email_cliente,
-            telefono_cliente=model.telefono_cliente,
+            codigo_reserva=model.codigo_reserva or '',
             mesa_id=model.mesa_id,
             fecha_reserva=model.fecha_reserva,
             hora=model.hora,
             numero_personas=model.numero_personas,
             estado=model.estado,
+            id=model.id,
+            user_id=model.user_id,
+            nombre_cliente=model.nombre_cliente,
+            email_cliente=model.email_cliente,
+            telefono_cliente=model.telefono_cliente,
             comentarios=model.comentarios,
             fecha_creacion=model.fecha_creacion,
             fecha_actualizacion=model.fecha_actualizacion,
@@ -28,6 +29,14 @@ class ReservaRepositoryImpl:
     def get_by_id(self, reserva_id: int):
         try:
             return self._to_entity(ReservaModel.objects.get(pk=reserva_id))
+        except ReservaModel.DoesNotExist:
+            return None
+
+    def get_by_codigo(self, codigo: str):
+        if not codigo:
+            return None
+        try:
+            return self._to_entity(ReservaModel.objects.get(codigo_reserva=codigo.strip()))
         except ReservaModel.DoesNotExist:
             return None
 

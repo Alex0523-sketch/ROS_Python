@@ -1,70 +1,36 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
-from datetime import date
-from uuid import UUID
+from typing import List, Optional
 
-from ..entities.reserva import Reserva, EstadoReserva
+from ..entities.reserva import Reserva
 
 
 class ReservaRepository(ABC):
-    """Interfaz del repositorio de reservas"""
-    
-    @abstractmethod
-    def get_by_id(self, reserva_id: int) -> Optional[Reserva]:
-        """Obtiene una reserva por su ID"""
-        pass
-    
-    @abstractmethod
-    def get_by_codigo(self, codigo: int) -> Optional[Reserva]:
-        """Obtiene una reserva por su código único"""
-        pass
-    
-    @abstractmethod
-    def get_by_usuario(self, usuario_id: UUID) -> List[Reserva]:
-        """Obtiene reservas de un usuario específico"""
-        pass
-    
-    @abstractmethod
-    def get_by_fecha(self, fecha: date) -> List[Reserva]:
-        """Obtiene reservas de una fecha específica"""
-        pass
-    
-    @abstractmethod
-    def get_by_estado(self, estado: EstadoReserva) -> List[Reserva]:
-        """Obtiene reservas por su estado"""
-        pass
-    
-    @abstractmethod
-    def get_by_mesa(self, mesa_id: int, fecha: date) -> List[Reserva]:
-        """Obtiene reservas de una mesa en una fecha específica"""
-        pass
-    
+    """Contrato alineado con `ReservaRepositoryImpl`."""
+
     @abstractmethod
     def get_all(self) -> List[Reserva]:
-        """Obtiene todas las reservas"""
         pass
-    
+
     @abstractmethod
-    def save(self, reserva: Reserva) -> Reserva:
-        """Guarda una reserva"""
+    def get_by_id(self, reserva_id: int) -> Optional[Reserva]:
         pass
-    
+
     @abstractmethod
-    def update(self, reserva: Reserva) -> Reserva:
-        """Actualiza una reserva"""
+    def get_by_codigo(self, codigo: str) -> Optional[Reserva]:
         pass
-    
+
+    @abstractmethod
+    def get_by_estado(self, estado: str) -> List[Reserva]:
+        pass
+
+    @abstractmethod
+    def create(self, reserva: Reserva) -> Reserva:
+        pass
+
+    @abstractmethod
+    def update(self, reserva_id: int, reserva: Reserva) -> Reserva:
+        pass
+
     @abstractmethod
     def delete(self, reserva_id: int) -> bool:
-        """Elimina una reserva"""
-        pass
-    
-    @abstractmethod
-    def confirmar(self, reserva_id: int) -> Optional[Reserva]:
-        """Confirma una reserva"""
-        pass
-    
-    @abstractmethod
-    def cancelar(self, reserva_id: int) -> Optional[Reserva]:
-        """Cancela una reserva"""
         pass

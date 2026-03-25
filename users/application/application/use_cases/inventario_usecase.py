@@ -12,6 +12,31 @@ class CrearInventarioUseCase:
         return self.inventario_repository.create(inventario)
 
 
+class CrearOActualizarInventarioUseCase:
+    """Si ya hay inventario para el producto, actualiza; si no, crea el registro en BD."""
+
+    def __init__(self, inventario_repository):
+        self.inventario_repository = inventario_repository
+
+    def execute(self, producto_id: int, cantidad_disponible: int, cantidad_minima: int):
+        if cantidad_disponible < 0 or cantidad_minima < 0:
+            raise ValueError('Las cantidades no pueden ser negativas')
+
+        rows = self.inventario_repository.get_by_producto(producto_id)
+        if rows:
+            inv = rows[0]
+            inv.cantidad_disponible = cantidad_disponible
+            inv.cantidad_minima = cantidad_minima
+            return self.inventario_repository.update(inv.id, inv)
+
+        nuevo = Inventario(
+            producto_id=producto_id,
+            cantidad_disponible=cantidad_disponible,
+            cantidad_minima=cantidad_minima,
+        )
+        return self.inventario_repository.create(nuevo)
+
+
 class ObtenerInventarioUseCase:
     def __init__(self, inventario_repository):
         self.inventario_repository = inventario_repository
@@ -49,7 +74,7 @@ class AjustarStockInventarioUseCase:
         if hasattr(self.inventario_repository, 'ajustar_stock'):
             return self.inventario_repository.ajustar_stock(producto_id, inventario.cantidad_disponible)
 
-        return self.inventario_repository.update(inventario)
+        return self.inventario_repository.update(inventario.id, inventario)
 
 
 class ListarInventarioBajoStockUseCase:

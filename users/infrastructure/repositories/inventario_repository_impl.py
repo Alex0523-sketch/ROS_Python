@@ -1,15 +1,16 @@
 from users.domain.entities.inventario import Inventario
+from users.domain.repositories.inventario_repository import InventarioRepository
 from users.infrastructure.models.inventario_model import InventarioModel
 
 
-class InventarioRepositoryImpl:
+class InventarioRepositoryImpl(InventarioRepository):
 
     def _to_entity(self, model: InventarioModel) -> Inventario:
         return Inventario(
-            id=model.id,
             producto_id=model.producto_id,
             cantidad_disponible=model.cantidad_disponible,
             cantidad_minima=model.cantidad_minima,
+            id=model.id,
             fecha_creacion=model.fecha_creacion,
             fecha_actualizacion=model.fecha_actualizacion,
         )

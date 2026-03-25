@@ -408,6 +408,23 @@ body {
     color: #fff !important;
 }
 
+/* Panel / sitio: botones con .text-dark deben leerse (el !important de .btn-warning anulaba text-dark) */
+.btn-warning.text-dark,
+.btn-warning.text-dark:focus,
+#page-content-wrapper .btn.btn-warning.text-dark {
+    background-color: #ffd700 !important;
+    border-color: #d4a800 !important;
+    color: #141414 !important;
+    text-shadow: none;
+}
+
+.btn-warning.text-dark:hover,
+#page-content-wrapper .btn.btn-warning.text-dark:hover {
+    background-color: #ffdf4d !important;
+    border-color: #ffd700 !important;
+    color: #0a0a0a !important;
+}
+
 .btn-danger {
     background-color: #dc3545 !important;
     border-color: #dc3545 !important;
@@ -638,6 +655,143 @@ body {
 .btn:focus-visible, .form-control:focus-visible, .form-select:focus-visible {
     outline: 2px solid #ffd700;
     outline-offset: 2px;
+}
+
+/* Barra superior del panel: fondo oscuro + texto claro legible */
+.panel-top-navbar {
+    background: linear-gradient(90deg, #3d3d3d 0%, #2a2a2a 100%) !important;
+    border-bottom: 2px solid #ffd700 !important;
+}
+
+.panel-top-navbar .navbar-text,
+.panel-top-navbar .navbar-text small {
+    color: #fff8dc !important;
+    font-weight: 700;
+    font-size: 1.08rem;
+    letter-spacing: 0.03em;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.panel-top-navbar .btn-outline-secondary {
+    color: #fff8dc !important;
+    border-color: rgba(255, 215, 0, 0.75) !important;
+    font-weight: 600;
+}
+
+.panel-top-navbar .btn-outline-secondary:hover {
+    background-color: #ffd700 !important;
+    border-color: #ffd700 !important;
+    color: #1a1a1a !important;
+}
+
+/* Panel admin: títulos dorados + cuerpo legible */
+.panel-page-title,
+.page-header h1,
+.page-header h2,
+.page-header h3,
+.content-section h1,
+.content-section h2,
+.content-section h3,
+.card-body h1,
+.card-body h2,
+.card-body h3 {
+    color: #ffd700 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.page-header .text-muted,
+.content-section .text-muted {
+    color: #ffeaa7 !important;
+    font-weight: 500;
+}
+
+/* Bootstrap .text-muted es gris oscuro → invisible sobre card-body oscuro (p. ej. “sin pedidos”) */
+#page-content-wrapper .card-body .text-muted,
+#page-content-wrapper .text-muted {
+    color: rgba(255, 248, 231, 0.88) !important;
+    font-weight: 500;
+}
+
+/* Contenido principal: tamaño y contraste */
+#page-content-wrapper .container-fluid {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: #f2f2f2;
+}
+
+#page-content-wrapper p,
+#page-content-wrapper li,
+#page-content-wrapper .card-body,
+#page-content-wrapper .card-body p {
+    color: #f0f0f0 !important;
+}
+
+/*
+ * Tablas del panel admin: Bootstrap 5 striped pone filas blancas/grises;
+ * antes el texto era casi blanco (#fafafa) → invisible sobre fondo claro.
+ * Forzamos filas oscuras + texto crema legible.
+ */
+#page-content-wrapper .table {
+    --bs-table-bg: #2a2a2a;
+    --bs-table-striped-bg: rgba(255, 215, 0, 0.14);
+    --bs-table-striped-color: #fff8e7;
+    --bs-table-color: #fff8e7;
+    --bs-table-hover-bg: rgba(255, 215, 0, 0.22);
+    --bs-table-hover-color: #ffffff;
+    --bs-table-border-color: rgba(255, 215, 0, 0.28);
+    color: #fff8e7 !important;
+    font-size: 1.02rem;
+    border-color: rgba(255, 215, 0, 0.28);
+}
+
+#page-content-wrapper .table thead th {
+    color: #1a1a1a !important;
+    background-color: #ffd700 !important;
+}
+
+#page-content-wrapper .table tbody td,
+#page-content-wrapper .table tbody th {
+    color: #fff8e7 !important;
+    font-weight: 500;
+}
+
+#page-content-wrapper .table tbody tr {
+    background-color: #2f2f2f !important;
+}
+
+#page-content-wrapper .table.table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: #353535 !important;
+    color: #fff8e7 !important;
+    box-shadow: none !important;
+}
+
+#page-content-wrapper .table.table-striped > tbody > tr:nth-of-type(even) > * {
+    background-color: #2a2a2a !important;
+    color: #fff8e7 !important;
+    box-shadow: none !important;
+}
+
+#page-content-wrapper .table tbody tr:hover > * {
+    background-color: rgba(255, 215, 0, 0.18) !important;
+    color: #ffffff !important;
+}
+
+/* Sidebar: etiquetas de sección más visibles */
+#sidebar-wrapper .text-muted {
+    color: #e8d9a8 !important;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+}
+
+#sidebar-wrapper .list-group-item {
+    color: #f5f5f5 !important;
+    font-weight: 500;
+}
+
+/* Footer del panel */
+#page-content-wrapper footer,
+#page-content-wrapper footer small {
+    color: #e0e0e0 !important;
 }
 
 /* Mejoras para impresión */

@@ -1,16 +1,17 @@
 from users.domain.entities.detalle_pedido import DetallePedido
+from users.domain.repositories.detalle_pedido_repository import DetallePedidoRepository
 from users.infrastructure.models.detalle_pedido_model import DetallePedidoModel
 
 
-class DetallePedidoRepositoryImpl:
+class DetallePedidoRepositoryImpl(DetallePedidoRepository):
 
     def _to_entity(self, model: DetallePedidoModel) -> DetallePedido:
         return DetallePedido(
-            id=model.id,
             pedido_id=model.pedido_id,
             producto_id=model.producto_id,
             cantidad=model.cantidad,
             precio=model.precio,
+            id=model.id,
         )
 
     def get_all(self):

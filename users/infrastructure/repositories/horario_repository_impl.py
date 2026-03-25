@@ -1,16 +1,17 @@
 from users.domain.entities.horario import Horario
+from users.domain.repositories.horario_repository import HorarioRepository
 from users.infrastructure.models.horario_model import HorarioModel
 
 
-class HorarioRepositoryImpl:
+class HorarioRepositoryImpl(HorarioRepository):
 
     def _to_entity(self, model: HorarioModel) -> Horario:
         return Horario(
-            id=model.id,
             user_id=model.user_id,
             dia_semana=model.dia_semana,
             hora_inicio=model.hora_inicio,
             hora_fin=model.hora_fin,
+            id=model.id,
             fecha_creacion=model.fecha_creacion,
             fecha_actualizacion=model.fecha_actualizacion,
         )

@@ -59,7 +59,46 @@ class ActualizarPromocionUseCase:
             if hasattr(promocion, key) and value is not None:
                 setattr(promocion, key, value)
 
-        return self.promocion_repository.update(promocion)
+        return self.promocion_repository.update(promocion_id, promocion)
+
+
+class ActualizarPromocionCompletaUseCase:
+    """Reemplaza datos de una promoción (mismas reglas que al crear)."""
+
+    def __init__(self, promocion_repository):
+        self.promocion_repository = promocion_repository
+
+    def execute(
+        self,
+        promocion_id: int,
+        titulo,
+        descuento,
+        fecha_inicio,
+        fecha_fin,
+        descripcion=None,
+        imagen_url=None,
+        productos=None,
+    ):
+        if not self.promocion_repository.get_by_id(promocion_id):
+            raise LookupError('Promoción no encontrada.')
+        if descuento <= 0 or descuento > 100:
+            raise ValueError('Descuento debe estar entre 0 y 100')
+        if fecha_fin < fecha_inicio:
+            raise ValueError('Fecha fin debe ser posterior a fecha inicio')
+
+        productos_list = list(productos) if productos is not None else []
+
+        promocion = Promocion(
+            id_promocion=promocion_id,
+            titulo=titulo,
+            descuento=descuento,
+            fecha_inicio=fecha_inicio,
+            fecha_fin=fecha_fin,
+            descripcion=descripcion,
+            imagen_url=imagen_url,
+            productos=productos_list,
+        )
+        return self.promocion_repository.update(promocion_id, promocion)
 
 
 class EliminarPromocionUseCase:
