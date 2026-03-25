@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout(
+                   'Registro de Categoría',
+                   ~{::section})">
+<body>
+<section th:fragment="section">
+    <div class="shadow-sm bg-white rounded p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Registro de Categoría</h2>
+            <a th:href="@{/categorias}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle me-1"></i>Volver al listado
+            </a>
+        </div>
+
+        <form th:action="@{/categorias/save}"
+              th:object="${categoria}"
+              method="post">
+            <input type="hidden" th:field="*{idCategoria}" />
+
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text"
+                       id="nombre"
+                       th:field="*{nombre}"
+                       class="form-control"
+                       placeholder="Ingresa el nombre de la categoría"/>
+                <div class="text-danger mt-1"
+                     th:if="${#fields.hasErrors('nombre')}"
+                     th:errors="*{nombre}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea id="descripcion"
+                          th:field="*{descripcion}"
+                          class="form-control"
+                          rows="3"
+                          placeholder="Ingresa una descripción"></textarea>
+                <div class="text-danger mt-1"
+                     th:if="${#fields.hasErrors('descripcion')}"
+                     th:errors="*{descripcion}"></div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="submit"
+                        class="btn btn-success me-2">
+                    <i class="bi bi-save me-1"></i>Guardar
+                </button>
+                <a th:href="@{/categorias}"
+                   class="btn btn-outline-secondary">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+</body>
+</html>

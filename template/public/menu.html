@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú - OLLA Y Sazón</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/public-style.css}" rel="stylesheet">
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-utensils me-2"></i>OLLA Y Sazón
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/menu">Menú</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/reserva">Reservas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/public/noticias">Noticias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/pedido/confirmar}" class="btn btn-warning text-dark px-3 ms-2">
+                            <i class="fas fa-shopping-cart"></i> 
+                            Carrito (<span th:text="${cantidadTotal}">0</span>)
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <div class="content">
+        <!-- Mensajes -->
+        <div th:if="${mensaje}" class="container">
+            <div class="alert alert-success alert-dismissible fade show mt-5" role="alert" style="margin-top: 80px;">
+                <span th:text="${mensaje}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <!-- Menu Section -->
+        <section class="menu-section" style="padding-top: 100px;">
+            <div class="container">
+                <h1 class="text-center mb-5" style="color: #2a2a2a;">Nuestro Menú</h1>
+            
+            <!-- Filtro de Categorías -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="category-filter text-center">
+                        <a href="/menu" class="btn btn-outline-primary me-2" th:classappend="${categoriaSeleccionada == null} ? 'active' : ''">Todas</a>
+                        <a th:each="categoria : ${categorias}" 
+                           th:href="@{/menu(categoriaId=${categoria.idCategoria})}" 
+                           th:text="${categoria.nombre}"
+                           class="btn btn-outline-primary me-2"
+                           th:classappend="${categoriaSeleccionada == categoria.idCategoria} ? 'active' : ''">Categoría</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Productos del Menú por Categoría -->
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4" th:each="producto : ${productos}" 
+                     th:if="${categoriaSeleccionada == null or producto.categoriaId == categoriaSeleccionada}">
+                    <div class="menu-card">
+                        <div class="menu-image">
+                            <img th:if="${producto.imagenUrl != null and !producto.imagenUrl.isEmpty()}" 
+                                 th:src="@{${producto.imagenUrl}}" 
+                                 th:alt="${producto.nombre}" 
+                                 class="img-fluid rounded">
+                            <i th:unless="${producto.imagenUrl != null and !producto.imagenUrl.isEmpty()}" 
+                               class="fas fa-utensils"></i>
+                        </div>
+                        <div class="menu-content">
+                            <h5 th:text="${producto.nombre}">Nombre del Producto</h5>
+                            <p th:text="${producto.descripcion}">Descripción del producto</p>
+                            <div class="price-section">
+                                <span class="price" th:text="'$ ' + ${#numbers.formatDecimal(producto.precio, 1, 2)}">$ 0.00</span>
+                                <form th:action="@{/carrito/agregar}" method="post" style="display: inline;">
+                                    <input type="hidden" name="productoId" th:value="${producto.idProducto}">
+                                    <input type="hidden" name="nombre" th:value="${producto.nombre}">
+                                    <input type="hidden" name="precio" th:value="${producto.precio}">
+                                    <button type="submit" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus"></i> Agregar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Carrito Modal -->
+    <div class="modal fade" id="carritoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-shopping-cart me-2"></i>Mi Carrito
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div th:if="${#lists.isEmpty(carritoItems)}" class="text-center">
+                        <p>Tu carrito está vacío</p>
+                    </div>
+                    <div th:if="${!#lists.isEmpty(carritoItems)}">
+                        <div class="row" th:each="item : ${carritoItems}">
+                            <div class="col-md-6">
+                                <h6 th:text="${item.nombre}">Producto</h6>
+                                <small th:text="'$ ' + ${#numbers.formatDecimal(item.precio, 1, 2)}">$ 0.00</small>
+                            </div>
+                            <div class="col-md-3">
+                                <form th:action="@{/carrito/actualizar}" method="post" style="display: inline;">
+                                    <input type="hidden" name="productoId" th:value="${item.productoId}">
+                                    <input type="number" name="cantidad" th:value="${item.cantidad}" min="1" class="form-control form-control-sm" onchange="this.form.submit()">
+                                </form>
+                            </div>
+                            <div class="col-md-2">
+                                <span th:text="'$ ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">$ 0.00</span>
+                            </div>
+                            <div class="col-md-1">
+                                <form th:action="@{/carrito/remover}" method="post" style="display: inline;">
+                                    <input type="hidden" name="productoId" th:value="${item.productoId}">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="cart-total">
+                            <h4>Total: $ <span th:text="${#numbers.formatDecimal(carritoTotal, 1, 2)}">0.00</span></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" th:if="${!#lists.isEmpty(carritoItems)}">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Seguir Comprando</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#pedidoModal">
+                        <i class="fas fa-check me-2"></i>Confirmar Pedido
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Pedido -->
+    <div class="modal fade" id="pedidoModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Pedido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/pedido/crear" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Número de Mesa</label>
+                            <select class="form-control" name="numeroMesa" required>
+                                <option value="">Seleccionar mesa...</option>
+                                <option value="1">Mesa 1</option>
+                                <option value="2">Mesa 2</option>
+                                <option value="3">Mesa 3</option>
+                                <option value="4">Mesa 4</option>
+                                <option value="5">Mesa 5</option>
+                                <option value="6">Mesa 6</option>
+                                <option value="7">Mesa 7</option>
+                                <option value="8">Mesa 8</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Cliente</label>
+                            <input type="text" class="form-control" name="nombreCliente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Comentarios Especiales</label>
+                            <textarea class="form-control" name="comentarios" rows="3" placeholder="Alergias, preferencias, etc."></textarea>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Información:</strong> Una vez confirmado el pedido, se asignará un trabajador a su mesa y podrá proceder al pago cuando esté listo.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Confirmar Pedido</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</h5>
+                    <p>Restaurante de comida tradicional colombiana con más de 15 años de experiencia brindando los mejores sabores.</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Calle 45 #23-67, Bogotá, Colombia</p>
+                    <p><i class="fas fa-phone me-2"></i>+57 (1) 234-5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@ollaysazon.com</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Horarios</h5>
+                    <p><i class="fas fa-clock me-2"></i>Lunes a Viernes: 11:00 AM - 10:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Sábados: 12:00 PM - 11:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Domingos: 12:00 PM - 9:00 PM</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

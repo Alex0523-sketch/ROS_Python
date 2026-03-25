@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Gestión de Promociones', ~{::section})">
+
+<section th:fragment="section">
+
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-percent me-2"></i>Gestión de Promociones</h1>
+      <a th:href="@{/promociones/new}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Nueva Promoción
+      </a>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div th:if="${success}" class="alert alert-success">
+    <i class="bi bi-check-circle me-2"></i><span th:text="${success}"></span>
+  </div>
+  <div th:if="${error}" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+  </div>
+
+  <div class="content-section">
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th><i class="bi bi-hash me-1"></i>ID</th>
+          <th><i class="bi bi-image me-1"></i>Imagen</th>
+          <th><i class="bi bi-tag me-1"></i>Título</th>
+          <th><i class="bi bi-file-text me-1"></i>Descripción</th>
+          <th><i class="bi bi-percent me-1"></i>Descuento</th>
+          <th><i class="bi bi-calendar me-1"></i>Fecha Inicio</th>
+          <th><i class="bi bi-calendar-x me-1"></i>Fecha Fin</th>
+          <th><i class="bi bi-gear me-1"></i>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="promocion : ${promociones}">
+          <td><strong th:text="${promocion.idPromocion}"></strong></td>
+          <td>
+            <img th:if="${promocion.imagenUrl != null and !promocion.imagenUrl.isEmpty()}" 
+                 th:src="@{${promocion.imagenUrl}}" th:alt="${promocion.titulo}" 
+                 class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+            <i th:unless="${promocion.imagenUrl != null and !promocion.imagenUrl.isEmpty()}" 
+               class="fas fa-percent text-muted" style="font-size: 2rem;"></i>
+          </td>
+          <td th:text="${promocion.titulo}"></td>
+          <td th:text="${#strings.abbreviate(promocion.descripcion, 40)}"></td>
+          <td><span class="badge bg-success" th:text="${promocion.descuento + '%'}"></span></td>
+          <td><small th:text="${#dates.format(promocion.fechaInicio, 'dd/MM/yyyy')}"></small></td>
+          <td><small th:text="${#dates.format(promocion.fechaFin, 'dd/MM/yyyy')}"></small></td>
+          <td>
+            <div class="btn-group-actions">
+              <a th:href="@{'/promociones/edit/' + ${promocion.idPromocion}}" class="btn btn-warning btn-sm">
+                <i class="bi bi-pencil-square"></i>
+              </a>
+              <form th:action="@{'/promociones/delete/' + ${promocion.idPromocion}}" method="post" style="display:inline"
+                    onsubmit="return confirm('¿Eliminar promoción?');">
+                <button type="submit" class="btn btn-danger btn-sm">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div th:if="${#lists.isEmpty(promociones)}" class="text-center py-5">
+      <i class="bi bi-percent display-1 text-muted"></i>
+      <h4 class="text-muted mt-3">No hay promociones</h4>
+      <a th:href="@{/promociones/new}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Crear Primera Promoción
+      </a>
+    </div>
+  </div>
+
+</section>
+
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noticias - OLLA Y Sazón</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/public-style.css}" rel="stylesheet">
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-utensils me-2"></i>OLLA Y Sazón
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/menu">Menú</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/reserva">Reservas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/public/noticias">Noticias</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <!-- Noticias Section -->
+        <section class="menu-section" style="padding-top: 100px;">
+            <div class="container">
+                <h1 class="text-center mb-5" style="color: #2a2a2a;">Noticias y Novedades</h1>
+            
+            <!-- Noticias de la Base de Datos -->
+            <div class="row">
+                <div class="col-lg-8 mx-auto" th:each="noticia : ${noticias}">
+                    <div class="card mb-4">
+                        <div class="evento-header">
+                            <div class="evento-date-large">
+                                <span class="day" th:text="${#dates.format(noticia.fechaPublicacion, 'dd')}">01</span>
+                                <span class="month" th:text="${#dates.format(noticia.fechaPublicacion, 'MMM').toUpperCase()}">ENE</span>
+                            </div>
+                            <div class="evento-info">
+                                <h4 th:text="${noticia.titulo}">Título de la Noticia</h4>
+                                <p><i class="fas fa-calendar me-2"></i><span th:text="${#dates.format(noticia.fechaPublicacion, 'dd/MM/yyyy')}">01/01/2024</span></p>
+                                <p><i class="fas fa-user me-2"></i>Administración</p>
+                            </div>
+                        </div>
+                        <div th:if="${noticia.imagen != null and !noticia.imagen.isEmpty()}" class="text-center mb-3">
+                            <img th:src="@{${noticia.imagen}}" th:alt="${noticia.titulo}" 
+                                 class="img-fluid rounded" style="max-height: 300px; object-fit: cover;">
+                        </div>
+                        <div class="evento-description">
+                            <p th:text="${noticia.contenido}">Contenido de la noticia...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mensaje si no hay noticias -->
+                <div class="col-12 text-center" th:if="${#lists.isEmpty(noticias)}">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No hay noticias disponibles en este momento.
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</h5>
+                    <p>Restaurante de comida tradicional colombiana con más de 15 años de experiencia brindando los mejores sabores.</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Calle 45 #23-67, Bogotá, Colombia</p>
+                    <p><i class="fas fa-phone me-2"></i>+57 (1) 234-5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@ollaysazon.com</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Horarios</h5>
+                    <p><i class="fas fa-clock me-2"></i>Lunes a Viernes: 11:00 AM - 10:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Sábados: 12:00 PM - 11:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Domingos: 12:00 PM - 9:00 PM</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

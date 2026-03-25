@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Gestión de Pedidos', ~{::section})">
+
+<section th:fragment="section">
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-cart me-2"></i>Gestión de Pedidos</h1>
+      <a th:href="@{/pedidos/new}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Nuevo Pedido
+      </a>
+    </div>
+  </div>
+
+  <div class="content-section">
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+      <div class="card-body">
+        <h6 class="card-title">Filtros de Búsqueda</h6>
+        <form method="get" action="/pedidos">
+          <div class="row">
+            <div class="col-md-3">
+              <label class="form-label">Estado</label>
+              <select name="estado" class="form-select">
+                <option value="">Todos</option>
+                <option value="SIN_CANCELAR" th:selected="${estadoFiltro != null and estadoFiltro == 'SIN_CANCELAR'}">Sin Cancelar</option>
+                <option value="PAGADO" th:selected="${estadoFiltro != null and estadoFiltro == 'PAGADO'}">Pagado</option>
+                <option value="CANCELADO" th:selected="${estadoFiltro != null and estadoFiltro == 'CANCELADO'}">Cancelado</option>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Usuario ID</label>
+              <input type="number" name="userId" class="form-control" th:value="${userIdFiltro}" placeholder="ID Usuario">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Mesa</label>
+              <input type="text" name="numeroMesa" class="form-control" th:value="${numeroMesaFiltro}" placeholder="Número Mesa">
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Total Min</label>
+              <input type="number" name="totalMin" class="form-control" th:value="${totalMinFiltro}" placeholder="0.00" step="0.01">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search"></i> Filtrar</button>
+              <a href="/pedidos" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i> Limpiar</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Usuario ID</th>
+            <th>Reserva ID</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th>Fecha Creación</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="pedido : ${pedidos}">
+            <td th:text="${pedido.id ?: 'N/A'}">1</td>
+            <td th:text="${pedido.userId ?: 'N/A'}">1</td>
+            <td th:text="${pedido.reservaId != null ? pedido.reservaId : 'Sin reserva'}">1</td>
+            <td th:text="${'$' + #numbers.formatDecimal(pedido.total, 1, 2)}">$0.00</td>
+            <td>
+        <span th:switch="${pedido.estado}" class="badge">
+          <span th:case="'SIN_CANCELAR'" class="badge bg-warning">Sin Cancelar</span>
+          <span th:case="'PAGADO'" class="badge bg-success">Pagado</span>
+          <span th:case="'CANCELADO'" class="badge bg-danger">Cancelado</span>
+          <span th:case="*" class="badge bg-secondary" th:text="${pedido.estado}">Estado</span>
+        </span>
+            </td>
+            <td th:text="${#dates.format(pedido.fechaCreacion, 'yyyy-MM-dd')}">2025-01-01</td>
+            <td>
+                <div class="btn-group" role="group">
+                    <!-- Solo mostrar editar si NO está PAGADO o CANCELADO -->
+                    <a th:if="${pedido.estado == 'SIN_CANCELAR'}" 
+                       th:href="@{|/pedidos/edit/${pedido.id}|}" class="btn btn-warning btn-sm">Editar</a>
+                    
+                    <!-- Botones para cambiar estado si es SIN_CANCELAR -->
+                    <div th:if="${pedido.estado == 'SIN_CANCELAR'}" class="btn-group ms-1" role="group">
+                        <form th:action="@{/pedidos/cambiar-estado/{id}(id=${pedido.id})}" method="post" class="d-inline me-1">
+                            <input type="hidden" name="nuevoEstado" value="PAGADO">
+                            <button type="submit" class="btn btn-success btn-sm" title="Marcar como PAGADO">
+                                <i class="bi bi-check-circle"></i> PAGADO
+                            </button>
+                        </form>
+                        <form th:action="@{/pedidos/cambiar-estado/{id}(id=${pedido.id})}" method="post" class="d-inline">
+                            <input type="hidden" name="nuevoEstado" value="CANCELADO">
+                            <button type="submit" class="btn btn-danger btn-sm" title="Marcar como CANCELADO">
+                                <i class="bi bi-x-circle"></i> CANCELADO
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Solo mostrar eliminar si NO está PAGADO o CANCELADO -->
+                    <form th:if="${pedido.estado == 'SIN_CANCELAR'}" 
+                          th:action="@{|/pedidos/delete/${pedido.id}|}" method="post" class="d-inline ms-1"
+                          onsubmit="return confirm('¿Eliminar pedido?');">
+                        <button class="btn btn-outline-danger btn-sm">Eliminar</button>
+                    </form>
+                    
+                    <span th:if="${pedido.estado == 'PAGADO' or pedido.estado == 'CANCELADO'}" 
+                          class="badge bg-secondary ms-1">Finalizado</span>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
+
+</section>
+
+</html>

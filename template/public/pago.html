@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago - OLLA Y Sazón</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/public-style.css}" rel="stylesheet">
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-utensils me-2"></i>OLLA Y Sazón
+            </a>
+        </div>
+    </nav>
+
+    <div class="content">
+        <!-- Pago Section -->
+        <section class="payment-section" style="padding-top: 100px; min-height: 100vh;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="confirmation-card">
+                            <div class="text-center mb-4">
+                                <i class="fas fa-credit-card text-success" style="font-size: 3rem;"></i>
+                                <h2 class="mt-3">Realizar Pago</h2>
+                                <p>Pedido #<span th:text="${pedido.id}">123</span></p>
+                            </div>
+
+                        <!-- Mensajes de Error -->
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <span th:text="${error}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Resumen del Pedido -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-receipt me-2"></i>Resumen del Pedido</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-6"><strong>Cliente:</strong></div>
+                                    <div class="col-6" th:text="${pedido.clienteNombre}">Nombre Cliente</div>
+                                </div>
+                                <div class="row mb-2" th:if="${pedido.numeroMesa != null and pedido.numeroMesa != '0'}">
+                                    <div class="col-6"><strong>Mesa:</strong></div>
+                                    <div class="col-6" th:text="${pedido.numeroMesa}">1</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6"><strong>Estado:</strong></div>
+                                    <div class="col-6">
+                                        <span class="badge bg-warning" th:text="${pedido.estado}">Confirmado</span>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-6"><h4>Total a Pagar:</h4></div>
+                                    <div class="col-6 text-end">
+                                        <h4 class="text-success" th:text="'S/. ' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">S/. 0.00</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Métodos de Pago -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-payment me-2"></i>Selecciona Método de Pago</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Tarjeta -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="payment-method" onclick="selectPayment('tarjeta')">
+                                            <i class="fas fa-credit-card fa-2x text-primary mb-2"></i>
+                                            <h6>Tarjeta de Crédito/Débito</h6>
+                                            <p class="text-muted small">Visa, Mastercard, American Express</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Nequi -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="payment-method" onclick="selectPayment('nequi')">
+                                            <i class="fas fa-mobile-alt fa-2x text-success mb-2"></i>
+                                            <h6>Nequi</h6>
+                                            <p class="text-muted small">Pago móvil instantáneo</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Daviplata -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="payment-method" onclick="selectPayment('daviplata')">
+                                            <i class="fas fa-wallet fa-2x text-warning mb-2"></i>
+                                            <h6>Daviplata</h6>
+                                            <p class="text-muted small">Billetera digital</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- PSE -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="payment-method" onclick="selectPayment('pse')">
+                                            <i class="fas fa-university fa-2x text-info mb-2"></i>
+                                            <h6>PSE</h6>
+                                            <p class="text-muted small">Débito a cuenta corriente/ahorros</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Formularios de Pago -->
+                                <div id="payment-forms" style="display: none;">
+                                    <!-- Formulario Tarjeta -->
+                                    <div id="form-tarjeta" class="payment-form" style="display: none;">
+                                        <form action="/pedido/pago/procesar" method="post">
+                                            <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+                                            <input type="hidden" name="metodoPago" value="tarjeta">
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="form-label">Número de Tarjeta *</label>
+                                                    <input type="text" class="form-control" name="numeroTarjeta" 
+                                                           placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary w-100">
+                                                <i class="fas fa-credit-card me-2"></i>Pagar con Tarjeta
+                                            </button>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Formulario Nequi -->
+                                    <div id="form-nequi" class="payment-form" style="display: none;">
+                                        <form action="/pedido/pago/procesar" method="post">
+                                            <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+                                            <input type="hidden" name="metodoPago" value="nequi">
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="form-label">Número de Celular Nequi *</label>
+                                                    <input type="text" class="form-control" name="numeroNequi" 
+                                                           placeholder="3001234567" maxlength="10" required>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-success w-100">
+                                                <i class="fas fa-mobile-alt me-2"></i>Pagar con Nequi
+                                            </button>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Formulario Daviplata -->
+                                    <div id="form-daviplata" class="payment-form" style="display: none;">
+                                        <form action="/pedido/pago/procesar" method="post">
+                                            <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+                                            <input type="hidden" name="metodoPago" value="daviplata">
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="form-label">Número de Celular Daviplata *</label>
+                                                    <input type="text" class="form-control" name="numeroNequi" 
+                                                           placeholder="3001234567" maxlength="10" required>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-warning w-100">
+                                                <i class="fas fa-wallet me-2"></i>Pagar con Daviplata
+                                            </button>
+                                        </form>
+                                    </div>
+                                    
+                                    <!-- Formulario PSE -->
+                                    <div id="form-pse" class="payment-form" style="display: none;">
+                                        <form action="/pedido/pago/procesar" method="post">
+                                            <input type="hidden" name="pedidoId" th:value="${pedido.id}">
+                                            <input type="hidden" name="metodoPago" value="pse">
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                Serás redirigido al portal de tu banco para completar el pago.
+                                            </div>
+                                            <button type="submit" class="btn btn-info w-100">
+                                                <i class="fas fa-university me-2"></i>Continuar con PSE
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                
+                                <!-- Efectivo (Solo empleados) -->
+                                <div class="alert alert-info mt-3">
+                                    <i class="fas fa-money-bill-wave me-2"></i>
+                                    <strong>Pago en Efectivo:</strong> Solo puede ser procesado por un empleado del restaurante.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones -->
+                        <div class="d-flex justify-content-between" id="default-buttons">
+                            <a href="/pedido/confirmado" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Volver
+                            </a>
+                            <button type="button" class="btn btn-outline-primary btn-lg" disabled>
+                                <i class="fas fa-hand-pointer me-2"></i>Selecciona un método de pago
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedPayment = null;
+        
+        function selectPayment(method) {
+            // Remover selección anterior
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Ocultar todos los formularios
+            document.querySelectorAll('.payment-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            // Agregar selección actual
+            event.currentTarget.classList.add('selected');
+            selectedPayment = method;
+            
+            // Mostrar formulario correspondiente
+            document.getElementById('payment-forms').style.display = 'block';
+            document.getElementById('form-' + method).style.display = 'block';
+            
+            // Ocultar botones por defecto
+            document.getElementById('default-buttons').style.display = 'none';
+        }
+        
+        // Formatear número de tarjeta
+        document.addEventListener('input', function(e) {
+            if (e.target.name === 'numeroTarjeta') {
+                let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+            }
+        });
+    </script>
+    
+    <style>
+        .payment-method {
+            background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%) !important;
+            border: 2px solid #ffd700 !important;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 100%;
+            color: var(--light-color) !important;
+        }
+        
+        .payment-method:hover {
+            border-color: #ffd700 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+        }
+        
+        .payment-method.selected {
+            border-color: #ffd700 !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+        }
+        
+        .payment-form {
+            background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%) !important;
+            border: 2px solid #ffd700 !important;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            color: var(--light-color) !important;
+        }
+    </style>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</h5>
+                    <p>Restaurante de comida tradicional colombiana con más de 15 años de experiencia brindando los mejores sabores.</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Calle 45 #23-67, Bogotá, Colombia</p>
+                    <p><i class="fas fa-phone me-2"></i>+57 (1) 234-5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@ollaysazon.com</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Horarios</h5>
+                    <p><i class="fas fa-clock me-2"></i>Lunes a Viernes: 11:00 AM - 10:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Sábados: 12:00 PM - 11:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Domingos: 12:00 PM - 9:00 PM</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

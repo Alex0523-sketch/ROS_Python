@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout/base :: layout( 'Listado de Reservas', ~{::section})">
+<body>
+<section th:fragment="section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Listado de Reservas</h2>
+        <div>
+            <a th:href="@{/reservas/reasignar}" class="btn btn-warning me-2"
+               onclick="return confirm('¿Deseas redistribuir todas las reservas entre las mesas disponibles?');">
+                <i class="bi bi-arrow-repeat me-1"></i> Reasignar Mesas
+            </a>
+            <a th:href="@{/reservas/new}" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i> Nueva Reserva
+            </a>
+        </div>
+    </div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h6 class="card-title">Filtros de Búsqueda</h6>
+            <form method="get" action="/reservas">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Estado</label>
+                        <select name="estado" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="PENDIENTE" th:selected="${estadoFiltro != null and estadoFiltro == 'PENDIENTE'}">Pendiente</option>
+                            <option value="CONFIRMADA" th:selected="${estadoFiltro != null and estadoFiltro == 'CONFIRMADA'}">Confirmada</option>
+                            <option value="CANCELADA" th:selected="${estadoFiltro != null and estadoFiltro == 'CANCELADA'}">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Usuario ID</label>
+                        <input type="number" name="userId" class="form-control" th:value="${userIdFiltro}" placeholder="ID Usuario">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Mesa ID</label>
+                        <input type="number" name="mesaId" class="form-control" th:value="${mesaIdFiltro}" placeholder="ID Mesa">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search"></i> Filtrar</button>
+                        <a href="/reservas" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i> Limpiar</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive shadow-sm">
+        <table class="table table-hover align-middle mb-0 bg-white rounded">
+            <thead class="table-dark">
+            <tr><th>ID</th><th>Usuario</th><th>Mesa</th><th>Fecha</th><th>Hora</th><th>Personas</th><th>Estado</th><th>Acciones</th></tr>
+            </thead>
+            <tbody>
+            <tr th:if="${#lists.isEmpty(reservas)}">
+                <td colspan="8" class="text-center">No hay reservas registradas</td>
+            </tr>
+            <tr th:each="reserva : ${reservas}">
+                <td th:text="${reserva.id ?: 'N/A'}"></td>
+                <td>
+                    <!-- Prioridad: Si tiene emailCliente, es cliente público -->
+                    <div th:if="${reserva.emailCliente != null and !#strings.isEmpty(reserva.emailCliente)}">
+                        <strong th:text="${reserva.emailCliente}"></strong>
+                        <br/><small class="text-muted" th:text="${reserva.nombreCliente ?: ''}"></small>
+                        <br/><small class="text-info"></small>
+                    </div>
+                    <!-- Si NO tiene emailCliente, usar datos del usuario registrado -->
+                    <div th:if="${reserva.emailCliente == null or #strings.isEmpty(reserva.emailCliente)}">
+                        <strong th:text="${reserva.userEmail ?: 'Sin email'}"></strong>
+                        <br/><small class="text-muted" th:text="${reserva.userNombre ?: ''}"></small>
+                        <br/><small class="text-success"></small>
+                    </div>
+                </td>
+                <td>
+                    <span th:text="'Mesa ' + ${reserva.mesaNumero ?: 'N/A'}"></span>
+                    <small class="text-muted" th:if="${reserva.mesaCapacidad != null}" th:text="' (' + ${reserva.mesaCapacidad} + ' personas)'"></small>
+                </td>
+                <td th:text="${reserva.fechaReserva != null ? #dates.format(reserva.fechaReserva, 'dd/MM/yyyy') : 'Sin fecha'}"></td>
+                <td th:text="${reserva.hora ?: 'Sin hora'}"></td>
+                <td th:text="${reserva.numeroPersonas ?: 0}"></td>
+                <td>
+                    <span th:switch="${reserva.estado}" class="badge">
+                        <span th:case="'CONFIRMADA'" class="badge bg-success">Confirmada</span>
+                        <span th:case="'PENDIENTE'" class="badge bg-warning">Pendiente</span>
+                        <span th:case="'CANCELADA'" class="badge bg-danger">Cancelada</span>
+                        <span th:case="'COMPLETADA'" class="badge bg-info">Completada</span>
+                        <span th:case="*" class="badge bg-secondary" th:text="${reserva.estado}">Estado</span>
+                    </span>
+                </td>
+                <td>
+                    <a th:href="@{'/reservas/edit/' + ${reserva.id}}" class="btn btn-primary btn-sm me-1">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </a>
+                    <form th:action="@{'/reservas/delete/' + ${reserva.id}}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('¿Eliminar esta reserva?');">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+</body>
+</html>

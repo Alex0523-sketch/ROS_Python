@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedido Confirmado - OLLA Y Sazón</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/public-style.css}" rel="stylesheet">
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-utensils me-2"></i>OLLA Y Sazón
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/menu">Menú</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/reserva">Reservas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/public/noticias">Noticias</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <!-- Pedido Confirmado Section -->
+        <section class="pedido-confirmado-section" style="padding-top: 100px; min-height: 100vh;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="confirmation-card text-center">
+                            <div class="success-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h1 class="mb-4">¡Pedido Confirmado!</h1>
+                        
+                        <div th:if="${mensaje}" class="alert alert-success">
+                            <span th:text="${mensaje}"></span>
+                        </div>
+                        
+                        <div class="pedido-info">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <div class="info-card">
+                                        <div class="info-icon">
+                                            <i class="fas fa-user-tie"></i>
+                                        </div>
+                                        <h5>Trabajador Asignado</h5>
+                                        <p>Se ha asignado un trabajador especializado a su mesa</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="info-card">
+                                        <div class="info-icon">
+                                            <i class="fas fa-clock"></i>
+                                        </div>
+                                        <h5>Tiempo Estimado</h5>
+                                        <p>15-25 minutos aproximadamente</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <div class="info-card">
+                                        <div class="info-icon">
+                                            <i class="fas fa-credit-card"></i>
+                                        </div>
+                                        <h5>Pago</h5>
+                                        <p>Podrá pagar cuando su pedido esté listo</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="next-steps mt-5">
+                            <h4>Próximos Pasos:</h4>
+                            <div class="steps">
+                                <div class="step completed">
+                                    <div class="step-number">1</div>
+                                    <div class="step-content">
+                                        <h6>Pedido Confirmado</h6>
+                                        <p>Su pedido ha sido recibido y confirmado</p>
+                                    </div>
+                                </div>
+                                <div class="step active">
+                                    <div class="step-number">2</div>
+                                    <div class="step-content">
+                                        <h6>Preparación</h6>
+                                        <p>Nuestro equipo está preparando su pedido</p>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">3</div>
+                                    <div class="step-content">
+                                        <h6>Servicio</h6>
+                                        <p>Su trabajador asignado le servirá el pedido</p>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">4</div>
+                                    <div class="step-content">
+                                        <h6>Pago</h6>
+                                        <p>Proceda al pago cuando esté satisfecho</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="actions mt-5">
+                            <a th:if="${pedidoId}" th:href="@{'/pedido/pago/' + ${pedidoId}}" class="btn btn-success btn-lg me-3">
+                                <i class="fas fa-credit-card me-2"></i>Proceder al Pago
+                            </a>
+                            <a href="/menu" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-plus me-2"></i>Agregar más productos
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-home me-2"></i>Volver al inicio
+                            </a>
+                        </div>
+                        
+                        <div class="contact-info mt-4">
+                            <p class="text-muted">
+                                <i class="fas fa-phone me-2"></i>
+                                Si necesita asistencia, llame al: <strong>+57 (1) 234-5678</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</h5>
+                    <p>Restaurante de comida tradicional colombiana con más de 15 años de experiencia brindando los mejores sabores.</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Calle 45 #23-67, Bogotá, Colombia</p>
+                    <p><i class="fas fa-phone me-2"></i>+57 (1) 234-5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@ollaysazon.com</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Horarios</h5>
+                    <p><i class="fas fa-clock me-2"></i>Lunes a Viernes: 11:00 AM - 10:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Sábados: 12:00 PM - 11:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Domingos: 12:00 PM - 9:00 PM</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

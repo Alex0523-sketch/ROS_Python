@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promociones - OLLA Y Sazón</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/public-style.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-utensils me-2"></i>OLLA Y Sazón
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/menu">Menú</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/promociones">Promociones</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/eventos">Eventos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-warning text-dark px-3 ms-2" href="/reserva">Reservar</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Promociones Section -->
+    <section class="py-5" style="background: var(--light-color);">
+        <div class="container">
+            <h1 class="text-center mb-5" style="color: var(--dark-color);">Promociones Especiales</h1>
+            
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="promo-card">
+                        <div class="promo-image">
+                            <i class="fas fa-birthday-cake"></i>
+                        </div>
+                        <div class="promo-content">
+                            <h4>Cumpleaños Especial</h4>
+                            <p>Celebra tu cumpleaños con nosotros. Presenta tu cédula el día de tu cumpleaños y recibe un delicioso postre completamente gratis.</p>
+                            <span class="promo-badge">¡Gratis!</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="promo-card">
+                        <div class="promo-image">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="promo-content">
+                            <h4>Cena Romántica</h4>
+                            <p>Menú especial para dos personas con entrada, plato fuerte, postre, vela aromática y música en vivo los viernes y sábados.</p>
+                            <span class="promo-badge">$45.000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="promo-card">
+                        <div class="promo-image">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="promo-content">
+                            <h4>Familia Feliz</h4>
+                            <p>Descuento especial del 20% en el total de la cuenta para grupos familiares de 6 o más personas. Válido todos los domingos.</p>
+                            <span class="promo-badge">-20%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="promo-card">
+                        <div class="promo-image">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="promo-content">
+                            <h4>Almuerzo Ejecutivo</h4>
+                            <p>Menú completo de lunes a viernes de 12:00 PM a 3:00 PM. Incluye entrada, plato fuerte, bebida y postre.</p>
+                            <span class="promo-badge">$15.000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="promo-card">
+                        <div class="promo-image">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="promo-content">
+                            <h4>Estudiantes</h4>
+                            <p>15% de descuento para estudiantes universitarios presentando carné vigente. Válido de lunes a jueves.</p>
+                            <span class="promo-badge">-15%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="promo-card">
+                        <div class="promo-image">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="promo-content">
+                            <h4>Happy Hour</h4>
+                            <p>2x1 en bebidas naturales y cervezas de 5:00 PM a 7:00 PM de lunes a miércoles. ¡Perfecto para después del trabajo!</p>
+                            <span class="promo-badge">2x1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

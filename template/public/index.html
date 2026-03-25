@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OLLA Y Sazón - Restaurante</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'css/public-style.css' %}" rel="stylesheet">
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/"><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/menu">Menú</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/reserva">Reservas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/public/noticias">Noticias</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/login/">Iniciar Sesión</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="container-fluid">
+                <div class="row align-items-center min-vh-100 justify-content-center">
+                    <!-- Cuadrado Izquierdo -->
+                    <div class="col-lg-2 col-md-4">
+                        <div class="feature-square left-square">
+                            <div class="square-icon"><i class="fas fa-percent"></i></div>
+                            <h3>Promoción del Día</h3>
+                            {% if promocion_del_dia %}
+                            <p>{{ promocion_del_dia.titulo|truncatechars:30 }}</p>
+                            <span class="price">-{{ promocion_del_dia.descuento }}%</span>
+                            {% else %}
+                            <p>No hay promociones disponibles</p>
+                            <span class="price">-</span>
+                            {% endif %}
+                            <a href="/menu" class="btn btn-outline-dark mt-3">Ver Menú</a>
+                        </div>
+                    </div>
+
+                    <!-- Círculo Central -->
+                    <div class="col-lg-6 col-md-4">
+                        <div class="hero-circle">
+                            <div class="circle-content">
+                                <h1 class="restaurant-name">OLLA Y Sazón</h1>
+                                <p class="restaurant-subtitle">Sabores auténticos que conquistan</p>
+                                <div class="circle-buttons">
+                                    <a href="/menu" class="btn btn-warning btn-lg me-3">Ver Menú</a>
+                                    <a href="/reserva" class="btn btn-outline-light btn-lg">Reservar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cuadrado Derecho -->
+                    <div class="col-lg-2 col-md-4">
+                        <a href="/reserva" style="text-decoration: none; color: inherit;">
+                            <div class="feature-square right-square">
+                                <div class="square-icon"><i class="fas fa-calendar-alt"></i></div>
+                                <h3>Reserva tu Mesa</h3>
+                                <p>Ambiente acogedor para toda la familia</p>
+                                <span class="price">Gratis</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promociones Section -->
+        <section class="promociones-section py-5">
+            <div class="container">
+                <h2 class="text-center mb-5">Nuestras Promociones</h2>
+                <div class="row">
+                    {% for promocion in promociones %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="promo-card">
+                            <div class="promo-image">
+                                {% if promocion.imagen_url %}
+                                <img src="{{ promocion.imagen_url }}" alt="{{ promocion.titulo }}">
+                                {% else %}
+                                <i class="fas fa-percent"></i>
+                                {% endif %}
+                            </div>
+                            <div class="promo-content">
+                                <h4>{{ promocion.titulo }}</h4>
+                                <p>{{ promocion.descripcion }}</p>
+                                <span class="promo-badge">-{{ promocion.descuento }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No hay promociones disponibles en este momento.
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Noticias Section -->
+        <section class="eventos-section py-5" style="background: #FFF8ED;">
+            <div class="container">
+                <h2 class="text-center mb-5">Noticias y Eventos</h2>
+                <div class="row">
+                    {% for noticia in noticias %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="evento-card">
+                            <div class="evento-date">
+                                <span class="day">{{ noticia.fecha_publicacion|date:"d" }}</span>
+                                <span class="month">{{ noticia.fecha_publicacion|date:"M"|upper }}</span>
+                            </div>
+                            <div class="evento-content">
+                                <h4>{{ noticia.titulo }}</h4>
+                                <p><i class="fas fa-calendar me-2"></i>{{ noticia.fecha_publicacion|date:"d/m/Y" }}</p>
+                                <p>{{ noticia.contenido|truncatechars:80 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No hay noticias disponibles en este momento.
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if noticias %}
+                <div class="text-center mt-4">
+                    <a href="/public/noticias" class="btn btn-primary">
+                        <i class="fas fa-newspaper me-2"></i>Ver todas las noticias
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</h5>
+                    <p>Restaurante de comida tradicional colombiana con más de 15 años de experiencia.</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Calle 45 #23-67, Bogotá, Colombia</p>
+                    <p><i class="fas fa-phone me-2"></i>+57 (1) 234-5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@ollaysazon.com</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Horarios</h5>
+                    <p><i class="fas fa-clock me-2"></i>Lunes a Viernes: 11:00 AM - 10:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Sábados: 12:00 PM - 11:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Domingos: 12:00 PM - 9:00 PM</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6"><p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p></div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

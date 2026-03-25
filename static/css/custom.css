@@ -1,0 +1,657 @@
+/* Diseño gris y dorado centrado */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Fondo principal gris */
+body {
+    background: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
+    min-height: 100vh;
+    color: #fff;
+}
+
+/* Mejoras generales de espaciado y organización */
+.page-header {
+    background: linear-gradient(90deg, #3a3a3a 0%, #2a2a2a 100%);
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+    border-bottom: 3px solid #ffd700;
+    border-radius: 8px;
+}
+
+.page-header h1, .page-header h2 {
+    color: #ffd700;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.content-section {
+    background: rgba(58, 58, 58, 0.8);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border: 1px solid #ffd700;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .content-section {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Sidebar gris oscuro con detalles dorados - Responsivo */
+#sidebar-wrapper {
+    background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%) !important;
+    border-right: 3px solid #ffd700 !important;
+    min-width: 250px;
+    max-width: 250px;
+    transition: all 0.3s;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+    margin-left: -250px;
+}
+
+@media (max-width: 768px) {
+    #sidebar-wrapper {
+        margin-left: -250px;
+    }
+    
+    #wrapper.toggled #sidebar-wrapper {
+        margin-left: 0;
+    }
+}
+
+.sidebar-heading {
+    background-color: #1a1a1a !important;
+    color: #ffd700 !important;
+    border-bottom: 2px solid #ffd700;
+    padding: 1.5rem 1rem !important;
+    font-size: 1.5rem !important;
+}
+
+@media (max-width: 768px) {
+    .sidebar-heading {
+        font-size: 1.2rem !important;
+        padding: 1rem 0.5rem !important;
+    }
+}
+
+.list-group-item {
+    background-color: transparent !important;
+    border: none !important;
+    color: #e0e0e0 !important;
+    transition: all 0.3s ease;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+@media (max-width: 768px) {
+    .list-group-item {
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+    }
+}
+
+.list-group-item:hover {
+    background-color: #ffd700 !important;
+    color: #1a1a1a !important;
+    transform: translateX(5px);
+}
+
+/* Navbar con tema gris y dorado */
+.navbar {
+    background: linear-gradient(90deg, #5a5a5a 0%, #4a4a4a 100%) !important;
+    border-bottom: 2px solid #ffd700 !important;
+}
+
+.btn-primary {
+    background-color: #ffd700 !important;
+    border-color: #ffd700 !important;
+    color: #1a1a1a !important;
+}
+
+.btn-primary:hover {
+    background-color: #e6c200 !important;
+    border-color: #e6c200 !important;
+}
+
+/* Contenido principal centrado y responsivo */
+.container-fluid {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 15px;
+    }
+}
+
+/* Tarjetas con diseño gris y dorado - Responsivas */
+.card {
+    background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%) !important;
+    border: 1px solid #ffd700 !important;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+.card-header {
+    background-color: #ffd700 !important;
+    color: #1a1a1a !important;
+    font-weight: bold;
+    text-align: center;
+}
+
+.card-body {
+    color: #e0e0e0;
+}
+
+/* Tablas - Responsivas y mejoradas */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.table {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    font-size: 1rem;
+    margin-bottom: 0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.85rem;
+    }
+    
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+}
+
+.table th {
+    background-color: #ffd700 !important;
+    color: #1a1a1a !important;
+    border: none;
+    text-align: center;
+    font-weight: 600;
+    padding: 1rem 0.75rem;
+}
+
+.table td {
+    border-color: #4a4a4a;
+    text-align: center;
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 215, 0, 0.08);
+}
+
+.table tbody tr:hover {
+    background-color: rgba(255, 215, 0, 0.15);
+    transition: background-color 0.2s ease;
+}
+
+/* Badges mejorados */
+.badge {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 20px;
+}
+
+/* Botones de acción en tablas */
+.btn-group-actions {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn-group-actions .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .btn-group-actions {
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+    
+    .btn-group-actions .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Formularios - Responsivos y mejorados */
+.form-control, .form-select {
+    background-color: #2a2a2a !important;
+    border: 2px solid #ffd700 !important;
+    color: #fff !important;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .form-control, .form-select {
+        padding: 0.6rem;
+        font-size: 0.95rem;
+    }
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: #2a2a2a !important;
+    border-color: #e6c200 !important;
+    box-shadow: 0 0 0 0.3rem rgba(255, 215, 0, 0.25) !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+}
+
+.form-label {
+    color: #ffd700 !important;
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .form-label {
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Grupos de formulario mejorados */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.form-row .form-group {
+    flex: 1;
+    min-width: 250px;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .form-row .form-group {
+        min-width: auto;
+    }
+}
+
+/* Alertas mejoradas */
+.alert {
+    border-radius: 8px;
+    border: none;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border-left: 4px solid #dc3545;
+}
+
+.alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border-left: 4px solid #ffc107;
+}
+
+.alert-info {
+    background-color: rgba(23, 162, 184, 0.2);
+    color: #17a2b8;
+    border-left: 4px solid #17a2b8;
+}
+
+/* Botones - Responsivos y mejorados */
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+@media (max-width: 768px) {
+    .btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-success {
+    background-color: #ffd700 !important;
+    border-color: #ffd700 !important;
+    color: #1a1a1a !important;
+}
+
+.btn-success:hover {
+    background-color: #e6c200 !important;
+    border-color: #e6c200 !important;
+    color: #1a1a1a !important;
+}
+
+.btn-primary {
+    background-color: #ffd700 !important;
+    border-color: #ffd700 !important;
+    color: #1a1a1a !important;
+}
+
+.btn-primary:hover {
+    background-color: #e6c200 !important;
+    border-color: #e6c200 !important;
+    color: #1a1a1a !important;
+}
+
+.btn-warning {
+    background-color: #ff8c00 !important;
+    border-color: #ff8c00 !important;
+    color: #fff !important;
+}
+
+.btn-warning:hover {
+    background-color: #e67e00 !important;
+    border-color: #e67e00 !important;
+    color: #fff !important;
+}
+
+.btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+.btn-danger:hover {
+    background-color: #c82333 !important;
+    border-color: #c82333 !important;
+    color: #fff !important;
+}
+
+.btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268 !important;
+    border-color: #5a6268 !important;
+    color: #fff !important;
+}
+
+.btn-info {
+    background-color: #17a2b8 !important;
+    border-color: #17a2b8 !important;
+    color: #fff !important;
+}
+
+.btn-info:hover {
+    background-color: #138496 !important;
+    border-color: #138496 !important;
+    color: #fff !important;
+}
+
+/* Grupos de botones */
+.btn-toolbar {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.btn-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .btn-group-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* Login específico - Responsivo */
+.login-container {
+    background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%);
+    padding: 50px;
+    border-radius: 15px;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    width: 90%;
+    max-width: 600px;
+    margin: 0 auto;
+    border: 2px solid #ffd700;
+}
+
+.login-container h1 {
+    color: #ffd700;
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.login-container input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 1.1rem;
+}
+
+.login-container label {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    margin-top: 20px;
+}
+
+/* Centrado general */
+.text-center {
+    text-align: center !important;
+}
+
+.mx-auto {
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 10px;
+    }
+    
+    .login-container {
+        width: 95%;
+        padding: 30px 20px;
+    }
+    
+    .login-container h1 {
+        font-size: 2rem;
+    }
+    
+    .login-container input,
+    .login-container button {
+        font-size: 1rem;
+        padding: 12px;
+    }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+    .login-container {
+        max-width: 500px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .login-container {
+        max-width: 600px;
+    }
+}
+
+/* Mejoras adicionales para la interfaz */
+.border-dashed {
+    border-style: dashed !important;
+}
+
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Animaciones suaves */
+.card, .btn, .form-control, .form-select {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.15);
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #2a2a2a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ffd700;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #e6c200;
+}
+
+/* Mejoras para dispositivos táctiles */
+@media (hover: none) {
+    .btn:hover, .card:hover, .list-group-item:hover {
+        transform: none;
+    }
+}
+
+/* Estados de carga */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #ffd700;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Mejoras para accesibilidad */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus visible para navegación por teclado */
+.btn:focus-visible, .form-control:focus-visible, .form-select:focus-visible {
+    outline: 2px solid #ffd700;
+    outline-offset: 2px;
+}
+
+/* Mejoras para impresión */
+@media print {
+    .sidebar-wrapper, .navbar, .btn-toolbar {
+        display: none !important;
+    }
+    
+    .page-content-wrapper {
+        margin-left: 0 !important;
+    }
+    
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
+}

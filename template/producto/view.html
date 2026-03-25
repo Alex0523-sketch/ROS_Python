@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Detalles del Producto', ~{::section})">
+
+<section th:fragment="section">
+
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-eye me-2"></i>Detalles del Producto</h1>
+      <a th:href="@{/productos}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h4 class="text-warning mb-3">Información del Producto</h4>
+            
+            <div class="mb-3">
+              <strong class="text-warning">ID:</strong><br>
+              <span th:text="${producto.idProducto}"></span>
+            </div>
+            
+            <div class="mb-3">
+              <strong class="text-warning">Nombre:</strong><br>
+              <span th:text="${producto.nombre}"></span>
+            </div>
+            
+            <div class="mb-3">
+              <strong class="text-warning">Descripción:</strong><br>
+              <span th:text="${producto.descripcion}"></span>
+            </div>
+            
+            <div class="mb-3">
+              <strong class="text-warning">Precio:</strong><br>
+              <span class="badge bg-success fs-6" th:text="'$' + ${producto.precio}"></span>
+            </div>
+            
+            <div class="mb-3">
+              <strong class="text-warning">Categoría:</strong><br>
+              <span class="badge bg-info" th:text="'ID: ' + ${producto.categoriaId}"></span>
+            </div>
+            
+            <div class="mb-3">
+              <strong class="text-warning">Fecha de Creación:</strong><br>
+              <span th:text="${#dates.format(producto.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <h4 class="text-warning mb-3">Acciones</h4>
+            
+            <div class="d-grid gap-2">
+              <a th:href="@{'/productos/edit/' + ${producto.idProducto}}" class="btn btn-warning">
+                <i class="bi bi-pencil-square me-2"></i>Editar Producto
+              </a>
+              
+              <form th:action="@{'/productos/delete/' + ${producto.idProducto}}" method="post"
+                    onsubmit="return confirm('¿Está seguro de eliminar este producto?');">
+                <button type="submit" class="btn btn-danger w-100">
+                  <i class="bi bi-trash me-2"></i>Eliminar Producto
+                </button>
+              </form>
+              
+              <a th:href="@{/productos}" class="btn btn-secondary">
+                <i class="bi bi-list me-2"></i>Ver Todos los Productos
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</html>

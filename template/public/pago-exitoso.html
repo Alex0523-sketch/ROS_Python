@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago Exitoso - OLLA Y Sazón</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/public-style.css}" rel="stylesheet">
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-utensils me-2"></i>OLLA Y Sazón
+            </a>
+        </div>
+    </nav>
+
+    <div class="content">
+        <!-- Pago Exitoso Section -->
+        <section class="success-section" style="padding-top: 100px; min-height: 100vh;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="confirmation-card text-center">
+                            <div class="success-icon">
+                                <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                            </div>
+                            <h1 class="mb-4 text-success">¡Pago Exitoso!</h1>
+                            <p class="lead mb-4">Tu pago ha sido procesado correctamente</p>
+
+                        <!-- Información del Pago -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-receipt me-2"></i>Comprobante de Pago</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-6"><strong>ID de Pago:</strong></div>
+                                    <div class="col-6" th:text="${pago.id}">#12345</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6"><strong>Pedido:</strong></div>
+                                    <div class="col-6" th:text="'#' + ${pedido.id}">#123</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6"><strong>Cliente:</strong></div>
+                                    <div class="col-6" th:text="${pedido.clienteNombre}">Nombre Cliente</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6"><strong>Método de Pago:</strong></div>
+                                    <div class="col-6">
+                                        <span class="badge bg-primary" th:text="${pago.metodoPago}">Tarjeta</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-6"><strong>Fecha:</strong></div>
+                                    <div class="col-6" th:text="${#dates.format(pago.fechaPago, 'dd/MM/yyyy HH:mm')}">11/12/2024 14:30</div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-6"><h4>Total Pagado:</h4></div>
+                                    <div class="col-6 text-end">
+                                        <h4 class="text-success" th:text="'S/. ' + ${#numbers.formatDecimal(pago.montoTotal, 1, 2)}">S/. 0.00</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Estado del Pedido -->
+                        <div class="alert alert-success">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>¡Perfecto!</strong> Tu pedido ha sido pagado y está siendo preparado. 
+                            El empleado asignado te notificará cuando esté listo.
+                        </div>
+
+                        <!-- Próximos Pasos -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-list-check me-2"></i>¿Qué sigue?</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="step-card">
+                                            <i class="fas fa-utensils fa-2x text-warning mb-2"></i>
+                                            <h6>Preparación</h6>
+                                            <p class="small">Tu pedido está siendo preparado por nuestro equipo</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="step-card">
+                                            <i class="fas fa-bell fa-2x text-info mb-2"></i>
+                                            <h6>Notificación</h6>
+                                            <p class="small">Te avisaremos cuando esté listo para servir</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="step-card">
+                                            <i class="fas fa-smile fa-2x text-success mb-2"></i>
+                                            <h6>¡A Disfrutar!</h6>
+                                            <p class="small">Disfruta de tu deliciosa comida</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Acciones -->
+                        <div class="actions mt-4">
+                            <a href="/menu" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-plus me-2"></i>Pedir Más
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-home me-2"></i>Ir al Inicio
+                            </a>
+                        </div>
+
+                        <!-- Información de Contacto -->
+                        <div class="contact-info mt-4">
+                            <p class="text-muted">
+                                <i class="fas fa-phone me-2"></i>
+                                ¿Necesitas ayuda? Llama al: <strong>+57 (1) 234-5678</strong>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <style>
+        .step-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%) !important;
+            border: 2px solid #ffd700 !important;
+            height: 100%;
+            color: var(--light-color) !important;
+        }
+        
+        .success-icon {
+            animation: bounce 1s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</h5>
+                    <p>Restaurante de comida tradicional colombiana con más de 15 años de experiencia brindando los mejores sabores.</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Calle 45 #23-67, Bogotá, Colombia</p>
+                    <p><i class="fas fa-phone me-2"></i>+57 (1) 234-5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@ollaysazon.com</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Horarios</h5>
+                    <p><i class="fas fa-clock me-2"></i>Lunes a Viernes: 11:00 AM - 10:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Sábados: 12:00 PM - 11:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Domingos: 12:00 PM - 9:00 PM</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Gestión de Mesas', ~{::section})">
+
+<section th:fragment="section">
+
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-table me-2"></i>Gestión de Mesas</h1>
+      <a th:href="@{/mesas/new}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Nueva Mesa
+      </a>
+    </div>
+  </div>
+
+  <div class="content-section">
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <i class="bi bi-funnel me-2"></i>Filtros
+      </div>
+      <div class="card-body">
+        <form th:action="@{/mesas}" method="get" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Estado</label>
+            <select class="form-select" name="estado">
+              <option value="">Todos los estados</option>
+              <option value="libre">Libre</option>
+              <option value="ocupada">Ocupada</option>
+              <option value="reservada">Reservada</option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">&nbsp;</label>
+            <div class="d-grid">
+              <button class="btn btn-primary" type="submit">
+                <i class="bi bi-search me-2"></i>Filtrar
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th><i class="bi bi-hash me-1"></i>ID</th>
+          <th><i class="bi bi-123 me-1"></i>Número</th>
+          <th><i class="bi bi-people me-1"></i>Capacidad</th>
+          <th><i class="bi bi-geo-alt me-1"></i>Ubicación</th>
+          <th><i class="bi bi-activity me-1"></i>Estado</th>
+          <th><i class="bi bi-calendar me-1"></i>Fecha</th>
+          <th><i class="bi bi-gear me-1"></i>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="mesa : ${mesas}">
+          <td><strong th:text="${mesa.idMesa}"></strong></td>
+          <td><span class="badge bg-primary" th:text="'Mesa ' + ${mesa.numeroMesa}"></span></td>
+          <td><span class="badge bg-info" th:text="${mesa.capacidad} + ' personas'"></span></td>
+          <td th:text="${mesa.ubicacion}"></td>
+          <td>
+            <span th:switch="${mesa.estado}" class="badge">
+              <span th:case="'libre'" class="badge bg-success">
+                <i class="bi bi-check-circle me-1"></i>Libre
+              </span>
+              <span th:case="'ocupada'" class="badge bg-danger">
+                <i class="bi bi-x-circle me-1"></i>Ocupada
+              </span>
+              <span th:case="'reservada'" class="badge bg-warning">
+                <i class="bi bi-clock me-1"></i>Reservada
+              </span>
+            </span>
+          </td>
+          <td><small th:text="${#dates.format(mesa.fechaCreacion, 'dd/MM/yyyy')}"></small></td>
+          <td>
+            <div class="btn-group-actions">
+
+              <a th:href="@{'/mesas/edit/' + ${mesa.idMesa}}" class="btn btn-warning btn-sm">
+                <i class="bi bi-pencil-square"></i>
+              </a>
+              <form th:action="@{'/mesas/delete/' + ${mesa.idMesa}}" method="post" style="display:inline"
+                    onsubmit="return confirm('¿Eliminar mesa?');">
+                <button class="btn btn-danger btn-sm">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div th:if="${#lists.isEmpty(mesas)}" class="text-center py-5">
+      <i class="bi bi-table display-1 text-muted"></i>
+      <h4 class="text-muted mt-3">No hay mesas registradas</h4>
+      <a th:href="@{/mesas/new}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Crear Primera Mesa
+      </a>
+    </div>
+  </div>
+
+</section>
+
+</html>

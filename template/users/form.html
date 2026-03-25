@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout(${user.idUser} != null ? 'Editar Usuario' : 'Nuevo Usuario', ~{::section})">
+
+<section th:fragment="section">
+
+  <!-- Encabezado de página -->
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1>
+        <i class="bi" th:classappend="${user.idUser} != null ? 'bi-pencil-square' : 'bi-person-plus'"></i>
+        <span th:text="${user.idUser} != null ? 'Editar Usuario' : 'Nuevo Usuario'"></span>
+      </h1>
+      <a th:href="@{/users}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver al Listado
+      </a>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div th:if="${error}" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+  </div>
+
+  <!-- Formulario -->
+  <div class="content-section">
+    <form th:action="@{/users/save}" th:object="${user}" method="post">
+      <input type="hidden" th:field="*{idUser}"/>
+
+      <!-- Información del usuario (solo para nuevos usuarios) -->
+      <div th:if="${user.idUser == null}">
+        <h4 class="text-warning mb-4">
+          <i class="bi bi-person-badge me-2"></i>Información Personal
+        </h4>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-person me-1"></i>Nombre *
+            </label>
+            <input type="text" class="form-control" th:field="*{nombre}" 
+                   placeholder="Ingrese el nombre" required/>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-person me-1"></i>Apellido *
+            </label>
+            <input type="text" class="form-control" th:field="*{apellido}" 
+                   placeholder="Ingrese el apellido" required/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-envelope me-1"></i>Correo Electrónico *
+          </label>
+          <input type="email" class="form-control" th:field="*{email}" 
+                 placeholder="ejemplo@correo.com" required/>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-lock me-1"></i>Contraseña *
+          </label>
+          <input type="password" class="form-control" th:field="*{password}" 
+                 placeholder="Mínimo 6 caracteres" required minlength="6"/>
+          <small class="form-text text-muted">
+            <i class="bi bi-info-circle me-1"></i>La contraseña debe tener al menos 6 caracteres
+          </small>
+        </div>
+
+        <hr class="my-4">
+      </div>
+
+      <!-- Información para usuarios existentes -->
+      <div th:if="${user.idUser != null}" class="mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title text-info">
+              <i class="bi bi-info-circle me-2"></i>Usuario a Editar
+            </h5>
+            <p class="card-text">
+              <strong>Nombre:</strong> <span th:text="${user.nombre} + ' ' + ${user.apellido}"></span><br>
+              <strong>Email:</strong> <span th:text="${user.email}"></span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asignación de rol -->
+      <h4 class="text-warning mb-4">
+        <i class="bi bi-shield-check me-2"></i>Asignación de Rol
+      </h4>
+      
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-shield me-1"></i>Rol del Usuario *
+        </label>
+        <select class="form-select" th:field="*{rolId}" required>
+          <option value="">Seleccione un rol...</option>
+          <option th:each="rol : ${roles}" th:value="${rol.idRol}" th:text="${rol.nombre}"></option>
+        </select>
+        <small class="form-text text-muted">
+          <i class="bi bi-info-circle me-1"></i>El rol determina los permisos y accesos del usuario
+        </small>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="btn-toolbar mt-4">
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-check-circle me-2"></i>
+          <span th:text="${user.idUser} != null ? 'Actualizar Usuario' : 'Crear Usuario'"></span>
+        </button>
+        <a th:href="@{/users}" class="btn btn-secondary">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+</section>
+
+</html>

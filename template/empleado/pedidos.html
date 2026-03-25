@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Pedidos Asignados', ~{::section})">
+
+<section th:fragment="section">
+
+  <!-- Encabezado de página -->
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-cart-check me-2"></i>Pedidos Asignados</h1>
+      <div class="d-flex gap-2">
+        <span class="badge bg-info fs-6">
+          <i class="bi bi-person-badge me-1"></i>Empleado
+        </span>
+        <button class="btn btn-success btn-sm">
+          <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de contenido -->
+  <div class="content-section">
+    <!-- Resumen de pedidos -->
+    <div class="row mb-4">
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Pendientes</h5>
+            <h3 class="text-danger">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">En Preparación</h5>
+            <h3 class="text-warning">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Total Asignados</h5>
+            <h3 class="text-info" th:text="${#lists.size(pedidos)}">0</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de pedidos asignados -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <i class="bi bi-list-check me-2"></i>Pedidos Asignados
+      </div>
+      <div class="card-body">
+        <div th:if="${pedidos.empty}" class="text-center py-4">
+          <i class="bi bi-cart-x display-1 text-muted"></i>
+          <h4 class="text-muted mt-3">No hay pedidos asignados</h4>
+          <p class="text-muted">Cuando se asignen pedidos aparecerán aquí</p>
+        </div>
+        
+        <div th:unless="${pedidos.empty}" class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+              <th><i class="bi bi-hash me-1"></i>ID</th>
+              <th><i class="bi bi-geo-alt me-1"></i>Mesa</th>
+              <th><i class="bi bi-person me-1"></i>Cliente</th>
+              <th><i class="bi bi-currency-dollar me-1"></i>Total</th>
+              <th><i class="bi bi-clock me-1"></i>Fecha</th>
+              <th><i class="bi bi-info-circle me-1"></i>Estado</th>
+              <th><i class="bi bi-gear me-1"></i>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="pedido : ${pedidos}">
+              <td>
+                <strong th:text="'#' + ${pedido['id']}">#1</strong>
+              </td>
+              <td>
+                <span class="badge bg-warning" th:text="${pedido['numeroMesa']}">Mesa 1</span>
+              </td>
+              <td th:text="${pedido['clienteNombre']}">Cliente</td>
+              <td>
+                <span class="text-success fw-bold" th:text="'$' + ${pedido['total']}">$0.00</span>
+              </td>
+              <td th:text="${#dates.format(pedido['fechaCreacion'], 'dd/MM/yyyy HH:mm')}">Fecha</td>
+              <td>
+                <span th:class="'badge ' + (${pedido['estado'] == 'PENDIENTE'} ? 'bg-warning' : 'bg-info')" 
+                      th:text="${pedido['estado']}">Estado</span>
+              </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <!-- Botones para pedidos SIN_CANCELAR (pago en efectivo) -->
+                  <form th:if="${pedido['estado'] == 'SIN_CANCELAR'}" th:action="@{/pedidos/cambiar-estado/{id}(id=${pedido['id']})}" method="post" class="d-inline me-1">
+                    <input type="hidden" name="nuevoEstado" value="PAGADO">
+                    <button type="submit" class="btn btn-success btn-sm" title="Marcar como PAGADO">
+                      <i class="bi bi-check-circle"></i> PAGADO
+                    </button>
+                  </form>
+                  <form th:if="${pedido['estado'] == 'SIN_CANCELAR'}" th:action="@{/pedidos/cambiar-estado/{id}(id=${pedido['id']})}" method="post" class="d-inline">
+                    <input type="hidden" name="nuevoEstado" value="CANCELADO">
+                    <button type="submit" class="btn btn-danger btn-sm" title="Marcar como CANCELADO">
+                      <i class="bi bi-x-circle"></i> CANCELADO
+                    </button>
+                  </form>
+                  
+                  <!-- Estado final para pedidos ya procesados -->
+                  <span th:if="${pedido['estado'] == 'PAGADO'}" class="badge bg-success">PAGADO</span>
+                  <span th:if="${pedido['estado'] == 'CANCELADO'}" class="badge bg-danger">CANCELADO</span>
+                </div>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+</section>
+
+</html>

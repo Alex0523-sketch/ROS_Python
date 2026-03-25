@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Mi Horario', ~{::section})">
+
+<section th:fragment="section">
+
+  <!-- Encabezado de página -->
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-clock me-2"></i>Mi Horario de Trabajo</h1>
+      <div class="d-flex gap-2">
+        <span class="badge bg-info fs-6">
+          <i class="bi bi-person-badge me-1"></i>Empleado
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de contenido -->
+  <div class="content-section">
+    <!-- Resumen semanal -->
+    <div class="row mb-4">
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Horas Semanales</h5>
+            <h3 class="text-info">40h</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Días Laborales</h5>
+            <h3 class="text-success">5</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Turno</h5>
+            <h3 class="text-warning">Mañana</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Estado</h5>
+            <h3 class="text-success">Activo</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Horario semanal -->
+    <div class="card">
+      <div class="card-header">
+        <i class="bi bi-calendar-week me-2"></i>Horario Semanal
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+              <th><i class="bi bi-calendar me-1"></i>Día</th>
+              <th><i class="bi bi-clock me-1"></i>Hora Entrada</th>
+              <th><i class="bi bi-clock-history me-1"></i>Hora Salida</th>
+              <th><i class="bi bi-hourglass me-1"></i>Horas Totales</th>
+              <th><i class="bi bi-info-circle me-1"></i>Estado</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-sun me-2 text-warning"></i>
+                  <strong>Lunes</strong>
+                </div>
+              </td>
+              <td><span class="badge bg-success">08:00 AM</span></td>
+              <td><span class="badge bg-danger">05:00 PM</span></td>
+              <td><span class="badge bg-info">8 horas</span></td>
+              <td><span class="badge bg-success">Programado</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-sun me-2 text-warning"></i>
+                  <strong>Martes</strong>
+                </div>
+              </td>
+              <td><span class="badge bg-success">08:00 AM</span></td>
+              <td><span class="badge bg-danger">05:00 PM</span></td>
+              <td><span class="badge bg-info">8 horas</span></td>
+              <td><span class="badge bg-success">Programado</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-sun me-2 text-warning"></i>
+                  <strong>Miércoles</strong>
+                </div>
+              </td>
+              <td><span class="badge bg-success">08:00 AM</span></td>
+              <td><span class="badge bg-danger">05:00 PM</span></td>
+              <td><span class="badge bg-info">8 horas</span></td>
+              <td><span class="badge bg-success">Programado</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-sun me-2 text-warning"></i>
+                  <strong>Jueves</strong>
+                </div>
+              </td>
+              <td><span class="badge bg-success">08:00 AM</span></td>
+              <td><span class="badge bg-danger">05:00 PM</span></td>
+              <td><span class="badge bg-info">8 horas</span></td>
+              <td><span class="badge bg-success">Programado</span></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-sun me-2 text-warning"></i>
+                  <strong>Viernes</strong>
+                </div>
+              </td>
+              <td><span class="badge bg-success">08:00 AM</span></td>
+              <td><span class="badge bg-danger">05:00 PM</span></td>
+              <td><span class="badge bg-info">8 horas</span></td>
+              <td><span class="badge bg-success">Programado</span></td>
+            </tr>
+            <tr class="table-secondary">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-moon me-2 text-muted"></i>
+                  <strong>Sábado</strong>
+                </div>
+              </td>
+              <td><span class="badge bg-secondary">Descanso</span></td>
+              <td><span class="badge bg-secondary">Descanso</span></td>
+              <td><span class="badge bg-secondary">0 horas</span></td>
+              <td><span class="badge bg-secondary">Libre</span></td>
+            </tr>
+            <tr class="table-secondary">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-moon me-2 text-muted"></i>
+                  <strong>Domingo</strong>
+                </div>
+              </td>
+              <td><span class="badge bg-secondary">Descanso</span></td>
+              <td><span class="badge bg-secondary">Descanso</span></td>
+              <td><span class="badge bg-secondary">0 horas</span></td>
+              <td><span class="badge bg-secondary">Libre</span></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <i class="bi bi-info-circle me-2"></i>Información del Turno
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <strong class="text-warning">Supervisor:</strong><br>
+              <span class="text-muted">Gerente de Turno</span>
+            </div>
+            <div class="mb-3">
+              <strong class="text-warning">Departamento:</strong><br>
+              <span class="text-muted">Servicio al Cliente</span>
+            </div>
+            <div class="mb-3">
+              <strong class="text-warning">Ubicación:</strong><br>
+              <span class="text-muted">Salón Principal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <i class="bi bi-lightning me-2"></i>Acciones Rápidas
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <button class="btn btn-success" disabled>
+                <i class="bi bi-clock-history me-2"></i>Marcar Entrada
+              </button>
+              <button class="btn btn-warning" disabled>
+                <i class="bi bi-clock me-2"></i>Marcar Salida
+              </button>
+              <a th:href="@{/pedidos-asignados}" class="btn btn-info">
+                <i class="bi bi-cart-check me-2"></i>Ver Pedidos Asignados
+              </a>
+            </div>
+            <small class="text-muted mt-2 d-block">
+              <i class="bi bi-info-circle me-1"></i>Las funciones de marcado estarán disponibles próximamente
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</html>
