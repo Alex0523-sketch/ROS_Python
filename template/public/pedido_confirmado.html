@@ -40,6 +40,16 @@
                     <p class="h6 mb-0"><span class="badge bg-warning text-dark">{{ pedido.estado }}</span></p>
                   </div>
                   <div class="col-md-4">
+                    <p class="small text-muted text-uppercase mb-0">Mesero</p>
+                    <p class="mb-0 text-dark">
+                      {% if pedido.empleado_asignado %}
+                        {{ pedido.empleado_asignado.nombre }} {{ pedido.empleado_asignado.apellido }}
+                      {% else %}
+                        — (por asignar)
+                      {% endif %}
+                    </p>
+                  </div>
+                  <div class="col-md-4">
                     <p class="small text-muted text-uppercase mb-0">Fecha</p>
                     <p class="mb-0 text-dark">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
                   </div>

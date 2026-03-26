@@ -1,4 +1,5 @@
 import uuid
+import unicodedata
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -12,6 +13,8 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from users.infrastructure.models import UserModel
+from users.infrastructure.models import HorarioModel
 from users.infrastructure.models.promocion_model import PromocionModel
 from users.infrastructure.models.noticia_model import NoticiaModel
 from users.infrastructure.models.categoria_model import CategoriaModel
@@ -25,6 +28,84 @@ from users.context_processors import SESSION_CARRITO_KEY
 from users.utils.money import format_money_display
 
 _CANCELADAS = ('CANCELADO', 'CANCELADA')
+
+def _obtener_mesero_para_asignar():
+    """
+    Selecciona un empleado para asignar el pedido.
+    Prioridad: empleados con horario activo en este momento.
+    Fallback: si no hay horarios activos, asigna el que tenga menos pedidos pendientes.
+    """
+    def _normalize_day_str(val: str) -> str:
+        raw = (val or '').strip().upper()
+        # Quita tildes/acentos para comparar (ej: "MIÉRCOLES" == "MIERCOLES").
+        raw = unicodedata.normalize('NFD', raw)
+        raw = ''.join(ch for ch in raw if unicodedata.category(ch) != 'Mn')
+        return raw
+
+    now = timezone.localtime(timezone.now())
+    # Mapeo estable (evita depender de locale del SO).
+    weekday_map = {
+        0: 'LUNES',
+        1: 'MARTES',
+        2: 'MIERCOLES',
+        3: 'JUEVES',
+        4: 'VIERNES',
+        5: 'SABADO',
+        6: 'DOMINGO',
+    }
+    today_day_norm = weekday_map.get(now.weekday())
+
+    empleados = (
+        UserModel.objects.filter(activo=True, rol__nombre__iexact='EMPLEADO')
+        .select_related('rol')
+        .order_by('id_user')
+    )
+    if not empleados.exists():
+        return None
+
+    # Filtra empleados por horario activo.
+    horarios = HorarioModel.objects.filter(user__in=empleados).select_related('user')
+    disponibles_ids = set()
+    t_now = now.time()
+    for h in horarios:
+        if today_day_norm is None:
+            break
+        if _normalize_day_str(h.dia_semana) != today_day_norm:
+            continue
+
+        try:
+            start_t = datetime.strptime((h.hora_inicio or '').strip(), '%H:%M').time()
+            end_t = datetime.strptime((h.hora_fin or '').strip(), '%H:%M').time()
+        except ValueError:
+            continue
+
+        if start_t <= end_t:
+            activo = start_t <= t_now <= end_t
+        else:
+            # Soporta rangos nocturnos (ej: 22:00 - 02:00).
+            activo = t_now >= start_t or t_now <= end_t
+
+        if activo and h.user_id:
+            disponibles_ids.add(h.user_id)
+
+    candidatos = empleados
+    if disponibles_ids:
+        candidatos = empleados.filter(pk__in=disponibles_ids)
+
+    # Elegimos el empleado con menos pedidos activos (no entregados/cancelados).
+    mejor = None
+    mejor_cantidad = None
+    for emp in candidatos:
+        pendientes = (
+            PedidoModel.objects.filter(empleado_asignado=emp)
+            .exclude(estado__iexact='ENTREGADO')
+            .exclude(estado__in=_CANCELADAS)
+            .count()
+        )
+        if mejor_cantidad is None or pendientes < mejor_cantidad:
+            mejor = emp
+            mejor_cantidad = pendientes
+    return mejor
 
 
 def _rol_upper_public(user):
@@ -313,6 +394,12 @@ def carrito_checkout_view(request):
                 monto_total=total,
                 estado='PENDIENTE',
             )
+
+            # Asignación automática del mesero para que el dashboard del empleado funcione.
+            mesero = _obtener_mesero_para_asignar()
+            if mesero:
+                pedido.empleado_asignado = mesero
+                pedido.save(update_fields=['empleado_asignado'])
     except Exception:
         messages.error(
             request,
@@ -329,12 +416,49 @@ def carrito_checkout_view(request):
 
 
 @login_required(login_url='/login/')
+@require_GET
 def pedido_confirmado_publico_view(request, pk):
-    pedido = get_object_or_404(
-        PedidoModel.objects.select_related('user').prefetch_related('detalles__producto'),
-        pk=pk,
-        user=request.user,
+    # Solo cuentas de cliente deben poder ver su pedido confirmado.
+    if _rol_upper_public(request.user) != 'CLIENTE':
+        messages.warning(request, 'No tienes permiso para ver pedidos confirmados.')
+        return redirect('index')
+
+    # Validación básica del parámetro URL.
+    try:
+        pk_int = int(pk)
+    except (TypeError, ValueError):
+        messages.warning(request, 'Número de pedido inválido.')
+        return redirect('mi_perfil')
+
+    if pk_int < 1:
+        messages.warning(request, 'Número de pedido inválido.')
+        return redirect('mi_perfil')
+
+    pedido = (
+        PedidoModel.objects.select_related('user', 'empleado_asignado')
+        .prefetch_related('detalles__producto')
+        .filter(pk=pk_int, user=request.user)
+        .first()
     )
+    if not pedido:
+        # Si existe el pedido pero no pertenece al usuario, mostramos un mensaje más claro.
+        pedido_existe = PedidoModel.objects.filter(pk=pk_int).only('id').exists()
+        if pedido_existe:
+            messages.warning(request, 'Ese pedido no pertenece a tu cuenta.')
+        else:
+            messages.warning(
+                request,
+                'No encontramos ese pedido. Revisa el numero de pedido o crea uno nuevo.',
+            )
+        return redirect('mi_perfil')
+
+    # Validación extra: el template asume que existen detalles (items).
+    if not pedido.detalles.exists():
+        messages.warning(
+            request,
+            'Este pedido no tiene productos asociados para mostrarlo.',
+        )
+        return redirect('mi_perfil')
     return render(
         request,
         'public/pedido_confirmado.html',

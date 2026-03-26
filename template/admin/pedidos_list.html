@@ -20,6 +20,8 @@
           <th>ID</th>
           <th>Mesa</th>
           <th>Cliente</th>
+          <th>Detalle</th>
+          <th>Mesero</th>
           <th>Total</th>
           <th>Estado</th>
           <th>Fecha</th>
@@ -32,7 +34,41 @@
           <td>{{ p.id }}</td>
           <td>{{ p.numero_mesa|default:"—" }}</td>
           <td>
-            {% if p.user %}{{ p.user.nombre }} {{ p.user.apellido }}{% elif p.cliente_nombre %}{{ p.cliente_nombre }}{% else %}—{% endif %}
+            {% if p.user %}
+              <div>{{ p.user.nombre }} {{ p.user.apellido }}</div>
+              <small class="text-muted">{{ p.user.email }}</small>
+            {% elif p.cliente_nombre %}
+              {{ p.cliente_nombre }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td>
+            {% if p.detalles.all %}
+              <ul class="mb-0 ps-3 small">
+                {% for d in p.detalles.all %}
+                  <li>{{ d.cantidad }}x {{ d.producto.nombre }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <span class="text-muted small">Sin items</span>
+            {% endif %}
+          </td>
+          <td>
+            <form method="post" class="d-flex gap-1 align-items-center">
+              {% csrf_token %}
+              <input type="hidden" name="accion" value="asignar_mesero">
+              <input type="hidden" name="pedido_id" value="{{ p.id }}">
+              <select name="empleado_id" class="form-select form-select-sm">
+                <option value="">Sin asignar</option>
+                {% for e in empleados_meseros %}
+                  <option value="{{ e.pk }}" {% if p.empleado_asignado_id == e.pk %}selected{% endif %}>
+                    {{ e.nombre }} {{ e.apellido }}
+                  </option>
+                {% endfor %}
+              </select>
+              <button type="submit" class="btn btn-sm btn-outline-light">Guardar</button>
+            </form>
           </td>
           <td>$ {{ p.total|money }}</td>
           <td>
@@ -79,7 +115,7 @@
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center text-muted py-4">No hay pedidos.</td></tr>
+        <tr><td colspan="9" class="text-center text-muted py-4">No hay pedidos.</td></tr>
         {% endfor %}
       </tbody>
     </table>

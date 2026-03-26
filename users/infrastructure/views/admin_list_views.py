@@ -963,6 +963,38 @@ def reservas_list_view(request):
 def pedidos_list_view(request):
     repo = PedidoRepositoryImpl()
     if request.method == 'POST':
+        accion = (request.POST.get('accion') or '').strip().lower()
+        if accion == 'asignar_mesero':
+            pedido_id = _optional_int(request.POST.get('pedido_id'))
+            empleado_id = _optional_int(request.POST.get('empleado_id'))
+            pedido = PedidoModel.objects.filter(pk=pedido_id).first() if pedido_id else None
+            if not pedido:
+                messages.error(request, 'Pedido no encontrado.')
+                return redirect('admin_pedidos')
+
+            if not empleado_id:
+                PedidoModel.objects.filter(pk=pedido.id).update(empleado_asignado=None)
+                messages.success(request, f'Se desasigno el mesero del pedido #{pedido.id}.')
+                return redirect('admin_pedidos')
+
+            empleado = (
+                UserModel.objects.filter(
+                    pk=empleado_id,
+                    activo=True,
+                    rol__nombre__iexact='EMPLEADO',
+                ).first()
+            )
+            if not empleado:
+                messages.error(request, 'El mesero seleccionado no es valido.')
+                return redirect('admin_pedidos')
+
+            PedidoModel.objects.filter(pk=pedido.id).update(empleado_asignado=empleado)
+            messages.success(
+                request,
+                f'Pedido #{pedido.id} asignado a {empleado.nombre} {empleado.apellido}.',
+            )
+            return redirect('admin_pedidos')
+
         pedido_id = _optional_int(request.POST.get('pedido_id'))
         nuevo_estado = (request.POST.get('nuevo_estado') or '').strip().upper()
         if not pedido_id or not nuevo_estado:
@@ -983,12 +1015,25 @@ def pedidos_list_view(request):
             messages.error(request, f'No se pudo actualizar el pedido: {exc}')
         return redirect('admin_pedidos')
 
+    empleados_meseros = list(
+        UserModel.objects.filter(activo=True, rol__nombre__iexact='EMPLEADO')
+        .order_by('nombre', 'apellido')
+    )
     pedidos = list(
-        PedidoModel.objects.select_related('user', 'empleado_asignado').order_by('-fecha_creacion')
+        PedidoModel.objects.select_related('user', 'empleado_asignado')
+        .prefetch_related('detalles__producto')
+        .order_by('-fecha_creacion')
     )
     for p in pedidos:
         p.allowed_next = ADMIN_PEDIDO_TRANSICIONES.get((p.estado or '').strip().upper(), [])
-    return render(request, 'admin/pedidos_list.html', {'pedidos': pedidos})
+    return render(
+        request,
+        'admin/pedidos_list.html',
+        {
+            'pedidos': pedidos,
+            'empleados_meseros': empleados_meseros,
+        },
+    )
 
 
 @admin_only

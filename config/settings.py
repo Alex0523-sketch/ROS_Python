@@ -160,8 +160,32 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 AUTH_USER_MODEL = 'users.User'
 
-# Recuperación de contraseña: en desarrollo el correo se imprime en la consola del servidor.
-# En producción configura SMTP (p. ej. EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD).
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'Olla y Sazón <noreply@ollaysazon.local>'
+# Recuperación de contraseña: en desarrollo normalmente se imprime en consola.
+# Si configuras SMTP vía variables de entorno (en `.env` o en el entorno), se enviará correo real.
+#
+# Variables sugeridas:
+# - SMTP_HOST
+# - SMTP_PORT (default 587)
+# - SMTP_USER
+# - SMTP_PASSWORD
+# - SMTP_USE_TLS (default true)
+# - SMTP_USE_SSL (default false)
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND') or ''
+if EMAIL_BACKEND:
+    EMAIL_BACKEND = EMAIL_BACKEND
+elif os.environ.get('SMTP_HOST'):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ.get('SMTP_HOST')
+    EMAIL_PORT = int(os.environ.get('SMTP_PORT', '587'))
+    EMAIL_HOST_USER = os.environ.get('SMTP_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
+    EMAIL_USE_TLS = os.environ.get('SMTP_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
+    EMAIL_USE_SSL = os.environ.get('SMTP_USE_SSL', 'false').lower() in ('1', 'true', 'yes')
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = (
+    os.environ.get('EMAIL_FROM')
+    or os.environ.get('SMTP_USER')
+    or 'Olla y Sazón <noreply@ollaysazon.local>'
+)
 SERVER_EMAIL = DEFAULT_FROM_EMAIL

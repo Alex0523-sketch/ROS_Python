@@ -161,6 +161,7 @@ def pedidos_asignados_view(request):
     repo = PedidoRepositoryImpl()
     qs = (
         PedidoModel.objects.select_related('user', 'empleado_asignado')
+        .prefetch_related('detalles__producto')
         .filter(empleado_asignado=request.user)
         .order_by('-fecha_creacion')
     )

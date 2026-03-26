@@ -6,6 +6,18 @@ from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 
+import hashlib
+
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from django.conf import settings as django_settings
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.utils import timezone
+
 from users.application.application.use_cases.user_usecases import CreateUserUseCase
 from users.infrastructure.models import RolModel, UserModel
 from users.infrastructure.repositories.user_repository_impl import UserRepositoryImpl
@@ -46,31 +58,162 @@ def _safe_next_url(request):
     return None
 
 
+def _client_ip(request):
+    # Soporta proxies (si se configura X-Forwarded-For) y evita errores si no existe.
+    xff = request.META.get('HTTP_X_FORWARDED_FOR')
+    if xff:
+        return xff.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', '') or ''
+
+
+def _hash_key(val: str) -> str:
+    return hashlib.sha256((val or '').encode('utf-8')).hexdigest()[:20]
+
+
+def _enviar_correo_recuperacion_password(request, user):
+    """
+    Envía correo con link de restablecimiento de contraseña (token estándar de Django).
+    Importante: no debe romper el login.
+    """
+    try:
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        absolute_base = request.build_absolute_uri('/').rstrip('/')
+        html_message = render_to_string(
+            'auth/password_reset_email.html',
+            {
+                'user': user,
+                'uid': uidb64,
+                'token': token,
+                'absolute_base': absolute_base,
+            },
+            request=request,
+        )
+
+        subject = 'Restablecer contraseña — Olla y Sazón'
+        msg = EmailMessage(
+            subject=subject,
+            body=html_message,
+            from_email=getattr(django_settings, 'DEFAULT_FROM_EMAIL', None),
+            to=[user.email],
+        )
+        msg.content_subtype = 'html'
+        # Para depurar en desarrollo: si falla el envío, mostramos el error en consola.
+        msg.send(fail_silently=False)
+    except Exception as exc:
+        if getattr(django_settings, 'DEBUG', False):
+            try:
+                print('Error enviando correo de recuperación:', exc)
+            except Exception:
+                pass
+        return
+
+
 def login_view(request):
     if request.user.is_authenticated:
         return redirect(post_login_redirect_url(request.user))
 
     if request.method == 'POST':
-        email = (request.POST.get('username') or '').strip()
-        password = request.POST.get('password')
+        # Anti-bruteforce básico usando sesión (mejorable con cache/redis en producción).
+        max_failed_attempts = 5
+        lock_seconds = 10 * 60  # 10 minutos
+        generic_error = 'Correo o contraseña incorrectos.'
+
+        ip = _client_ip(request)
+        ip_key = _hash_key(ip or 'no-ip')
+        fail_key = f'login_fail_{ip_key}'
+        lock_until_key = f'login_lock_until_{ip_key}'
+
+        now_ts = int(timezone.now().timestamp())
+        lock_until_ts = int(request.session.get(lock_until_key) or 0)
+        if lock_until_ts and now_ts < lock_until_ts:
+            messages.error(
+                request,
+                'Demasiados intentos fallidos. Intenta nuevamente más tarde.',
+            )
+            return render(
+                request,
+                'auth/login.html',
+                {'form_errors': True, 'next': request.POST.get('next', '')},
+                status=429,
+            )
+
+        # Soporta formularios que envíen el correo como `username` o como `email`.
+        raw_email = (
+            request.POST.get('username') or request.POST.get('email') or ''
+        ).strip()
+        email = raw_email.lower()
+        password = (request.POST.get('password') or '').strip()
+
+        # Validaciones de entrada.
+        if not email or not password:
+            messages.error(request, generic_error)
+            return render(
+                request,
+                'auth/login.html',
+                {'form_errors': True, 'next': request.POST.get('next', '')},
+                status=400,
+            )
+
+        if len(raw_email) > 254 or len(password) > 128:
+            messages.error(request, generic_error)
+            return render(
+                request,
+                'auth/login.html',
+                {'form_errors': True, 'next': request.POST.get('next', '')},
+                status=400,
+            )
+
+        try:
+            validate_email(email)
+        except (ValidationError, ValueError):
+            messages.error(request, generic_error)
+            return render(
+                request,
+                'auth/login.html',
+                {'form_errors': True, 'next': request.POST.get('next', '')},
+                status=400,
+            )
+
+        # Django autentica contra `USERNAME_FIELD` que en tu User es el email.
         user = authenticate(request, username=email, password=password)
-        if user:
-            if not user.is_active:
-                messages.error(request, 'Tu cuenta está desactivada.')
-                return render(
-                    request,
-                    'auth/login.html',
-                    {'form_errors': True, 'next': request.POST.get('next', '')},
-                )
+        if user and user.is_active:
+            # Login exitoso: reiniciamos contadores.
+            request.session.pop(fail_key, None)
+            request.session.pop(lock_until_key, None)
+
             login(request, user)
             next_url = _safe_next_url(request)
             if next_url:
                 return redirect(next_url)
             return redirect(post_login_redirect_url(user))
+
+        # Fallo: incremento y posible lock. (Mensaje genérico para no enumerar usuarios)
+        fail_count = int(request.session.get(fail_key) or 0) + 1
+        request.session[fail_key] = fail_count
+        if fail_count >= max_failed_attempts:
+            request.session[lock_until_key] = now_ts + lock_seconds
+            request.session[fail_key] = 0
+
+            # Al bloquear por intentos fallidos: enviamos correo con link para restablecer contraseña.
+            # Para evitar enumeración, solo enviamos si el usuario existe en BD.
+            try:
+                email_sent_key = f'login_lock_email_sent_{ip_key}'
+                if not request.session.get(email_sent_key):
+                    request.session[email_sent_key] = True
+                    candidate = UserModel.objects.filter(email__iexact=email, activo=True).first()
+                    if candidate and candidate.has_usable_password():
+                        _enviar_correo_recuperacion_password(request, candidate)
+            except Exception:
+                pass
+
+        messages.error(request, generic_error)
         return render(
             request,
             'auth/login.html',
             {'form_errors': True, 'next': request.POST.get('next', '')},
+            status=400,
         )
 
     return render(request, 'auth/login.html', {'next': request.GET.get('next', '')})
