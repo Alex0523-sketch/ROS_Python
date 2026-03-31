@@ -10,38 +10,9 @@
       <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
     </div>
   </div>
-<<<<<<< HEAD
-  <p class="small mb-0 mt-2" style="color:#7a5c1e">Confirma reservas pendientes o cancelalas cuando corresponda.</p>
-</div>
-<div class="content-section">
-  <form method="get" class="row g-2 mb-3">
-    <div class="col-md-3">
-      <input type="text" name="cliente" value="{{ q_cliente }}" class="form-control" placeholder="Nombre cliente...">
-    </div>
-    <div class="col-md-3">
-      <input type="text" name="codigo" value="{{ q_codigo }}" class="form-control" placeholder="Codigo reserva...">
-    </div>
-    <div class="col-md-3">
-      <select name="estado" class="form-select">
-        <option value="">Todos los estados</option>
-        <option value="PENDIENTE" {% if q_estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
-        <option value="CONFIRMADA" {% if q_estado == 'CONFIRMADA' %}selected{% endif %}>Confirmada</option>
-        <option value="CANCELADA" {% if q_estado == 'CANCELADA' %}selected{% endif %}>Cancelada</option>
-        <option value="COMPLETADA" {% if q_estado == 'COMPLETADA' %}selected{% endif %}>Completada</option>
-      </select>
-    </div>
-    <div class="col-md-1">
-      <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
-    </div>
-    <div class="col-md-1">
-      <a href="{% url 'admin_reservas' %}" class="btn btn-secondary w-100"><i class="bi bi-x"></i></a>
-    </div>
-  </form>
-=======
   <p class="text-white-50 small mb-0 mt-2">Confirma reservas pendientes o cancélalas cuando corresponda.</p>
 </div>
 <div class="content-section">
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
   <div class="table-responsive">
     <table class="table table-striped table-hover align-middle">
       <thead>

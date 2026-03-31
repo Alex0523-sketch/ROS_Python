@@ -6,9 +6,6 @@ from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 
-<<<<<<< HEAD
-from users.application.use_cases.user_usecases import CreateUserUseCase
-=======
 import hashlib
 
 from django.core.exceptions import ValidationError
@@ -22,7 +19,6 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils import timezone
 
 from users.application.application.use_cases.user_usecases import CreateUserUseCase
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 from users.infrastructure.models import RolModel, UserModel
 from users.infrastructure.repositories.user_repository_impl import UserRepositoryImpl
 from users.infrastructure.views.auth_utils import post_login_redirect_url
@@ -62,8 +58,6 @@ def _safe_next_url(request):
     return None
 
 
-<<<<<<< HEAD
-=======
 def _client_ip(request):
     # Soporta proxies (si se configura X-Forwarded-For) y evita errores si no existe.
     xff = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -116,25 +110,11 @@ def _enviar_correo_recuperacion_password(request, user):
         return
 
 
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 def login_view(request):
     if request.user.is_authenticated:
         return redirect(post_login_redirect_url(request.user))
 
     if request.method == 'POST':
-<<<<<<< HEAD
-        email = (request.POST.get('username') or '').strip()
-        password = request.POST.get('password')
-        user = authenticate(request, username=email, password=password)
-        if user:
-            if not user.is_active:
-                messages.error(request, 'Tu cuenta está desactivada.')
-                return render(
-                    request,
-                    'auth/login.html',
-                    {'form_errors': True, 'next': request.POST.get('next', '')},
-                )
-=======
         # Anti-bruteforce básico usando sesión (mejorable con cache/redis en producción).
         max_failed_attempts = 5
         lock_seconds = 10 * 60  # 10 minutos
@@ -203,14 +183,11 @@ def login_view(request):
             request.session.pop(fail_key, None)
             request.session.pop(lock_until_key, None)
 
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             login(request, user)
             next_url = _safe_next_url(request)
             if next_url:
                 return redirect(next_url)
             return redirect(post_login_redirect_url(user))
-<<<<<<< HEAD
-=======
 
         # Fallo: incremento y posible lock. (Mensaje genérico para no enumerar usuarios)
         fail_count = int(request.session.get(fail_key) or 0) + 1
@@ -232,15 +209,11 @@ def login_view(request):
                 pass
 
         messages.error(request, generic_error)
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         return render(
             request,
             'auth/login.html',
             {'form_errors': True, 'next': request.POST.get('next', '')},
-<<<<<<< HEAD
-=======
             status=400,
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         )
 
     return render(request, 'auth/login.html', {'next': request.GET.get('next', '')})

@@ -24,11 +24,7 @@ class UserRepository(ABC):
         pass
 
     @abstractmethod
-<<<<<<< HEAD
-    def update(self, user_id: int, user: UserEntity, *, new_password: Optional[str] = None) -> Optional[UserEntity]:
-=======
     def update(self, user_id: int, user: UserEntity, *, new_password: str | None = None) -> Optional[UserEntity]:
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         pass
 
     @abstractmethod

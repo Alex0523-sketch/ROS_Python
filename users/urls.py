@@ -6,10 +6,6 @@ from users.forms import EmailPasswordResetForm, StyledSetPasswordForm
 from users.infrastructure.views.admin_list_views import (
     categoria_edit_view,
     categorias_list_view,
-<<<<<<< HEAD
-    categoria_create_view,
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     empleados_list_view,
     horario_create_view,
     horarios_list_view,
@@ -50,16 +46,6 @@ from users.infrastructure.views.panel_views import (
     pedidos_asignados_view,
 )
 from users.infrastructure.views.reportes_views import reportes_admin_view, reportes_pdf_view
-<<<<<<< HEAD
-from users.infrastructure.views.insumo_views import (
-    insumos_list_view,
-    insumo_create_view,
-    insumo_edit_view,
-    receta_view,
-    reporte_reposicion_view,
-)
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 from users.infrastructure.views.public_views import (
     api_mesas_disponibilidad,
     carrito_agregar_view,
@@ -71,11 +57,6 @@ from users.infrastructure.views.public_views import (
     menu_view,
     noticias_view,
     pedido_confirmado_publico_view,
-<<<<<<< HEAD
-    pedido_pagar_view,
-    pedido_procesar_pago_view,
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     reserva_confirmada_view,
     reserva_crear_view,
     reserva_view,
@@ -122,10 +103,6 @@ urlpatterns = [
     path('users/<int:pk>/delete/', user_delete_view, name='admin_user_delete'),
     path('users/', users_list_view, name='admin_users'),
     path('empleados/', empleados_list_view, name='admin_empleados'),
-<<<<<<< HEAD
-    path('categorias/nuevo/', categoria_create_view, name='admin_categoria_nuevo'),
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     path('categorias/<int:pk>/edit/', categoria_edit_view, name='admin_categoria_edit'),
     path('categorias/', categorias_list_view, name='admin_categorias'),
     path('productos/nuevo/', producto_create_view, name='admin_producto_nuevo'),
@@ -150,23 +127,10 @@ urlpatterns = [
     path('horarios/', horarios_list_view, name='admin_horarios'),
     path('reportes/pdf/', reportes_pdf_view, name='reportes_pdf'),
     path('reportes/', reportes_admin_view, name='reportes_admin'),
-<<<<<<< HEAD
-    path('insumos/', insumos_list_view, name='admin_insumos'),
-    path('insumos/nuevo/', insumo_create_view, name='admin_insumo_nuevo'),
-    path('insumos/<int:pk>/editar/', insumo_edit_view, name='admin_insumo_edit'),
-    path('productos/<int:producto_pk>/receta/', receta_view, name='admin_receta'),
-    path('reposicion/', reporte_reposicion_view, name='admin_reposicion'),
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     path('carrito/agregar/', carrito_agregar_view, name='carrito_agregar'),
     path('carrito/quitar/', carrito_quitar_view, name='carrito_quitar'),
     path('carrito/vaciar/', carrito_vaciar_view, name='carrito_vaciar'),
     path('carrito/finalizar/', carrito_checkout_view, name='carrito_finalizar'),
-<<<<<<< HEAD
-    path('pedido/<int:pk>/pagar/', pedido_pagar_view, name='pedido_pagar'),
-    path('pedido/<int:pk>/procesar-pago/', pedido_procesar_pago_view, name='pedido_procesar_pago'),
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     path('pedido/confirmado/<int:pk>/', pedido_confirmado_publico_view, name='pedido_confirmado_publico'),
     path('carrito/', carrito_view, name='carrito'),
     path('menu/', menu_view, name='menu'),
@@ -183,12 +147,7 @@ urlpatterns = [
         PasswordResetEmailView.as_view(
             template_name='auth/password_reset_form.html',
             form_class=EmailPasswordResetForm,
-<<<<<<< HEAD
-            email_template_name='auth/password_reset_email_txt.html',
-            html_email_template_name='auth/password_reset_email.html',
-=======
             email_template_name='auth/password_reset_email.html',
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             subject_template_name='auth/password_reset_subject.txt',
             success_url=reverse_lazy('password_reset_done'),
         ),

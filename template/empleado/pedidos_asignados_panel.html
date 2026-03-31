@@ -17,35 +17,6 @@
 </div>
 
 <div class="row g-3 mb-4">
-<<<<<<< HEAD
-  <div class="col-md-3">
-    <div class="card text-center h-100 {% if not puede_recibir_mas %}border-danger{% else %}border-success{% endif %}">
-      <div class="card-body">
-        <div class="text-muted small text-uppercase fw-bold">Carga actual</div>
-        <div class="h3 mb-0 {% if not puede_recibir_mas %}text-danger{% else %}text-success{% endif %}">{{ pedidos_en_marcha }} / 2</div>
-        <div class="small mt-1">
-          {% if puede_recibir_mas %}
-            <span class="text-success"><i class="bi bi-check-circle me-1"></i>Disponible</span>
-          {% else %}
-            <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Capacidad maxima</span>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card text-center h-100">
-      <div class="card-body">
-        <div class="text-muted small text-uppercase fw-bold">Confirmados</div>
-        <div class="h3 mb-0 text-success">{{ pedidos_counts.CONFIRMADO|default:0 }}</div>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card text-center h-100">
-      <div class="card-body">
-        <div class="text-muted small text-uppercase fw-bold">En preparacion</div>
-=======
   <div class="col-md-4">
     <div class="card text-center h-100">
       <div class="card-body">
@@ -58,16 +29,11 @@
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="text-muted small text-uppercase fw-bold">En preparación</div>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         <div class="h3 mb-0 text-info">{{ pedidos_counts.EN_PREPARACION|default:0 }}</div>
       </div>
     </div>
   </div>
-<<<<<<< HEAD
-  <div class="col-md-3">
-=======
   <div class="col-md-4">
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     <div class="card text-center h-100">
       <div class="card-body">
         <div class="text-muted small text-uppercase fw-bold">Listos</div>
@@ -93,10 +59,7 @@
           <th>ID</th>
           <th>Mesa</th>
           <th>Cliente</th>
-<<<<<<< HEAD
-=======
           <th>Pedido del cliente</th>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
           <th class="text-end">Total</th>
           <th>Fecha</th>
           <th>Estado</th>
@@ -112,24 +75,12 @@
           </td>
           <td>
             {% if p.user %}
-<<<<<<< HEAD
-              {{ p.user.nombre }} {{ p.user.apellido }}
-=======
               <div>{{ p.user.nombre }} {{ p.user.apellido }}</div>
               <small class="text-muted">{{ p.user.email }}</small>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             {% else %}
               {{ p.cliente_nombre }}
             {% endif %}
           </td>
-<<<<<<< HEAD
-          <td class="text-end fw-semibold">$ {{ p.total|money }}</td>
-          <td class="text-muted">{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
-          <td>
-            {% if p.estado == 'CONFIRMADO' %}
-              <span class="badge bg-success">{{ p.estado }}</span>
-            {% elif p.estado == 'PENDIENTE' %}
-=======
           <td>
             {% if p.detalles.all %}
               <ul class="mb-0 ps-3 small">
@@ -145,18 +96,13 @@
           <td class="text-muted">{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
           <td>
             {% if p.estado == 'PENDIENTE' %}
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
               <span class="badge bg-warning text-dark">{{ p.estado }}</span>
             {% elif p.estado == 'EN_PREPARACION' %}
               <span class="badge bg-info">{{ p.estado }}</span>
             {% elif p.estado == 'LISTO' %}
               <span class="badge bg-primary">{{ p.estado }}</span>
             {% elif p.estado == 'ENTREGADO' %}
-<<<<<<< HEAD
-              <span class="badge bg-secondary">{{ p.estado }}</span>
-=======
               <span class="badge bg-success">{{ p.estado }}</span>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             {% else %}
               <span class="badge bg-danger">{{ p.estado }}</span>
             {% endif %}
@@ -175,12 +121,9 @@
                   </form>
                 {% endfor %}
               </div>
-<<<<<<< HEAD
-=======
               {% if p.estado == 'LISTO' %}
                 <div class="small text-success mt-1">Listo para notificar al cliente.</div>
               {% endif %}
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             {% else %}
               <span class="text-muted small">—</span>
             {% endif %}

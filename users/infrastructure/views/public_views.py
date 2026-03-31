@@ -1,8 +1,5 @@
 import uuid
-<<<<<<< HEAD
-=======
 import unicodedata
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -16,11 +13,8 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-<<<<<<< HEAD
-=======
 from users.infrastructure.models import UserModel
 from users.infrastructure.models import HorarioModel
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 from users.infrastructure.models.promocion_model import PromocionModel
 from users.infrastructure.models.noticia_model import NoticiaModel
 from users.infrastructure.models.categoria_model import CategoriaModel
@@ -35,8 +29,6 @@ from users.utils.money import format_money_display
 
 _CANCELADAS = ('CANCELADO', 'CANCELADA')
 
-<<<<<<< HEAD
-=======
 def _obtener_mesero_para_asignar():
     """
     Selecciona un empleado para asignar el pedido.
@@ -115,7 +107,6 @@ def _obtener_mesero_para_asignar():
             mejor_cantidad = pendientes
     return mejor
 
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 
 def _rol_upper_public(user):
     r = getattr(user, 'rol', None)
@@ -242,7 +233,7 @@ def reserva_crear_view(request):
     except (TypeError, ValueError):
         personas = 0
 
-    if len(nombre) < 3 or not telefono.isdigit() or len(telefono) < 7 or not email or not fecha_str or not hora:
+    if len(nombre) < 3 or any(c.isdigit() for c in nombre) or not telefono.isdigit() or len(telefono) < 7 or not email or not fecha_str or not hora:
         messages.error(request, 'Completa todos los campos correctamente.')
         return redirect('reserva')
 
@@ -277,15 +268,14 @@ def reserva_crear_view(request):
         )
         return redirect('reserva')
 
+    user_autenticado = request.user if request.user.is_authenticated else None
+
     codigo = f'RES-{uuid.uuid4().hex[:8].upper()}'
-<<<<<<< HEAD
-    user_obj = request.user if request.user.is_authenticated else None
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     for _ in range(5):
         try:
             ReservaModel.objects.create(
                 codigo_reserva=codigo,
+                user=user_autenticado,
                 nombre_cliente=nombre,
                 email_cliente=email,
                 telefono_cliente=telefono,
@@ -295,10 +285,6 @@ def reserva_crear_view(request):
                 numero_personas=personas,
                 estado='PENDIENTE',
                 comentarios=comentarios,
-<<<<<<< HEAD
-                user=user_obj,
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             )
             return redirect(f"{reverse('reserva_confirmada')}?codigo={codigo}")
         except IntegrityError:
@@ -327,30 +313,13 @@ def carrito_view(request):
         {
             'items': items,
             'total': total,
-<<<<<<< HEAD
-            'puede_finalizar': bool(items),
-            'requiere_login_para_comprar': False,
-            'rol_no_cliente': bool(items) and user.is_authenticated and rol not in ('CLIENTE', ''),
-            'es_invitado': bool(items) and not user.is_authenticated,
-=======
             'puede_finalizar': bool(items) and user.is_authenticated and rol == 'CLIENTE',
             'requiere_login_para_comprar': bool(items) and not user.is_authenticated,
             'rol_no_cliente': bool(items) and user.is_authenticated and rol != 'CLIENTE',
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         },
     )
 
 
-<<<<<<< HEAD
-@require_POST
-def carrito_checkout_view(request):
-    user = request.user
-    es_autenticado = user.is_authenticated
-    rol = _rol_upper_public(user) if es_autenticado else ''
-
-    if es_autenticado and rol not in ('CLIENTE', ''):
-        messages.warning(request, 'Solo cuentas de cliente o invitados pueden hacer pedidos.')
-=======
 @login_required(login_url='/login/')
 @require_POST
 def carrito_checkout_view(request):
@@ -359,16 +328,11 @@ def carrito_checkout_view(request):
             request,
             'Solo las cuentas de cliente pueden finalizar compras desde el sitio web.',
         )
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         return redirect('carrito')
 
     items = _carrito_items(request)
     if not items:
-<<<<<<< HEAD
-        messages.error(request, 'Tu carrito esta vacio.')
-=======
         messages.error(request, 'Tu carrito está vacío.')
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         return redirect('carrito')
 
     comentarios = (request.POST.get('comentarios') or '').strip() or None
@@ -381,45 +345,12 @@ def carrito_checkout_view(request):
             pid = int(raw['producto_id'])
             qty = int(raw['cantidad'])
         except (TypeError, ValueError, KeyError):
-<<<<<<< HEAD
-            messages.error(request, 'Datos del carrito no validos.')
-=======
             messages.error(request, 'Datos del carrito no válidos.')
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             return redirect('carrito')
         if qty < 1:
             continue
         producto = ProductoModel.objects.filter(pk=pid).first()
         if not producto:
-<<<<<<< HEAD
-            messages.error(request, f'El producto "{raw.get("nombre", "desconocido")}" ya no esta disponible.')
-            return redirect('carrito')
-        precio = float(producto.precio)
-        lineas.append({'producto': producto, 'cantidad': qty, 'precio': precio, 'subtotal': precio * qty})
-
-    if not lineas:
-        messages.error(request, 'No quedaron productos validos en el carrito.')
-        return redirect('carrito')
-
-    total = sum(l['subtotal'] for l in lineas)
-    if es_autenticado:
-        nombre = f'{user.nombre} {user.apellido}'.strip() or user.email
-        user_obj = user
-    else:
-        nombre = (request.POST.get('nombre_invitado') or 'Invitado').strip()
-        user_obj = None
-
-    try:
-        with transaction.atomic():
-            import uuid
-            codigo = f'PED-{uuid.uuid4().hex[:8].upper()}'
-            pedido = PedidoModel.objects.create(
-                user=user_obj,
-                cliente_nombre=nombre,
-                codigo_pedido=codigo,
-                total=total,
-                estado='CONFIRMADO',
-=======
             messages.error(
                 request,
                 f'El producto «{raw.get("nombre", "desconocido")}» ya no está disponible. Actualiza el carrito.',
@@ -450,7 +381,6 @@ def carrito_checkout_view(request):
                 cliente_nombre=nombre,
                 total=total,
                 estado='PENDIENTE',
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
                 comentarios=comentarios,
             )
             for ln in lineas:
@@ -460,72 +390,6 @@ def carrito_checkout_view(request):
                     cantidad=ln['cantidad'],
                     precio=ln['precio'],
                 )
-<<<<<<< HEAD
-            from users.application.use_cases.inventario_usecase import DescontarInventarioPorPedidoUseCase
-            from users.application.use_cases.asignacion_usecase import AsignarEmpleadoPedidoUseCase
-            DescontarInventarioPorPedidoUseCase().execute(pedido.pk)
-            AsignarEmpleadoPedidoUseCase().execute(pedido.pk)
-    except Exception:
-        messages.error(request, 'No se pudo registrar el pedido. Intenta de nuevo.')
-        return redirect('carrito')
-
-    _carrito_guardar(request, [])
-    return redirect('pedido_pagar', pk=pedido.pk)
-
-
-def pedido_pagar_view(request, pk):
-    pedido = get_object_or_404(
-        PedidoModel.objects.select_related('empleado_asignado').prefetch_related('detalles__producto'),
-        pk=pk
-    )
-    if pedido.pagos.exists():
-        return redirect('pedido_confirmado_publico', pk=pk)
-    return render(request, 'public/pago_pedido.html', {'pedido': pedido})
-
-
-@require_POST
-def pedido_procesar_pago_view(request, pk):
-    """Registra el pago del pedido."""
-    pedido = get_object_or_404(PedidoModel, pk=pk)
-
-    if pedido.pagos.exists():
-        messages.warning(request, 'Este pedido ya tiene un pago registrado.')
-        return redirect('pedido_confirmado_publico', pk=pk)
-
-    METODOS_PRESENCIALES = ('EFECTIVO', 'DATAFONO')
-    METODOS_DIGITALES = ('TARJETA_VIRTUAL', 'NEQUI', 'DAVIPLATA')
-
-    metodo_pago = (request.POST.get('metodo_pago') or '').strip().upper()
-    if metodo_pago not in METODOS_PRESENCIALES + METODOS_DIGITALES:
-        messages.error(request, 'Selecciona un metodo de pago valido.')
-        return redirect('pedido_pagar', pk=pk)
-
-    estado_pago = 'COMPLETADO' if metodo_pago in METODOS_DIGITALES else 'PENDIENTE'
-    user_obj = request.user if request.user.is_authenticated else None
-
-    PagoModel.objects.create(
-        pedido=pedido,
-        user=user_obj,
-        metodo_pago=metodo_pago,
-        monto_total=pedido.total,
-        estado=estado_pago,
-    )
-
-    if estado_pago == 'COMPLETADO':
-        messages.success(request, f'Pago con {metodo_pago} confirmado. Gracias!')
-    else:
-        messages.info(request, f'Pedido registrado. Pagas con {metodo_pago.lower()} en el local.')
-
-    return redirect('pedido_confirmado_publico', pk=pk)
-
-
-def pedido_confirmado_publico_view(request, pk):
-    pedido = get_object_or_404(
-        PedidoModel.objects.select_related('user', 'empleado_asignado').prefetch_related('detalles__producto', 'pagos'),
-        pk=pk,
-    )
-    return render(request, 'public/pedido_confirmado.html', {'pedido': pedido})
-=======
             PagoModel.objects.create(
                 pedido=pedido,
                 user=user,
@@ -603,7 +467,6 @@ def pedido_confirmado_publico_view(request, pk):
         'public/pedido_confirmado.html',
         {'pedido': pedido},
     )
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 
 
 @require_POST

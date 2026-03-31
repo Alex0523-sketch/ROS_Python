@@ -10,44 +10,9 @@
       <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
     </div>
   </div>
-<<<<<<< HEAD
-  <p class="small mb-0 mt-2" style="color:#7a5c1e">Acepta o rechaza pagos en estado <strong>PENDIENTE</strong>.</p>
-</div>
-<div class="content-section">
-  <form method="get" class="row g-2 mb-3">
-    <div class="col-md-3">
-      <input type="text" name="pedido" value="{{ q_pedido }}" class="form-control" placeholder="N. pedido...">
-    </div>
-    <div class="col-md-3">
-      <select name="metodo" class="form-select">
-        <option value="">Todos los metodos</option>
-        <option value="EFECTIVO" {% if q_metodo == 'EFECTIVO' %}selected{% endif %}>Efectivo</option>
-        <option value="DATAFONO" {% if q_metodo == 'DATAFONO' %}selected{% endif %}>Datafono</option>
-        <option value="TARJETA_VIRTUAL" {% if q_metodo == 'TARJETA_VIRTUAL' %}selected{% endif %}>Tarjeta virtual</option>
-        <option value="NEQUI" {% if q_metodo == 'NEQUI' %}selected{% endif %}>Nequi</option>
-        <option value="DAVIPLATA" {% if q_metodo == 'DAVIPLATA' %}selected{% endif %}>Daviplata</option>
-      </select>
-    </div>
-    <div class="col-md-3">
-      <select name="estado" class="form-select">
-        <option value="">Todos los estados</option>
-        <option value="PENDIENTE" {% if q_estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
-        <option value="COMPLETADO" {% if q_estado == 'COMPLETADO' %}selected{% endif %}>Completado</option>
-        <option value="RECHAZADO" {% if q_estado == 'RECHAZADO' %}selected{% endif %}>Rechazado</option>
-      </select>
-    </div>
-    <div class="col-md-1">
-      <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
-    </div>
-    <div class="col-md-1">
-      <a href="{% url 'admin_pagos' %}" class="btn btn-secondary w-100"><i class="bi bi-x"></i></a>
-    </div>
-  </form>
-=======
   <p class="text-white-50 small mb-0 mt-2">Acepta o rechaza pagos en estado <strong>PENDIENTE</strong>.</p>
 </div>
 <div class="content-section">
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
   <div class="table-responsive">
     <table class="table table-striped table-hover align-middle">
       <thead>

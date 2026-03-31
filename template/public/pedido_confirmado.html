@@ -18,13 +18,8 @@
   <header class="cart-page-hero cart-page-hero--success text-center">
     <div class="container py-2">
       <div class="cart-success-icon mb-3"><i class="fas fa-check-circle"></i></div>
-<<<<<<< HEAD
-      <h1 class="display-5 font-display mb-2">Pedido confirmado</h1>
-      <p class="lead mb-0">Numero de pedido: <strong class="text-warning">#{{ pedido.pk }}</strong></p>
-=======
       <h1 class="display-5 font-display mb-2">¡Pedido registrado!</h1>
       <p class="lead mb-0">Número de pedido: <strong class="text-warning">#{{ pedido.pk }}</strong></p>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
   </header>
 
@@ -41,29 +36,15 @@
                     <p class="h4 mb-0 text-dark">$ {{ pedido.total|money }}</p>
                   </div>
                   <div class="col-md-4">
-<<<<<<< HEAD
-                    <p class="small text-muted text-uppercase mb-0">Estado pedido</p>
-                    <p class="h6 mb-0"><span class="badge bg-success">{{ pedido.estado }}</span></p>
-                  </div>
-                  <div class="col-md-4">
-                    <p class="small text-muted text-uppercase mb-0">Empleado asignado</p>
-=======
                     <p class="small text-muted text-uppercase mb-0">Estado</p>
                     <p class="h6 mb-0"><span class="badge bg-warning text-dark">{{ pedido.estado }}</span></p>
                   </div>
                   <div class="col-md-4">
                     <p class="small text-muted text-uppercase mb-0">Mesero</p>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
                     <p class="mb-0 text-dark">
                       {% if pedido.empleado_asignado %}
                         {{ pedido.empleado_asignado.nombre }} {{ pedido.empleado_asignado.apellido }}
                       {% else %}
-<<<<<<< HEAD
-                        <span class="text-muted">Asignando...</span>
-                      {% endif %}
-                    </p>
-                  </div>
-=======
                         — (por asignar)
                       {% endif %}
                     </p>
@@ -72,7 +53,6 @@
                     <p class="small text-muted text-uppercase mb-0">Fecha</p>
                     <p class="mb-0 text-dark">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</p>
                   </div>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
                 </div>
               </div>
               <div class="table-responsive">
@@ -103,43 +83,12 @@
               <strong><i class="fas fa-comment-alt me-2 text-warning"></i>Tus notas:</strong> {{ pedido.comentarios }}
             </div>
             {% endif %}
-<<<<<<< HEAD
-
-            {% with pago=pedido.pagos.first %}
-            {% if pago %}
-              {% if pago.estado == 'COMPLETADO' %}
-              <div class="alert alert-success mb-4">
-                <i class="fas fa-check-circle me-2"></i>
-                <strong>Pago completado</strong> con {{ pago.metodo_pago }}. Tu pedido esta en preparacion.
-              </div>
-              {% else %}
-              <div class="alert alert-warning mb-4">
-                <i class="fas fa-clock me-2"></i>
-                <strong>Pago pendiente</strong> — metodo: {{ pago.metodo_pago }}. Pagas en el local al recibir tu pedido.
-              </div>
-              {% endif %}
-            {% else %}
-            <div class="alert alert-warning mb-4">
-              <i class="fas fa-clock me-2"></i>
-              <strong>Pago pendiente.</strong> Selecciona tu metodo de pago.
-              <a href="{% url 'pedido_pagar' pk=pedido.pk %}" class="btn btn-warning btn-sm ms-2 text-dark fw-bold">Ir a pagar</a>
-            </div>
-            {% endif %}
-            {% endwith %}
-
-            <div class="d-flex flex-wrap gap-2">
-              <a href="{% url 'menu' %}" class="btn btn-warning text-dark fw-bold rounded-pill px-4"><i class="fas fa-utensils me-2"></i>Seguir comprando</a>
-              {% if pedido.user %}
-              <a href="{% url 'mi_perfil' %}" class="btn btn-outline-dark rounded-pill px-4"><i class="fas fa-user me-2"></i>Mi panel</a>
-              {% endif %}
-=======
             <p class="text-muted small mb-4">
               El pago quedó <strong>pendiente</strong>. Puedes abonar en el local o cuando te indiquemos por el método acordado.
             </p>
             <div class="d-flex flex-wrap gap-2">
               <a href="{% url 'menu' %}" class="btn btn-warning text-dark fw-bold rounded-pill px-4"><i class="fas fa-utensils me-2"></i>Seguir comprando</a>
               <a href="{% url 'mi_perfil' %}" class="btn btn-outline-dark rounded-pill px-4"><i class="fas fa-user me-2"></i>Mi panel</a>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
               <a href="{% url 'index' %}" class="btn btn-outline-secondary rounded-pill px-4">Inicio</a>
             </div>
           </div>

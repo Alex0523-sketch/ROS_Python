@@ -13,16 +13,6 @@ from django.db.models import ProtectedError
 from django.http import Http404
 from django.shortcuts import redirect, render
 
-<<<<<<< HEAD
-from users.application.use_cases.categoria_usecase import (
-    ActualizarCategoriaUseCase,
-    CrearCategoriaUseCase,
-    ObtenerCategoriaUseCase,
-)
-from users.application.use_cases.horario_usecase import CrearHorarioUseCase
-from users.application.use_cases.inventario_usecase import CrearOActualizarInventarioUseCase
-from users.application.use_cases.mesa_usecase import (
-=======
 from users.application.application.use_cases.categoria_usecase import (
     ActualizarCategoriaUseCase,
     ObtenerCategoriaUseCase,
@@ -30,24 +20,10 @@ from users.application.application.use_cases.categoria_usecase import (
 from users.application.application.use_cases.horario_usecase import CrearHorarioUseCase
 from users.application.application.use_cases.inventario_usecase import CrearOActualizarInventarioUseCase
 from users.application.application.use_cases.mesa_usecase import (
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     ActualizarMesaUseCase,
     CrearMesaUseCase,
     ObtenerMesaUseCase,
 )
-<<<<<<< HEAD
-from users.application.use_cases.noticia_usecase import CrearNoticiaUseCase
-from users.application.use_cases.pago_usecase import CrearPagoUseCase
-from users.application.use_cases.pedido_usecase import (
-    CambiarEstadoPedidoUseCase,
-    CrearPedidoUseCase,
-)
-from users.application.use_cases.producto_usecase import (
-    ActualizarProductoUseCase,
-    CrearProductoUseCase,
-)
-from users.application.use_cases.promocion_usecase import (
-=======
 from users.application.application.use_cases.noticia_usecase import CrearNoticiaUseCase
 from users.application.application.use_cases.pago_usecase import CrearPagoUseCase
 from users.application.application.use_cases.pedido_usecase import (
@@ -59,18 +35,12 @@ from users.application.application.use_cases.producto_usecase import (
     CrearProductoUseCase,
 )
 from users.application.application.use_cases.promocion_usecase import (
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     ActualizarPromocionCompletaUseCase,
     CrearPromocionUseCase,
     EliminarPromocionUseCase,
 )
-<<<<<<< HEAD
-from users.application.use_cases.reserva_usecase import CrearReservaUseCase
-from users.application.use_cases.user_usecases import (
-=======
 from users.application.application.use_cases.reserva_usecase import CrearReservaUseCase
 from users.application.application.use_cases.user_usecases import (
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     CreateUserUseCase,
     DeleteUserUseCase,
     GetUserUseCase,
@@ -234,34 +204,8 @@ def users_list_view(request):
         if rol_ids
         else {}
     )
-<<<<<<< HEAD
-    todos = [_UserListRow(e, roles_by_id.get(e.rol_id)) for e in entities]
-
-    # Filtros
-    q_nombre = (request.GET.get('nombre') or '').strip().lower()
-    q_correo = (request.GET.get('correo') or '').strip().lower()
-    q_rol = (request.GET.get('rol') or '').strip()
-
-    usuarios = todos
-    if q_nombre:
-        usuarios = [u for u in usuarios if q_nombre in f'{u.nombre} {u.apellido}'.lower()]
-    if q_correo:
-        usuarios = [u for u in usuarios if q_correo in u.email.lower()]
-    if q_rol:
-        usuarios = [u for u in usuarios if u.rol and str(u.rol.id_rol) == q_rol]
-
-    roles = RolModel.objects.order_by('nombre')
-    return render(request, 'admin/users_list.html', {
-        'usuarios': usuarios,
-        'roles': roles,
-        'q_nombre': q_nombre,
-        'q_correo': q_correo,
-        'q_rol': q_rol,
-    })
-=======
     usuarios = [_UserListRow(e, roles_by_id.get(e.rol_id)) for e in entities]
     return render(request, 'admin/users_list.html', {'usuarios': usuarios})
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 
 
 @admin_only
@@ -439,27 +383,6 @@ def categorias_list_view(request):
 
 
 @admin_only
-<<<<<<< HEAD
-def categoria_create_view(request):
-    if request.method == 'POST':
-        nombre = (request.POST.get('nombre') or '').strip()
-        descripcion = (request.POST.get('descripcion') or '').strip()
-        if not nombre:
-            messages.error(request, 'El nombre es obligatorio.')
-            return render(request, 'admin/categoria_form.html', {'edit_categoria': None}, status=400)
-        try:
-            CrearCategoriaUseCase(_categoria_repository()).execute(nombre, descripcion or None)
-        except ValueError as exc:
-            messages.error(request, str(exc))
-            return render(request, 'admin/categoria_form.html', {'edit_categoria': None}, status=400)
-        messages.success(request, 'Categoria creada correctamente.')
-        return redirect('admin_categorias')
-    return render(request, 'admin/categoria_form.html', {'edit_categoria': None})
-
-
-@admin_only
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 def categoria_edit_view(request, pk):
     repo = _categoria_repository()
     if request.method == 'POST':
@@ -1033,38 +956,13 @@ def reservas_list_view(request):
         return redirect('admin_reservas')
 
     reservas = ReservaModel.objects.select_related('mesa', 'user').order_by('-fecha_reserva')
-<<<<<<< HEAD
-    q_cliente = (request.GET.get('cliente') or '').strip()
-    q_codigo = (request.GET.get('codigo') or '').strip()
-    q_estado = (request.GET.get('estado') or '').strip()
-    if q_cliente:
-        from django.db.models import Q
-        reservas = reservas.filter(
-            Q(nombre_cliente__icontains=q_cliente) |
-            Q(user__nombre__icontains=q_cliente) |
-            Q(user__apellido__icontains=q_cliente)
-        )
-    if q_codigo:
-        reservas = reservas.filter(codigo_reserva__icontains=q_codigo)
-    if q_estado:
-        reservas = reservas.filter(estado=q_estado)
-    return render(request, 'admin/reservas_list.html', {
-        'reservas': reservas,
-        'q_cliente': q_cliente,
-        'q_codigo': q_codigo,
-        'q_estado': q_estado,
-    })
-=======
     return render(request, 'admin/reservas_list.html', {'reservas': reservas})
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 
 
 @admin_only
 def pedidos_list_view(request):
     repo = PedidoRepositoryImpl()
     if request.method == 'POST':
-<<<<<<< HEAD
-=======
         accion = (request.POST.get('accion') or '').strip().lower()
         if accion == 'asignar_mesero':
             pedido_id = _optional_int(request.POST.get('pedido_id'))
@@ -1097,7 +995,6 @@ def pedidos_list_view(request):
             )
             return redirect('admin_pedidos')
 
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         pedido_id = _optional_int(request.POST.get('pedido_id'))
         nuevo_estado = (request.POST.get('nuevo_estado') or '').strip().upper()
         if not pedido_id or not nuevo_estado:
@@ -1118,14 +1015,6 @@ def pedidos_list_view(request):
             messages.error(request, f'No se pudo actualizar el pedido: {exc}')
         return redirect('admin_pedidos')
 
-<<<<<<< HEAD
-    pedidos = list(
-        PedidoModel.objects.select_related('user', 'empleado_asignado').order_by('-fecha_creacion')
-    )
-    for p in pedidos:
-        p.allowed_next = ADMIN_PEDIDO_TRANSICIONES.get((p.estado or '').strip().upper(), [])
-    return render(request, 'admin/pedidos_list.html', {'pedidos': pedidos})
-=======
     empleados_meseros = list(
         UserModel.objects.filter(activo=True, rol__nombre__iexact='EMPLEADO')
         .order_by('nombre', 'apellido')
@@ -1145,7 +1034,6 @@ def pedidos_list_view(request):
             'empleados_meseros': empleados_meseros,
         },
     )
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 
 
 @admin_only
@@ -1178,25 +1066,7 @@ def pagos_list_view(request):
         return redirect('admin_pagos')
 
     pagos = PagoModel.objects.select_related('user', 'pedido').order_by('-fecha_creacion')
-<<<<<<< HEAD
-    q_pedido = (request.GET.get('pedido') or '').strip()
-    q_metodo = (request.GET.get('metodo') or '').strip().upper()
-    q_estado = (request.GET.get('estado') or '').strip().upper()
-    if q_pedido:
-        pagos = pagos.filter(pedido__id__icontains=q_pedido)
-    if q_metodo:
-        pagos = pagos.filter(metodo_pago=q_metodo)
-    if q_estado:
-        pagos = pagos.filter(estado=q_estado)
-    return render(request, 'admin/pagos_list.html', {
-        'pagos': pagos,
-        'q_pedido': q_pedido,
-        'q_metodo': q_metodo,
-        'q_estado': q_estado,
-    })
-=======
     return render(request, 'admin/pagos_list.html', {'pagos': pagos})
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 
 
 @admin_only
@@ -1443,17 +1313,6 @@ def pedido_create_view(request):
         }
         try:
             CrearPedidoUseCase(_pedido_repository()).execute(pedido_data)
-<<<<<<< HEAD
-            # Si no se asigno empleado manualmente, asignar automaticamente
-            if not empleado_id:
-                pedido_creado = PedidoModel.objects.filter(
-                    cliente_nombre=cliente_nombre, estado=estado
-                ).order_by('-fecha_creacion').first()
-                if pedido_creado:
-                    from users.application.use_cases.asignacion_usecase import AsignarEmpleadoPedidoUseCase
-                    AsignarEmpleadoPedidoUseCase().execute(pedido_creado.pk)
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         except ValueError as exc:
             messages.error(request, str(exc))
             ctx['posted'] = request.POST

@@ -20,11 +20,8 @@
           <th>ID</th>
           <th>Mesa</th>
           <th>Cliente</th>
-<<<<<<< HEAD
-=======
           <th>Detalle</th>
           <th>Mesero</th>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
           <th>Total</th>
           <th>Estado</th>
           <th>Fecha</th>
@@ -37,9 +34,6 @@
           <td>{{ p.id }}</td>
           <td>{{ p.numero_mesa|default:"—" }}</td>
           <td>
-<<<<<<< HEAD
-            {% if p.user %}{{ p.user.nombre }} {{ p.user.apellido }}{% elif p.cliente_nombre %}{{ p.cliente_nombre }}{% else %}—{% endif %}
-=======
             {% if p.user %}
               <div>{{ p.user.nombre }} {{ p.user.apellido }}</div>
               <small class="text-muted">{{ p.user.email }}</small>
@@ -75,7 +69,6 @@
               </select>
               <button type="submit" class="btn btn-sm btn-outline-light">Guardar</button>
             </form>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
           </td>
           <td>$ {{ p.total|money }}</td>
           <td>
@@ -122,11 +115,7 @@
           </td>
         </tr>
         {% empty %}
-<<<<<<< HEAD
-        <tr><td colspan="7" class="text-center text-muted py-4">No hay pedidos.</td></tr>
-=======
         <tr><td colspan="9" class="text-center text-muted py-4">No hay pedidos.</td></tr>
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         {% endfor %}
       </tbody>
     </table>

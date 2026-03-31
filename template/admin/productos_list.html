@@ -43,10 +43,6 @@
           <td>$ {{ p.precio|money }}</td>
           <td class="text-end">
             <a href="{% url 'admin_producto_edit' p.id_producto %}" class="btn btn-sm btn-warning text-dark fw-semibold"><i class="bi bi-pencil-square me-1"></i>Editar</a>
-<<<<<<< HEAD
-            <a href="{% url 'admin_receta' p.id_producto %}" class="btn btn-sm btn-outline-info ms-1"><i class="bi bi-journal-text me-1"></i>Receta</a>
-=======
->>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
           </td>
         </tr>
         {% empty %}
