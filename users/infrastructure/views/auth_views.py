@@ -28,6 +28,12 @@ class PasswordResetEmailView(auth_views.PasswordResetView):
     """Incluye `absolute_base` en el correo para que el enlace use el mismo host y puerto de la solicitud."""
 
     def form_valid(self, form):
+        email = form.cleaned_data.get('email', '').strip().lower()
+        exists = UserModel.objects.filter(email__iexact=email, activo=True).exists()
+        if not exists:
+            form.add_error('email', 'Este correo no está registrado.')
+            return self.form_invalid(form)
+
         opts = {
             'use_https': self.request.is_secure(),
             'token_generator': self.token_generator,

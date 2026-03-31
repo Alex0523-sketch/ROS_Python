@@ -4,6 +4,8 @@ from django.views.generic import RedirectView
 
 from users.forms import EmailPasswordResetForm, StyledSetPasswordForm
 from users.infrastructure.views.admin_list_views import (
+    categoria_create_view,
+    categoria_delete_view,
     categoria_edit_view,
     categorias_list_view,
     empleados_list_view,
@@ -103,7 +105,9 @@ urlpatterns = [
     path('users/<int:pk>/delete/', user_delete_view, name='admin_user_delete'),
     path('users/', users_list_view, name='admin_users'),
     path('empleados/', empleados_list_view, name='admin_empleados'),
+    path('categorias/nuevo/', categoria_create_view, name='admin_categoria_nuevo'),
     path('categorias/<int:pk>/edit/', categoria_edit_view, name='admin_categoria_edit'),
+    path('categorias/<int:pk>/eliminar/', categoria_delete_view, name='admin_categoria_eliminar'),
     path('categorias/', categorias_list_view, name='admin_categorias'),
     path('productos/nuevo/', producto_create_view, name='admin_producto_nuevo'),
     path('productos/<int:pk>/editar/', producto_edit_view, name='admin_producto_edit'),
@@ -147,7 +151,8 @@ urlpatterns = [
         PasswordResetEmailView.as_view(
             template_name='auth/password_reset_form.html',
             form_class=EmailPasswordResetForm,
-            email_template_name='auth/password_reset_email.html',
+            email_template_name='auth/password_reset_email_txt.html',
+            html_email_template_name='auth/password_reset_email.html',
             subject_template_name='auth/password_reset_subject.txt',
             success_url=reverse_lazy('password_reset_done'),
         ),

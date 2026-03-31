@@ -103,7 +103,7 @@
               </div>
               {% elif rol_no_cliente %}
               <div class="cart-alert-box cart-alert-box--warn mb-3">
-                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>Las compras web están disponibles para cuentas con rol <strong>cliente</strong>.</p>
+                <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>Las compras web están disponibles para cuentas autenticadas, como <strong>cliente</strong> registrado.</p>
               </div>
               {% elif puede_finalizar %}
               <form method="post" action="{% url 'carrito_finalizar' %}" class="cart-checkout-form">

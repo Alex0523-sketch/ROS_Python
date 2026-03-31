@@ -15,6 +15,8 @@ from django.shortcuts import redirect, render
 
 from users.application.application.use_cases.categoria_usecase import (
     ActualizarCategoriaUseCase,
+    CrearCategoriaUseCase,
+    EliminarCategoriaUseCase,
     ObtenerCategoriaUseCase,
 )
 from users.application.application.use_cases.horario_usecase import CrearHorarioUseCase
@@ -380,6 +382,42 @@ def user_delete_view(request, pk):
 def categorias_list_view(request):
     categorias = CategoriaModel.objects.all().order_by('nombre')
     return render(request, 'admin/categorias_list.html', {'categorias': categorias})
+
+
+@admin_only
+def categoria_create_view(request):
+    if request.method == 'POST':
+        nombre = (request.POST.get('nombre') or '').strip()
+        descripcion = (request.POST.get('descripcion') or '').strip()
+        if not nombre:
+            messages.error(request, 'El nombre es obligatorio.')
+            return render(request, 'admin/categoria_form.html', {'edit_categoria': None}, status=400)
+        try:
+            CrearCategoriaUseCase(_categoria_repository()).execute(nombre=nombre, descripcion=descripcion or None)
+        except ValueError as exc:
+            messages.error(request, str(exc))
+            return render(request, 'admin/categoria_form.html', {'edit_categoria': None}, status=400)
+        messages.success(request, 'Categoría creada correctamente.')
+        return redirect('admin_categorias')
+    return render(request, 'admin/categoria_form.html', {'edit_categoria': None})
+
+
+@admin_only
+def categoria_delete_view(request, pk):
+    try:
+        categoria = CategoriaModel.objects.get(pk=pk)
+    except CategoriaModel.DoesNotExist:
+        raise Http404
+    if request.method == 'POST':
+        try:
+            EliminarCategoriaUseCase(_categoria_repository()).execute(pk)
+            messages.success(request, 'Categoría eliminada.')
+        except ProtectedError:
+            messages.error(request, 'No se puede eliminar: tiene productos asociados.')
+        except LookupError:
+            messages.error(request, 'No se pudo eliminar la categoría.')
+        return redirect('admin_categorias')
+    return render(request, 'admin/categoria_confirm_delete.html', {'categoria': categoria})
 
 
 @admin_only
