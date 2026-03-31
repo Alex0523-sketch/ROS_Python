@@ -1,0 +1,139 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block title %}Mi panel{% endblock %}
+{% block page_title %}Mi panel{% endblock %}
+
+{% block content %}
+<div id="resumen" class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100 border-start border-warning border-4">
+      <div class="card-body">
+        <p class="text-muted text-uppercase small mb-1">Total gastado</p>
+        <p class="h3 mb-0 text-dark">$ {{ total_gastado|money }}</p>
+        <p class="small text-muted mb-0 mt-2">Suma de tus pedidos registrados (no cancelados).</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100 border-start border-primary border-4">
+      <div class="card-body">
+        <p class="text-muted text-uppercase small mb-1">Pedidos</p>
+        <p class="h3 mb-0 text-dark">{{ pedidos_count }}</p>
+        <p class="small text-muted mb-0 mt-2">Pedidos asociados a tu cuenta.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100 border-start border-success border-4">
+      <div class="card-body">
+        <p class="text-muted text-uppercase small mb-1">Reservas</p>
+        <p class="h3 mb-0 text-dark">{{ reservas_count }}</p>
+        <p class="small text-muted mb-0 mt-2">Reservas hechas con tu usuario.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0"><i class="bi bi-heart-fill text-danger me-2"></i>Tu plato favorito</h5>
+      </div>
+      <div class="card-body">
+        {% if plato_favorito %}
+        <p class="h5 mb-1">{{ plato_favorito }}</p>
+        <p class="text-muted mb-0">Lo has pedido <strong>{{ favorito_cantidad }}</strong> {% if favorito_cantidad == 1 %}vez{% else %}veces{% endif %} en total (unidades sumadas en tus pedidos).</p>
+        {% else %}
+        <p class="text-muted mb-0">Aún no hay suficientes pedidos para calcular un favorito. ¡Explora el <a href="{% url 'menu' %}">menú</a>!</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white border-bottom">
+        <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Datos de tu cuenta</h5>
+      </div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Nombre:</strong> {{ user.nombre }} {{ user.apellido }}</p>
+        <p class="mb-1"><strong>Email:</strong> {{ user.email }}</p>
+        <p class="mb-0 text-muted small">Rol: {{ user.rol.nombre|default:"—" }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="pedidos" class="card shadow-sm mb-4">
+  <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <h5 class="mb-0"><i class="bi bi-bag-check me-2"></i>Últimos pedidos</h5>
+    <a href="{% url 'menu' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-lg me-1"></i>Ver menú</a>
+  </div>
+  <div class="card-body p-0">
+    {% if ultimos_pedidos %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Fecha</th>
+            <th class="text-end">Total</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in ultimos_pedidos %}
+          <tr>
+            <td>{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
+            <td class="text-end">$ {{ p.total|money }}</td>
+            <td><span class="badge bg-secondary">{{ p.estado }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0">No tienes pedidos registrados todavía.</p>
+    {% endif %}
+  </div>
+</div>
+
+<div id="reservas" class="card shadow-sm mb-4">
+  <div class="card-header bg-white border-bottom">
+    <h5 class="mb-0"><i class="bi bi-calendar-event me-2"></i>Últimas reservas</h5>
+  </div>
+  <div class="card-body p-0">
+    {% if ultimas_reservas %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Código</th>
+            <th>Fecha y hora</th>
+            <th>Personas</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in ultimas_reservas %}
+          <tr>
+            <td><code>{{ r.codigo_reserva|default:"—" }}</code></td>
+            <td>{{ r.fecha_reserva|date:"d/m/Y" }} {{ r.hora }}</td>
+            <td>{{ r.numero_personas }}</td>
+            <td><span class="badge bg-secondary">{{ r.estado }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted p-4 mb-0">No hay reservas con tu cuenta. <a href="{% url 'reserva' %}">Reservar mesa</a></p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="d-flex flex-wrap gap-2">
+  <a href="{% url 'index' %}" class="btn btn-outline-primary"><i class="bi bi-house me-1"></i>Ir al sitio público</a>
+  <a href="{% url 'menu' %}" class="btn btn-primary"><i class="bi bi-cup-hot me-1"></i>Ir al menú</a>
+</div>
+{% endblock %}

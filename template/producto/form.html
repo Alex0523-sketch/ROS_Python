@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout(${producto.idProducto} != null ? 'Editar Producto' : 'Nuevo Producto', ~{::section})">
+
+<section th:fragment="section">
+
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1>
+        <i class="bi" th:classappend="${producto.idProducto} != null ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+        <span th:text="${producto.idProducto} != null ? 'Editar Producto' : 'Nuevo Producto'"></span>
+      </h1>
+      <a th:href="@{/productos}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <form th:action="@{/productos/save}" th:object="${producto}" method="post">
+      <input type="hidden" th:field="*{idProducto}" />
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-tag me-1"></i>Nombre *
+        </label>
+        <input type="text" class="form-control" th:field="*{nombre}" 
+               placeholder="Nombre del producto" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-file-text me-1"></i>Descripción
+        </label>
+        <textarea class="form-control" th:field="*{descripcion}" rows="3"
+                  placeholder="Descripción del producto"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-image me-1"></i>Imagen
+        </label>
+        <input type="text" class="form-control" th:field="*{imagenUrl}" 
+               placeholder="/images/productos/imagen.jpg o https://ejemplo.com/imagen.jpg" />
+        <small class="form-text text-muted">
+          Puedes usar una URL externa o una ruta local como: /images/productos/mi-imagen.jpg
+        </small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-currency-dollar me-1"></i>Precio *
+          </label>
+          <input type="number" step="0.01" class="form-control" th:field="*{precio}" 
+                 placeholder="0.00" required />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-collection me-1"></i>Categoría *
+          </label>
+          <select class="form-select" th:field="*{categoriaId}" required>
+            <option value="">Seleccione una categoría...</option>
+            <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}"></option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btn-toolbar">
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-check-circle me-2"></i>
+          <span th:text="${producto.idProducto} != null ? 'Actualizar' : 'Crear'"></span>
+        </button>
+        <a th:href="@{/productos}" class="btn btn-secondary">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+</section>
+
+</html>

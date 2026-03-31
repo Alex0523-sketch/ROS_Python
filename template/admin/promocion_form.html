@@ -1,0 +1,78 @@
+{% extends 'layout/base.html' %}
+{% block title %}{% if edit_promocion %}Editar promoción{% else %}Nueva promoción{% endif %}{% endblock %}
+{% block page_title %}{% if edit_promocion %}Editar promoción{% else %}Nueva promoción{% endif %}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1 class="panel-page-title mb-0"><i class="bi bi-percent me-2"></i>{% if edit_promocion %}Editar promoción{% else %}Nueva promoción{% endif %}</h1>
+    <a href="{% url 'admin_promociones' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+  </div>
+</div>
+<div class="content-section">
+  <div class="card">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" class="row g-3" novalidate action="{% if edit_promocion %}{% url 'admin_promocion_edit' edit_promocion.id_promocion %}{% else %}{% url 'admin_promocion_nuevo' %}{% endif %}">
+        {% csrf_token %}
+        <div class="col-md-8">
+          <label class="form-label" for="titulo">Título</label>
+          <input type="text" class="form-control" id="titulo" name="titulo" value="{% if posted %}{{ posted.titulo }}{% elif edit_promocion %}{{ edit_promocion.titulo }}{% endif %}" required maxlength="100">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="descuento">Descuento (%)</label>
+          <input type="text" class="form-control" id="descuento" name="descuento" value="{% if posted %}{{ posted.descuento }}{% elif edit_promocion %}{{ edit_promocion.descuento }}{% endif %}" required inputmode="decimal" placeholder="Ej. 15">
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="descripcion">Descripción</label>
+          <textarea class="form-control" id="descripcion" name="descripcion" rows="2" maxlength="255" placeholder="Opcional">{% if posted %}{{ posted.descripcion }}{% elif edit_promocion %}{{ edit_promocion.descripcion|default:'' }}{% endif %}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="fecha_inicio">Fecha inicio</label>
+          <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" value="{% if posted %}{{ posted.fecha_inicio }}{% elif edit_promocion %}{{ edit_promocion.fecha_inicio|date:'Y-m-d' }}{% endif %}" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="fecha_fin">Fecha fin</label>
+          <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" value="{% if posted %}{{ posted.fecha_fin }}{% elif edit_promocion %}{{ edit_promocion.fecha_fin|date:'Y-m-d' }}{% endif %}" required>
+        </div>
+        <div class="col-12"><hr class="border-secondary"></div>
+        {% if edit_promocion and edit_promocion.imagen_url %}
+        <div class="col-12">
+          <p class="small text-muted mb-1">Imagen actual</p>
+          <img src="{{ edit_promocion.imagen_url }}" alt="" class="img-thumbnail" style="max-height: 140px;">
+        </div>
+        {% endif %}
+        <div class="col-md-6">
+          <label class="form-label" for="imagen">Imagen de la promoción</label>
+          <input type="file" class="form-control" id="imagen" name="imagen" accept=".jpg,.jpeg,.png,.gif,.webp,image/*">
+          {% if edit_promocion %}<small class="text-muted">Si subes un archivo, reemplaza la imagen actual.</small>{% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="imagen_url">O URL de imagen</label>
+          <input type="url" class="form-control" id="imagen_url" name="imagen_url" value="{% if posted %}{{ posted.imagen_url }}{% elif edit_promocion %}{{ edit_promocion.imagen_url|default:'' }}{% endif %}" placeholder="https://...">
+          <small class="text-muted">Si subes archivo, tiene prioridad sobre la URL.</small>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Productos incluidos en la promoción</label>
+          <div class="border rounded p-3" style="max-height: 280px; overflow-y: auto;">
+            {% regroup productos by categoria.nombre as por_cat %}
+            {% for grupo in por_cat %}
+            <div class="mb-2"><strong class="text-warning">{{ grupo.grouper|default:"Sin categoría" }}</strong></div>
+            {% for p in grupo.list %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="productos" value="{{ p.id_producto }}" id="prod_{{ p.id_producto }}"
+                {% if p.id_producto|stringformat:"s" in selected_productos %}checked{% endif %}>
+              <label class="form-check-label" for="prod_{{ p.id_producto }}">{{ p.nombre }} <span class="text-muted">(${{ p.precio|money }})</span></label>
+            </div>
+            {% endfor %}
+            {% endfor %}
+          </div>
+          <small class="text-muted">Opcional: deja sin marcar ninguno si la promoción aplica en general.</small>
+        </div>
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-warning text-dark fw-semibold"><i class="bi bi-check2 me-1"></i>{% if edit_promocion %}Guardar cambios{% else %}Crear promoción{% endif %}</button>
+          <a href="{% url 'admin_promociones' %}" class="btn btn-outline-light ms-2">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

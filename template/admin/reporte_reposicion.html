@@ -1,0 +1,54 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>⚠ Reporte de Reposición</h2>
+    <a href="{% url 'admin_insumos' %}" class="btn btn-secondary">← Volver a Insumos</a>
+  </div>
+
+  {% if items %}
+  <div class="alert alert-danger">
+    <strong>{{ items|length }} insumo(s)</strong> están por debajo del stock mínimo y necesitan reposición.
+  </div>
+  <table class="table table-bordered table-hover">
+    <thead class="table-dark">
+      <tr><th>Insumo</th><th>Unidad</th><th>Stock Actual</th><th>Stock Mínimo</th><th>Faltante</th></tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr class="table-danger">
+        <td><strong>{{ item.nombre }}</strong></td>
+        <td>{{ item.unidad }}</td>
+        <td>{{ item.stock_actual }} {{ item.unidad }}</td>
+        <td>{{ item.stock_minimo }} {{ item.unidad }}</td>
+        <td><span class="badge bg-danger">{{ item.faltante }} {{ item.unidad }}</span></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-success">
+    ✅ Todos los insumos están por encima del stock mínimo. No se requiere reposición.
+  </div>
+  {% endif %}
+
+  <h4 class="mt-4">Estado general de todos los insumos</h4>
+  <table class="table table-sm table-bordered">
+    <thead class="table-secondary">
+      <tr><th>Insumo</th><th>Unidad</th><th>Stock Actual</th><th>Stock Mínimo</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+      {% for i in todos_insumos %}
+      <tr>
+        <td>{{ i.nombre }}</td>
+        <td>{{ i.unidad }}</td>
+        <td>{{ i.stock_actual }}</td>
+        <td>{{ i.stock_minimo }}</td>
+        <td>{% if i.necesita_reposicion %}<span class="badge bg-danger">Reponer</span>{% else %}<span class="badge bg-success">OK</span>{% endif %}</td>
+      </tr>
+      {% empty %}<tr><td colspan="5" class="text-center">Sin insumos registrados.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends 'layout/base.html' %}
+{% block title %}Pedidos Asignados{% endblock %}
+{% block page_title %}Pedidos Asignados{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1 class="panel-page-title mb-0">
+      <i class="bi bi-cart-check me-2"></i>Pedidos asignados
+    </h1>
+    <div class="d-flex flex-wrap gap-2 align-items-center">
+      <a href="{% url 'mi_horario' %}" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-calendar-week me-1"></i>Mi horario
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card text-center h-100 {% if not puede_recibir_mas %}border-danger{% else %}border-success{% endif %}">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase fw-bold">Carga actual</div>
+        <div class="h3 mb-0 {% if not puede_recibir_mas %}text-danger{% else %}text-success{% endif %}">{{ pedidos_en_marcha }} / 2</div>
+        <div class="small mt-1">
+          {% if puede_recibir_mas %}
+            <span class="text-success"><i class="bi bi-check-circle me-1"></i>Disponible</span>
+          {% else %}
+            <span class="text-danger"><i class="bi bi-x-circle me-1"></i>Capacidad maxima</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase fw-bold">Confirmados</div>
+        <div class="h3 mb-0 text-success">{{ pedidos_counts.CONFIRMADO|default:0 }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase fw-bold">En preparacion</div>
+        <div class="h3 mb-0 text-info">{{ pedidos_counts.EN_PREPARACION|default:0 }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="text-muted small text-uppercase fw-bold">Listos</div>
+        <div class="h3 mb-0 text-primary">{{ pedidos_counts.LISTO|default:0 }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content-section">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h4 class="mb-0"><i class="bi bi-list-check me-2"></i>Lista</h4>
+    <div class="text-muted small">
+      Total: <span class="fw-bold text-warning">{{ pedidos|length }}</span>
+    </div>
+  </div>
+
+  {% if pedidos %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Mesa</th>
+          <th>Cliente</th>
+          <th class="text-end">Total</th>
+          <th>Fecha</th>
+          <th>Estado</th>
+          <th class="text-end">Actualizar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in pedidos %}
+        <tr>
+          <td class="fw-semibold">#{{ p.id }}</td>
+          <td>
+            <span class="badge bg-warning text-dark">{{ p.numero_mesa }}</span>
+          </td>
+          <td>
+            {% if p.user %}
+              {{ p.user.nombre }} {{ p.user.apellido }}
+            {% else %}
+              {{ p.cliente_nombre }}
+            {% endif %}
+          </td>
+          <td class="text-end fw-semibold">$ {{ p.total|money }}</td>
+          <td class="text-muted">{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
+          <td>
+            {% if p.estado == 'CONFIRMADO' %}
+              <span class="badge bg-success">{{ p.estado }}</span>
+            {% elif p.estado == 'PENDIENTE' %}
+              <span class="badge bg-warning text-dark">{{ p.estado }}</span>
+            {% elif p.estado == 'EN_PREPARACION' %}
+              <span class="badge bg-info">{{ p.estado }}</span>
+            {% elif p.estado == 'LISTO' %}
+              <span class="badge bg-primary">{{ p.estado }}</span>
+            {% elif p.estado == 'ENTREGADO' %}
+              <span class="badge bg-secondary">{{ p.estado }}</span>
+            {% else %}
+              <span class="badge bg-danger">{{ p.estado }}</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            {% if p.allowed_next %}
+              <div class="btn-group" role="group" aria-label="Actualizar pedido">
+                {% for st in p.allowed_next %}
+                  <form method="post" action="{% url 'pedidos_asignados' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="pedido_id" value="{{ p.id }}">
+                    <input type="hidden" name="nuevo_estado" value="{{ st }}">
+                    <button type="submit" class="btn btn-sm btn-outline-light mb-1">
+                      {{ st }}
+                    </button>
+                  </form>
+                {% endfor %}
+              </div>
+            {% else %}
+              <span class="text-muted small">—</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-cart-x display-4 d-block mb-3"></i>
+      <p class="mb-0">No tienes pedidos asignados.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+

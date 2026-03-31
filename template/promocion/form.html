@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout(${promocion.idPromocion} != null ? 'Editar Promoción' : 'Nueva Promoción', ~{::section})">
+
+<section th:fragment="section">
+
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1>
+        <i class="bi" th:classappend="${promocion.idPromocion} != null ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+        <span th:text="${promocion.idPromocion} != null ? 'Editar Promoción' : 'Nueva Promoción'"></span>
+      </h1>
+      <a th:href="@{/promociones}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <form th:action="@{/promociones/save}" th:object="${promocion}" method="post">
+      <input type="hidden" th:field="*{idPromocion}" />
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-tag me-1"></i>Título *
+        </label>
+        <input type="text" class="form-control" th:field="*{titulo}" 
+               placeholder="Nombre de la promoción" required />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-file-text me-1"></i>Descripción
+        </label>
+        <textarea class="form-control" th:field="*{descripcion}" rows="3"
+                  placeholder="Descripción de la promoción"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-image me-1"></i>Imagen
+        </label>
+        <input type="text" class="form-control" th:field="*{imagenUrl}" 
+               placeholder="/images/promociones/imagen.jpg o https://ejemplo.com/imagen.jpg" />
+        <small class="form-text text-muted">
+          Puedes usar una URL externa o una ruta local como: /images/promociones/mi-imagen.jpg
+        </small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-percent me-1"></i>Descuento (%) *
+          </label>
+          <input type="number" step="0.01" class="form-control" th:field="*{descuento}" 
+                 placeholder="10.00" required min="0" max="100" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-calendar me-1"></i>Fecha Inicio *
+          </label>
+          <input type="date" class="form-control" th:field="*{fechaInicio}" required />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-calendar-x me-1"></i>Fecha Fin *
+          </label>
+          <input type="date" class="form-control" th:field="*{fechaFin}" required />
+        </div>
+      </div>
+
+      <div class="btn-toolbar">
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-check-circle me-2"></i>
+          <span th:text="${promocion.idPromocion} != null ? 'Actualizar' : 'Crear'"></span>
+        </button>
+        <a th:href="@{/promociones}" class="btn btn-secondary">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+</section>
+
+</html>

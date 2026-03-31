@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="layout/base :: content">
+<head>
+    <title>Detalles de Pago</title>
+</head>
+<body>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Detalles de Pago</h1>
+        <a class="btn btn-primary" th:href="@{/detalle-pagos/new}">Crear Detalle</a>
+    </div>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Pago ID</th>
+            <th>Monto</th>
+            <th>Descripción</th>
+            <th>Fecha Creación</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="detalle : ${detalles}">
+            <td th:text="${detalle.id}">1</td>
+            <td th:text="${detalle.pagoId}">1</td>
+            <td th:text="${'$' + #numbers.formatDecimal(detalle.monto, 1, 2)}">$0.00</td>
+            <td th:text="${detalle.descripcion}">Descripción</td>
+            <td th:text="${#dates.format(detalle.fechaCreacion, 'yyyy-MM-dd')}">2025-01-01</td>
+            <td>
+                <a th:href="@{|/detalle-pagos/${detalle.id}|}" class="btn btn-info btn-sm">Ver</a>
+                <a th:href="@{|/detalle-pagos/edit/${detalle.id}|}" class="btn btn-warning btn-sm">Editar</a>
+                <form th:action="@{|/detalle-pagos/delete/${detalle.id}|}" method="post" style="display:inline"
+                      onsubmit="return confirm('¿Eliminar detalle de pago?');">
+                    <button class="btn btn-danger btn-sm">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

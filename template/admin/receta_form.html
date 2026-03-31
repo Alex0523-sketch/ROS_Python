@@ -1,0 +1,56 @@
+{% extends "layout/base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Receta de «{{ producto.nombre }}»</h2>
+  <p class="text-muted">Define los insumos y cantidades necesarias para preparar una unidad de este plato.</p>
+  <form method="post" id="receta-form">
+    {% csrf_token %}
+    <table class="table table-bordered" id="receta-table">
+      <thead class="table-dark">
+        <tr><th>Insumo</th><th>Cantidad (en unidad del insumo)</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for item in receta %}
+        <tr>
+          <td>
+            <select name="insumo_id" class="form-select">
+              {% for ins in insumos %}
+              <option value="{{ ins.pk }}" {% if ins.pk == item.insumo_id %}selected{% endif %}>{{ ins.nombre }} ({{ ins.unidad }})</option>
+              {% endfor %}
+            </select>
+          </td>
+          <td><input type="number" step="0.01" name="cantidad" class="form-control" value="{{ item.cantidad }}" required></td>
+          <td><button type="button" class="btn btn-sm btn-danger remove-row">✕</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="button" class="btn btn-outline-primary mb-3" id="add-row">+ Agregar insumo</button>
+    <br>
+    <button type="submit" class="btn btn-primary">Guardar receta</button>
+    <a href="{% url 'admin_productos' %}" class="btn btn-secondary ms-2">Cancelar</a>
+  </form>
+</div>
+<template id="row-template">
+  <tr>
+    <td>
+      <select name="insumo_id" class="form-select">
+        {% for ins in insumos %}
+        <option value="{{ ins.pk }}">{{ ins.nombre }} ({{ ins.unidad }})</option>
+        {% endfor %}
+      </select>
+    </td>
+    <td><input type="number" step="0.01" name="cantidad" class="form-control" value="0" required></td>
+    <td><button type="button" class="btn btn-sm btn-danger remove-row">✕</button></td>
+  </tr>
+</template>
+<script>
+  document.getElementById('add-row').addEventListener('click', () => {
+    const tpl = document.getElementById('row-template').content.cloneNode(true);
+    document.querySelector('#receta-table tbody').appendChild(tpl);
+  });
+  document.querySelector('#receta-table tbody').addEventListener('click', e => {
+    if (e.target.classList.contains('remove-row')) e.target.closest('tr').remove();
+  });
+</script>
+{% endblock %}

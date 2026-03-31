@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Pedido - OLLA Y Sazón</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link th:href="@{/css/public-style.css}" rel="stylesheet">
+</head>
+<body class="wrapper">
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                <i class="fas fa-utensils me-2"></i>OLLA Y Sazón
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/menu">
+                    <i class="fas fa-arrow-left me-1"></i>Volver al Menú
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <!-- Confirmar Pedido Section -->
+        <section class="confirmation-section" style="padding-top: 100px; min-height: 100vh;">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="confirmation-card">
+                            <div class="text-center mb-4">
+                                <i class="fas fa-shopping-cart text-warning" style="font-size: 3rem;"></i>
+                                <h2 class="mt-3">Confirmar Pedido</h2>
+                                <p>Revisa tu pedido antes de confirmar</p>
+                            </div>
+
+                        <!-- Resumen del Carrito -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-list me-2"></i>Resumen del Pedido</h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${#lists.isEmpty(carritoItems)}" class="text-center">
+                                    <p>Tu carrito está vacío</p>
+                                    <a href="/menu" class="btn btn-primary">Ir al Menú</a>
+                                </div>
+                                <div th:if="${!#lists.isEmpty(carritoItems)}">
+                                    <div class="row mb-3" th:each="item : ${carritoItems}">
+                                        <div class="col-md-6">
+                                            <h6 th:text="${item.nombre}">Producto</h6>
+                                            <small class="text-muted" th:text="'S/. ' + ${#numbers.formatDecimal(item.precio, 1, 2)}">S/. 0.00</small>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <span class="badge bg-secondary" th:text="'Cant: ' + ${item.cantidad}">Cant: 1</span>
+                                        </div>
+                                        <div class="col-md-3 text-end">
+                                            <strong th:text="'S/. ' + ${#numbers.formatDecimal(item.subtotal, 1, 2)}">S/. 0.00</strong>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-9">
+                                            <h4>Total:</h4>
+                                        </div>
+                                        <div class="col-md-3 text-end">
+                                            <h4 class="text-warning" th:text="'S/. ' + ${#numbers.formatDecimal(carritoTotal, 1, 2)}">S/. 0.00</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulario de Confirmación -->
+                        <div th:if="${!#lists.isEmpty(carritoItems)}">
+                            <form action="/pedido/crear" method="post">
+                                <!-- Si NO está autenticado, mostrar campos -->
+                                <div th:if="${!usuarioAutenticado}" class="card mb-4">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-user me-2"></i>Información del Cliente</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Número de Mesa *</label>
+                                                <select class="form-control" name="numeroMesa" required style="color: black;">
+                                                    <option value="" style="color: black;">Seleccionar mesa...</option>
+                                                    <option th:each="mesa : ${mesas}" 
+                                                            th:value="${mesa.numeroMesa}" 
+                                                            th:text="'Mesa ' + ${mesa.numeroMesa}" 
+                                                            style="color: black;">Mesa 1</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Nombre del Cliente *</label>
+                                                <input type="text" class="form-control" name="nombreCliente" 
+                                                       placeholder="Ingresa tu nombre" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Si está autenticado, solo mostrar mesa opcional -->
+                                <div th:if="${usuarioAutenticado}" class="card mb-4">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-check-circle text-success me-2"></i>Usuario Autenticado</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="alert alert-success">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            Tu pedido se asociará automáticamente a tu cuenta.
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Número de Mesa (Opcional)</label>
+                                            <select class="form-control" name="numeroMesa" style="color: black;">
+                                                <option value="" style="color: black;">Para llevar / Delivery</option>
+                                                <option th:each="mesa : ${mesas}" 
+                                                        th:value="${mesa.numeroMesa}" 
+                                                        th:text="'Mesa ' + ${mesa.numeroMesa}" 
+                                                        style="color: black;">Mesa 1</option>
+                                            </select>
+                                            <small class="form-text text-muted">
+                                                Selecciona una mesa si vas a consumir en el restaurante
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Comentarios -->
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-comment me-2"></i>Comentarios Especiales</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <textarea class="form-control" name="comentarios" rows="3" 
+                                                  placeholder="Alergias, preferencias de cocción, etc. (Opcional)"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Información Importante -->
+                                <div class="alert alert-info mb-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Información:</strong> Una vez confirmado el pedido, se asignará automáticamente un empleado para atenderte. Podrás proceder al pago cuando tu pedido esté listo.
+                                </div>
+
+                                <!-- Botones -->
+                                <div class="d-flex justify-content-between">
+                                    <a href="/menu" class="btn btn-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Seguir Comprando
+                                    </a>
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-check me-2"></i>Confirmar Pedido
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5><i class="fas fa-utensils me-2"></i>OLLA Y Sazón</h5>
+                    <p>Restaurante de comida tradicional colombiana con más de 15 años de experiencia brindando los mejores sabores.</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-map-marker-alt me-2"></i>Calle 45 #23-67, Bogotá, Colombia</p>
+                    <p><i class="fas fa-phone me-2"></i>+57 (1) 234-5678</p>
+                    <p><i class="fas fa-envelope me-2"></i>info@ollaysazon.com</p>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <h5>Horarios</h5>
+                    <p><i class="fas fa-clock me-2"></i>Lunes a Viernes: 11:00 AM - 10:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Sábados: 12:00 PM - 11:00 PM</p>
+                    <p><i class="fas fa-clock me-2"></i>Domingos: 12:00 PM - 9:00 PM</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 OLLA Y Sazón. Todos los derechos reservados.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-light me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-light me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-light"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

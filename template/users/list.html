@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Gestión de Usuarios', ~{::section})">
+
+<section th:fragment="section">
+
+  <!-- Encabezado de página -->
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-people-fill me-2"></i>Gestión de Usuarios</h1>
+      <a th:href="@{/users/new}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Nuevo Usuario
+      </a>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div th:if="${success}" class="alert alert-success">
+    <i class="bi bi-check-circle me-2"></i><span th:text="${success}"></span>
+  </div>
+  
+  <!-- Filtros -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <h6 class="card-title">Filtros de Búsqueda</h6>
+      <form method="get" action="/users">
+        <div class="row">
+          <div class="col-md-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" name="nombre" class="form-control" th:value="${nombreFiltro}" placeholder="Buscar por nombre">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" th:value="${emailFiltro}" placeholder="Buscar por email">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Rol</label>
+            <select name="rolId" class="form-select">
+              <option value="">Todos</option>
+              <option th:each="rol : ${roles}" th:value="${rol.idRol}" 
+                      th:selected="${rolIdFiltro != null && rolIdFiltro == rol.idRol}" 
+                      th:text="${rol.nombre}"></option>
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Estado</label>
+            <select name="activo" class="form-select">
+              <option value="">Todos</option>
+              <option value="true" th:selected="${activoFiltro != null && activoFiltro == true}">Activo</option>
+              <option value="false" th:selected="${activoFiltro != null && activoFiltro == false}">Inactivo</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search"></i> Filtrar</button>
+            <a href="/users" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i></a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Sección de contenido -->
+  <div class="content-section">
+    <!-- Estadísticas rápidas -->
+    <div class="row mb-4">
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Total Usuarios</h5>
+            <h3 class="text-info" th:text="${totalUsuarios ?: 0}">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Activos</h5>
+            <h3 class="text-success" th:text="${usuariosActivos ?: 0}">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Inactivos</h5>
+            <h3 class="text-danger" th:text="${usuariosInactivos ?: 0}">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Administradores</h5>
+            <h3 class="text-warning" th:text="${administradores ?: 0}">0</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de usuarios -->
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+          <th><i class="bi bi-hash me-1"></i>ID</th>
+          <th><i class="bi bi-person me-1"></i>Nombre Completo</th>
+          <th><i class="bi bi-envelope me-1"></i>Correo</th>
+          <th><i class="bi bi-shield me-1"></i>Rol</th>
+          <th><i class="bi bi-activity me-1"></i>Estado</th>
+          <th><i class="bi bi-calendar me-1"></i>Fecha Registro</th>
+          <th><i class="bi bi-gear me-1"></i>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${users}">
+          <td><strong th:text="${u.idUser}"></strong></td>
+          <td>
+            <div class="d-flex align-items-center">
+              <i class="bi bi-person-circle me-2 text-warning"></i>
+              <span th:text="${u.nombre} + ' ' + (${u.apellido} ?: '')"></span>
+            </div>
+          </td>
+          <td>
+            <small class="text-muted" th:text="${u.email}"></small>
+          </td>
+          <td>
+            <span class="badge" 
+                  th:classappend="${u.rol?.nombre == 'ADMINISTRADOR'} ? 'bg-warning text-dark' : (${u.rol?.nombre == 'EMPLEADO'} ? 'bg-info' : 'bg-secondary')"
+                  th:text="${u.rol != null ? u.rol.nombre : 'Sin rol'}"></span>
+          </td>
+          <td>
+            <span th:if="${u.activo}" class="badge bg-success">
+              <i class="bi bi-check-circle me-1"></i>Activo
+            </span>
+            <span th:unless="${u.activo}" class="badge bg-danger">
+              <i class="bi bi-x-circle me-1"></i>Inactivo
+            </span>
+          </td>
+          <td>
+            <small th:text="${u.fechaCreacion != null ? #dates.format(u.fechaCreacion, 'dd/MM/yyyy') : 'N/A'}"></small>
+          </td>
+          <td>
+            <div class="btn-group-actions">
+              <a th:href="@{'/users/edit/' + ${u.idUser}}" class="btn btn-warning btn-sm" title="Editar usuario">
+                <i class="bi bi-pencil-square"></i>
+                <span class="d-none d-md-inline ms-1">Editar</span>
+              </a>
+              <form th:action="@{'/users/toggle/' + ${u.idUser}}" method="post" style="display:inline">
+                <button type="submit" class="btn btn-sm" 
+                        th:classappend="${u.activo} ? 'btn-danger' : 'btn-success'"
+                        th:title="${u.activo} ? 'Desactivar usuario' : 'Activar usuario'">
+                  <i class="bi" th:classappend="${u.activo} ? 'bi-x-circle' : 'bi-check-circle'"></i>
+                  <span class="d-none d-md-inline ms-1" th:text="${u.activo} ? 'Desactivar' : 'Activar'"></span>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Mensaje si no hay usuarios -->
+    <div th:if="${#lists.isEmpty(users)}" class="text-center py-5">
+      <i class="bi bi-people display-1 text-muted"></i>
+      <h4 class="text-muted mt-3">No hay usuarios registrados</h4>
+      <p class="text-muted">Comienza agregando el primer usuario al sistema</p>
+      <a th:href="@{/users/new}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Crear Primer Usuario
+      </a>
+    </div>
+  </div>
+
+</section>
+
+</html>

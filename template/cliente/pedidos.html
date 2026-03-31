@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Mis Pedidos', ~{::section})">
+
+<section th:fragment="section">
+
+  <!-- Encabezado de página -->
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-cart me-2"></i>Mi Perfil</h1>
+      <div class="d-flex gap-2">
+        <a href="/menu" class="btn btn-success">
+          <i class="bi bi-cart-plus me-2"></i>Hacer Pedido
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Navegación del perfil -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row text-center">
+        <div class="col-md-3">
+          <a href="/mi-perfil" class="btn btn-outline-primary w-100">
+            <i class="bi bi-person me-2"></i>Mi Perfil
+          </a>
+        </div>
+        <div class="col-md-3">
+          <a href="/mis-pedidos" class="btn btn-primary w-100">
+            <i class="bi bi-cart me-2"></i>Mis Pedidos
+          </a>
+        </div>
+        <div class="col-md-3">
+          <a href="/mis-reservas" class="btn btn-outline-primary w-100">
+            <i class="bi bi-calendar me-2"></i>Mis Reservas
+          </a>
+        </div>
+        <div class="col-md-3">
+          <a href="/mis-pagos" class="btn btn-outline-primary w-100">
+            <i class="bi bi-credit-card me-2"></i>Mis Pagos
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de contenido -->
+  <div class="content-section">
+    <!-- Resumen de pedidos -->
+    <div class="row mb-4">
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Total Pedidos</h5>
+            <h3 class="text-info" th:text="${pedidos.size()}">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Pendientes</h5>
+            <h3 class="text-warning" th:text="${pendientes}">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Completados</h5>
+            <h3 class="text-success" th:text="${completados}">0</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6 mb-3">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Total Gastado</h5>
+            <h3 class="text-success" th:text="'$' + ${#numbers.formatDecimal(totalGastado, 1, 2)}">$0.00</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3><i class="bi bi-cart me-2"></i>Mis Pedidos</h3>
+    
+    <!-- Lista de pedidos -->
+    <div class="row" th:if="${!pedidos.isEmpty()}">
+      <div class="col-lg-6 mb-4" th:each="pedido : ${pedidos}">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <strong th:text="'Pedido #' + ${pedido.id}">Pedido #001</strong>
+              <small class="text-muted ms-2" th:text="${#dates.format(pedido.fechaCreacion, 'dd/MM/yyyy HH:mm')}">15/01/2025 - 14:30</small>
+            </div>
+            <span class="badge" 
+                  th:classappend="${pedido.estado == 'Pendiente' ? 'bg-warning' : (pedido.estado == 'Preparando' ? 'bg-info' : (pedido.estado == 'Entregado' or pedido.estado == 'Completado' ? 'bg-success' : 'bg-danger'))}"
+                  th:text="${pedido.estado}">Estado</span>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <strong class="text-success" th:text="'Total: $' + ${#numbers.formatDecimal(pedido.total, 1, 2)}">Total: $0.00</strong>
+              <small class="text-muted" th:text="'Mesa: ' + (${pedido.numeroMesa} ?: 'Para llevar')">Mesa: 1</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje si no hay pedidos -->
+    <div class="text-center py-5" th:if="${pedidos.isEmpty()}">
+      <i class="bi bi-cart-x display-1 text-muted"></i>
+      <h4 class="text-muted mt-3">No tienes pedidos aún</h4>
+      <p class="text-muted">Realiza tu primer pedido y disfruta de nuestra deliciosa comida</p>
+      <a href="/menu" class="btn btn-success">
+        <i class="bi bi-cart-plus me-2"></i>Hacer Primer Pedido
+      </a>
+    </div>
+  </div>
+
+</section>
+
+</html>

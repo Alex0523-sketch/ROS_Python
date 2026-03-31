@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout/base :: layout( 'Listado de Roles', ~{::section})">
+<body>
+<section th:fragment="section">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Listado de Roles</h2>
+    <a th:href="@{/roles/new}" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i> Nuevo Rol</a>
+  </div>
+  <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+  <div class="card mb-4"><div class="card-body"><h5 class="card-title">Filtrar Roles</h5>
+    <form th:action="@{/roles}" th:object="${criteria}" method="get">
+      <div class="row g-3"><div class="col-md-11"><label class="form-label">Nombre</label>
+        <input type="text" th:field="*{nombre}" class="form-control" placeholder="Buscar por nombre"></div>
+        <div class="col-md-1 text-end"><button type="submit" class="btn btn-primary mt-4">Buscar</button></div>
+      </div><div class="row g-3 mt-3"><div class="col-md-12 text-end">
+      <a th:href="@{/roles}" class="btn btn-secondary">Limpiar Filtros</a></div></div>
+    </form></div></div>
+  <div class="table-responsive shadow-sm">
+    <table class="table table-hover align-middle mb-0 bg-white rounded">
+      <thead class="table-dark"><tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr></thead>
+      <tbody><tr th:each="rol : ${roles}">
+        <td th:text="${rol.idRol}"></td><td th:text="${rol.nombre}"></td>
+        <td><a th:href="@{'/roles/edit/' + ${rol.idRol}}" class="btn btn-primary btn-sm me-1">
+          <i class="bi bi-pencil-square"></i> Editar</a>
+          <a th:href="@{'/roles/delete/' + ${rol.idRol}}" class="btn btn-danger btn-sm"
+             onclick="return confirm('¿Estás seguro de eliminar este rol?');">
+            <i class="bi bi-trash"></i> Eliminar</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</body>
+</html>

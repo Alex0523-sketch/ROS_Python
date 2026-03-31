@@ -1,0 +1,83 @@
+{% extends 'layout/base.html' %}
+{% block title %}Nueva reserva{% endblock %}
+{% block page_title %}Nueva reserva{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1 class="panel-page-title mb-0"><i class="bi bi-calendar-plus me-2"></i>Nueva reserva</h1>
+    <a href="{% url 'admin_reservas' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Volver a reservas</a>
+  </div>
+</div>
+<div class="content-section">
+  <div class="card">
+    <div class="card-body">
+      <p class="text-muted small">La fecha y hora deben ser futuras (reglas del sistema de reservas).</p>
+      <form method="post" class="row g-3" novalidate>
+        {% csrf_token %}
+        <div class="col-md-6">
+          <label class="form-label" for="mesa_id">Mesa</label>
+          <select class="form-select" id="mesa_id" name="mesa_id" required>
+            <option value="">— Selecciona —</option>
+            {% for m in mesas %}
+            <option value="{{ m.id_mesa }}" {% if posted and posted.mesa_id == m.id_mesa|stringformat:"s" %}selected{% endif %}>Mesa {{ m.numero_mesa }} (cap. {{ m.capacidad }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="fecha">Fecha</label>
+          <input type="date" class="form-control" id="fecha" name="fecha" required value="{% if posted %}{{ posted.fecha }}{% endif %}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label" for="hora">Hora</label>
+          <input type="text" class="form-control" id="hora" name="hora" required placeholder="20:30" value="{% if posted %}{{ posted.hora }}{% else %}12:00{% endif %}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="numero_personas">Personas</label>
+          <input type="number" class="form-control" id="numero_personas" name="numero_personas" required min="1" max="12" value="{% if posted %}{{ posted.numero_personas }}{% else %}2{% endif %}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="estado">Estado</label>
+          <select class="form-select" id="estado" name="estado" required>
+            {% for val, label in estados %}
+            <option value="{{ val }}" {% if posted and posted.estado == val %}selected{% elif not posted and val == 'PENDIENTE' %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="codigo_reserva">Código (opcional)</label>
+          <input type="text" class="form-control" id="codigo_reserva" name="codigo_reserva" maxlength="50" value="{% if posted %}{{ posted.codigo_reserva }}{% endif %}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="user_id">Usuario registrado (opcional)</label>
+          <select class="form-select" id="user_id" name="user_id">
+            <option value="">— Sin cliente registrado —</option>
+            {% for u in clientes %}
+            <option value="{{ u.id_user }}" {% if posted and posted.user_id == u.id_user|stringformat:"s" %}selected{% endif %}>{{ u.nombre }} {{ u.apellido }} ({{ u.email }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="nombre_cliente">Nombre cliente (sin cuenta)</label>
+          <input type="text" class="form-control" id="nombre_cliente" name="nombre_cliente" maxlength="100" value="{% if posted %}{{ posted.nombre_cliente }}{% endif %}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="email_cliente">Email</label>
+          <input type="email" class="form-control" id="email_cliente" name="email_cliente" maxlength="100" value="{% if posted %}{{ posted.email_cliente }}{% endif %}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="telefono_cliente">Teléfono</label>
+          <input type="text" class="form-control" id="telefono_cliente" name="telefono_cliente" maxlength="20" value="{% if posted %}{{ posted.telefono_cliente }}{% endif %}">
+        </div>
+        <div class="col-12">
+          <label class="form-label" for="comentarios">Comentarios</label>
+          <textarea class="form-control" id="comentarios" name="comentarios" rows="2" maxlength="500">{% if posted %}{{ posted.comentarios }}{% endif %}</textarea>
+        </div>
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-warning text-dark fw-semibold"><i class="bi bi-check2 me-1"></i>Crear reserva</button>
+          <a href="{% url 'admin_reservas' %}" class="btn btn-outline-light ms-2">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+[
+  {
+    "model": "users.rolmodel",
+    "pk": 1,
+    "fields": { "nombre": "ADMINISTRADOR" }
+  },
+  {
+    "model": "users.rolmodel",
+    "pk": 2,
+    "fields": { "nombre": "EMPLEADO" }
+  },
+  {
+    "model": "users.rolmodel",
+    "pk": 3,
+    "fields": { "nombre": "CLIENTE" }
+  },
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "nombre": "Admin",
+      "apellido": "Principal",
+      "email": "admin@ros.com",
+      "password": "pbkdf2_sha256$1200000$vDxPTlRnTDvVpx2bo8klQK$HesPmVS2e1Ih9GZAeOqa1xlXZfBlCGFLNHF+WLkn10Y=",
+      "activo": true,
+      "is_staff": true,
+      "is_superuser": true,
+      "rol": 1,
+      "last_login": null,
+      "fecha_creacion": "2024-01-01T00:00:00Z",
+      "fecha_actualizacion": "2024-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+      "nombre": "Juan",
+      "apellido": "Empleado",
+      "email": "empleado@ros.com",
+      "password": "pbkdf2_sha256$1200000$FBYt5B1MZiqixUNfLTB6uL$X3repHJlQBjkEow0v7kQZfoQY2c58lmiqm1COCtHsVE=",
+      "activo": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "rol": 2,
+      "last_login": null,
+      "fecha_creacion": "2024-01-01T00:00:00Z",
+      "fecha_actualizacion": "2024-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 3,
+    "fields": {
+      "nombre": "Maria",
+      "apellido": "Cliente",
+      "email": "cliente@ros.com",
+      "password": "pbkdf2_sha256$1200000$r0mLp4TLyO86qmsX16COWV$aJDaxBG+EHpQly4vHgkzKI4F8Ti+86yAgHVg0IqCR4o=",
+      "activo": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "rol": 3,
+      "last_login": null,
+      "fecha_creacion": "2024-01-01T00:00:00Z",
+      "fecha_actualizacion": "2024-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]

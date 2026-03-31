@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout(${horario.id} != null ? 'Editar Horario' : 'Nuevo Horario', ~{::section})">
+
+<section th:fragment="section">
+
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1>
+        <i class="bi" th:classappend="${horario.id} != null ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+        <span th:text="${horario.id} != null ? 'Editar Horario' : 'Nuevo Horario'"></span>
+      </h1>
+      <a th:href="@{/horarios}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <form th:action="@{/horarios/save}" th:object="${horario}" method="post">
+      <input type="hidden" th:field="*{id}" />
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-person-badge me-1"></i>Empleado *
+        </label>
+        <select class="form-select" th:field="*{userId}" required>
+          <option value="">Seleccione un empleado...</option>
+          <option th:each="empleado : ${empleados}" th:value="${empleado.idUser}" 
+                  th:text="${empleado.nombre} + ' ' + ${empleado.apellido} + ' (' + ${empleado.email} + ')'"></option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-calendar-week me-1"></i>Día de la Semana *
+        </label>
+        <select class="form-select" th:field="*{diaSemana}" required>
+          <option value="">Seleccione un día...</option>
+          <option value="Lunes">Lunes</option>
+          <option value="Martes">Martes</option>
+          <option value="Miércoles">Miércoles</option>
+          <option value="Jueves">Jueves</option>
+          <option value="Viernes">Viernes</option>
+          <option value="Sábado">Sábado</option>
+          <option value="Domingo">Domingo</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-clock me-1"></i>Hora Inicio *
+          </label>
+          <input type="time" class="form-control" th:field="*{horaInicio}" required />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-clock-history me-1"></i>Hora Fin *
+          </label>
+          <input type="time" class="form-control" th:field="*{horaFin}" required />
+        </div>
+      </div>
+
+      <div class="btn-toolbar">
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-check-circle me-2"></i>
+          <span th:text="${horario.id} != null ? 'Actualizar' : 'Crear'"></span>
+        </button>
+        <a th:href="@{/horarios}" class="btn btn-secondary">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+</section>
+
+</html>

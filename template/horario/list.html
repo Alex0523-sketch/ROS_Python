@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout('Gestión de Horarios', ~{::section})">
+
+<section th:fragment="section">
+
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1><i class="bi bi-clock me-2"></i>Gestión de Horarios</h1>
+      <a th:href="@{/horarios/new}" class="btn btn-success">
+        <i class="bi bi-plus-circle me-2"></i>Nuevo Horario
+      </a>
+    </div>
+  </div>
+
+  <div class="content-section">
+
+    <!-- Filtros rápidos -->
+    <form th:action="@{/horarios}" method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <input class="form-control" type="text" name="diaSemana" placeholder="Día de la semana" th:value="${param.diaSemana}" />
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+        </div>
+    </form>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Usuario ID</th>
+            <th>Día Semana</th>
+            <th>Hora Inicio</th>
+            <th>Hora Fin</th>
+            <th>Fecha Creación</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="horario : ${horarios}">
+            <td th:text="${horario.id}">1</td>
+            <td th:text="${horario.userId}">1</td>
+            <td th:text="${horario.diaSemana}">Lunes</td>
+            <td th:text="${horario.horaInicio}">09:00</td>
+            <td th:text="${horario.horaFin}">17:00</td>
+            <td th:text="${#dates.format(horario.fechaCreacion, 'yyyy-MM-dd')}">2025-01-01</td>
+            <td>
+                <a th:href="@{|/horarios/edit/${horario.id}|}" class="btn btn-warning btn-sm">Editar</a>
+                <form th:action="@{|/horarios/delete/${horario.id}|}" method="post" style="display:inline"
+                      onsubmit="return confirm('¿Eliminar horario?');">
+                    <button class="btn btn-danger btn-sm">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
+
+</section>
+
+</html>

@@ -1,0 +1,54 @@
+{% extends 'layout/base.html' %}
+{% block title %}Nuevo horario{% endblock %}
+{% block page_title %}Nuevo horario{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+    <h1 class="panel-page-title mb-0"><i class="bi bi-clock-history me-2"></i>Nuevo horario</h1>
+    <a href="{% url 'admin_horarios' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left me-1"></i>Volver a horarios</a>
+  </div>
+</div>
+<div class="content-section">
+  <div class="card">
+    <div class="card-body">
+      <form method="post" class="row g-3" novalidate>
+        {% csrf_token %}
+        <div class="col-md-6">
+          <label class="form-label" for="user_id">Empleado <span class="text-danger">*</span></label>
+          <select class="form-select" id="user_id" name="user_id" required>
+            <option value="">— Selecciona —</option>
+            {% for e in empleados %}
+            <option value="{{ e.id_user }}" {% if posted and posted.user_id == e.id_user|stringformat:"s" %}selected{% endif %}>{{ e.nombre }} {{ e.apellido }}</option>
+            {% empty %}
+            {% endfor %}
+          </select>
+          {% if not empleados %}
+          <p class="text-warning small mt-2 mb-0">No hay usuarios con rol EMPLEADO. Crea usuarios empleados primero.</p>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="dia_semana">Día</label>
+          <select class="form-select" id="dia_semana" name="dia_semana" required>
+            <option value="">— Selecciona —</option>
+            {% for val, label in dias %}
+            <option value="{{ val }}" {% if posted and posted.dia_semana == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="hora_inicio">Hora inicio</label>
+          <input type="text" class="form-control" id="hora_inicio" name="hora_inicio" required placeholder="08:00" value="{% if posted %}{{ posted.hora_inicio }}{% endif %}">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label" for="hora_fin">Hora fin</label>
+          <input type="text" class="form-control" id="hora_fin" name="hora_fin" required placeholder="17:00" value="{% if posted %}{{ posted.hora_fin }}{% endif %}">
+        </div>
+        <div class="col-12 mt-3">
+          <button type="submit" class="btn btn-warning text-dark fw-semibold"><i class="bi bi-check2 me-1"></i>Crear horario</button>
+          <a href="{% url 'admin_horarios' %}" class="btn btn-outline-light ms-2">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

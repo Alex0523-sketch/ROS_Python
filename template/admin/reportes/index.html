@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout(~{::title}, ~{::body})">
+
+<title>Reportes - Olla y Sazón</title>
+
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-graph-up me-2"></i>Reportes del Sistema</h1>
+                <small class="text-muted" th:text="'Fecha: ' + ${fechaActual}"></small>
+            </div>
+
+            <!-- Tarjetas de Reportes -->
+            <div class="row g-4">
+                
+                <!-- Reportes de Pedidos -->
+                <div class="col-lg-6 col-xl-3">
+                    <div class="card h-100 border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="card-title mb-0">
+                                <i class="bi bi-cart-fill me-2"></i>Reportes de Pedidos
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-white fs-5">Genera reportes detallados de todos los pedidos realizados.</p>
+                            <div class="d-grid gap-2">
+                                <a href="/admin/reportes/pedidos/semanal" class="btn btn-outline-primary">
+                                    <i class="bi bi-calendar-week me-1"></i>Semanal
+                                </a>
+                                <a href="/admin/reportes/pedidos/mensual" class="btn btn-outline-primary">
+                                    <i class="bi bi-calendar-month me-1"></i>Mensual
+                                </a>
+                                <a href="/admin/reportes/pedidos/anual" class="btn btn-outline-primary">
+                                    <i class="bi bi-calendar-year me-1"></i>Anual
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reportes de Pagos -->
+                <div class="col-lg-6 col-xl-3">
+                    <div class="card h-100 border-success">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="card-title mb-0">
+                                <i class="bi bi-credit-card-fill me-2"></i>Reportes de Pagos
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-white fs-5">Analiza los ingresos y métodos de pago utilizados.</p>
+                            <div class="d-grid gap-2">
+                                <a href="/admin/reportes/pagos/semanal" class="btn btn-outline-success">
+                                    <i class="bi bi-calendar-week me-1"></i>Semanal
+                                </a>
+                                <a href="/admin/reportes/pagos/mensual" class="btn btn-outline-success">
+                                    <i class="bi bi-calendar-month me-1"></i>Mensual
+                                </a>
+                                <a href="/admin/reportes/pagos/anual" class="btn btn-outline-success">
+                                    <i class="bi bi-calendar-year me-1"></i>Anual
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reportes de Reservas -->
+                <div class="col-lg-6 col-xl-3">
+                    <div class="card h-100 border-warning">
+                        <div class="card-header bg-warning text-dark">
+                            <h4 class="card-title mb-0">
+                                <i class="bi bi-calendar-check-fill me-2"></i>Reportes de Reservas
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-white fs-5">Revisa el estado y ocupación de las reservas.</p>
+                            <div class="d-grid gap-2">
+                                <a href="/admin/reportes/reservas/semanal" class="btn btn-outline-warning">
+                                    <i class="bi bi-calendar-week me-1"></i>Semanal
+                                </a>
+                                <a href="/admin/reportes/reservas/mensual" class="btn btn-outline-warning">
+                                    <i class="bi bi-calendar-month me-1"></i>Mensual
+                                </a>
+                                <a href="/admin/reportes/reservas/anual" class="btn btn-outline-warning">
+                                    <i class="bi bi-calendar-year me-1"></i>Anual
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reportes de Productos -->
+                <div class="col-lg-6 col-xl-3">
+                    <div class="card h-100 border-info">
+                        <div class="card-header bg-info text-white">
+                            <h4 class="card-title mb-0">
+                                <i class="bi bi-box-fill me-2"></i>Reportes de Productos
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-white fs-5">Analiza las ventas y popularidad de productos.</p>
+                            <div class="d-grid gap-2">
+                                <a href="/admin/reportes/productos/semanal" class="btn btn-outline-info">
+                                    <i class="bi bi-calendar-week me-1"></i>Semanal
+                                </a>
+                                <a href="/admin/reportes/productos/mensual" class="btn btn-outline-info">
+                                    <i class="bi bi-calendar-month me-1"></i>Mensual
+                                </a>
+                                <a href="/admin/reportes/productos/anual" class="btn btn-outline-info">
+                                    <i class="bi bi-calendar-year me-1"></i>Anual
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reportes de Usuarios -->
+                <div class="col-lg-6 col-xl-3">
+                    <div class="card h-100 border-secondary">
+                        <div class="card-header bg-secondary text-white">
+                            <h4 class="card-title mb-0">
+                                <i class="bi bi-people-fill me-2"></i>Reportes de Usuarios
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-white fs-5">Analiza la información de usuarios registrados.</p>
+                            <div class="d-grid gap-2">
+                                <a href="/admin/reportes/usuarios/semanal" class="btn btn-outline-secondary">
+                                    <i class="bi bi-calendar-week me-1"></i>Semanal
+                                </a>
+                                <a href="/admin/reportes/usuarios/mensual" class="btn btn-outline-secondary">
+                                    <i class="bi bi-calendar-month me-1"></i>Mensual
+                                </a>
+                                <a href="/admin/reportes/usuarios/anual" class="btn btn-outline-secondary">
+                                    <i class="bi bi-calendar-year me-1"></i>Anual
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información adicional -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <h4 class="alert-heading">
+                            <i class="bi bi-info-circle me-2"></i>Información sobre los Reportes
+                        </h4>
+                        <p class="mb-2 fs-6">Los reportes se generan en formato PDF y contienen información detallada sobre:</p>
+                        <ul class="mb-0 fs-6">
+                            <li><strong>Pedidos:</strong> Cantidad, estados, fechas y totales de pedidos</li>
+                            <li><strong>Pagos:</strong> Ingresos totales, métodos de pago y transacciones</li>
+                            <li><strong>Reservas:</strong> Ocupación de mesas, horarios más solicitados</li>
+                            <li><strong>Productos:</strong> Productos más vendidos, categorías populares</li>
+                            <li><strong>Usuarios:</strong> Información de usuarios registrados y roles</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    transition: transform 0.2s ease-in-out;
+    background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%);
+    border: 2px solid #ffd700;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.card-body {
+    background: linear-gradient(145deg, #3a3a3a 0%, #2a2a2a 100%);
+}
+
+.btn {
+    transition: all 0.2s ease-in-out;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.card-text {
+    font-weight: 500;
+}
+</style>
+
+</body>
+</html>

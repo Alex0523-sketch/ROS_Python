@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="layout/base :: layout('Registro de Reserva', ~{::section})">
+<body>
+<section th:fragment="section">
+    <div class="shadow-sm bg-white rounded p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Registro de Reserva</h2>
+            <a th:href="@{/reservas}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left-circle me-1"></i>Volver al listado</a>
+        </div>
+        <form th:action="@{/reservas/save}" th:object="${reserva}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3"><label class="form-label">Usuario ID</label>
+                        <input type="number" th:field="*{userId}" class="form-control" placeholder="ID del usuario" min="1"/>
+                        <small class="form-text text-muted">Ingrese el ID del usuario (ej: 1 para admin)</small>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3"><label class="form-label">Mesa ID</label>
+                        <input type="number" th:field="*{mesaId}" class="form-control" placeholder="ID de la mesa" min="1"/>
+                        <small class="form-text text-muted">Ingrese el ID de la mesa (ej: 1, 2, 3...)</small>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('mesaId')}" th:errors="*{mesaId}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3"><label class="form-label">Fecha Reserva</label>
+                        <input type="date" th:field="*{fechaReserva}" class="form-control"/>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('fechaReserva')}" th:errors="*{fechaReserva}"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3"><label class="form-label">Hora</label>
+                        <select th:field="*{hora}" class="form-select">
+                            <option value="">Seleccionar hora</option>
+                            <option value="12:00">12:00 PM</option>
+                            <option value="12:30">12:30 PM</option>
+                            <option value="13:00">1:00 PM</option>
+                            <option value="13:30">1:30 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="18:00">6:00 PM</option>
+                            <option value="18:30">6:30 PM</option>
+                            <option value="19:00">7:00 PM</option>
+                            <option value="19:30">7:30 PM</option>
+                            <option value="20:00">8:00 PM</option>
+                        </select>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3"><label class="form-label">Número de Personas</label>
+                        <select th:field="*{numeroPersonas}" class="form-select">
+                            <option value="1">1 persona</option>
+                            <option value="2">2 personas</option>
+                            <option value="3">3 personas</option>
+                            <option value="4">4 personas</option>
+                            <option value="5">5 personas</option>
+                            <option value="6">6 personas</option>
+                            <option value="7">7 personas</option>
+                            <option value="8">8 personas</option>
+                        </select>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('numeroPersonas')}" th:errors="*{numeroPersonas}"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3"><label class="form-label">Estado</label>
+                        <select th:field="*{estado}" class="form-select">
+                            <option value="PENDIENTE">Pendiente</option>
+                            <option value="CONFIRMADA">Confirmada</option>
+                            <option value="CANCELADA">Cancelada</option>
+                        </select>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-success me-2"><i class="bi bi-save me-1"></i>Guardar</button>
+                <a th:href="@{/reservas}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    // Establecer fecha mínima como hoy
+    document.addEventListener('DOMContentLoaded', function() {
+        const fechaInput = document.querySelector('input[name="fechaReserva"]');
+        if (fechaInput) {
+            const today = new Date().toISOString().split('T')[0];
+            fechaInput.setAttribute('min', today);
+        }
+    });
+</script>
+
+</body>
+</html>

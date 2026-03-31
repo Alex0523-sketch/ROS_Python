@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/base :: layout(${inventario.id} != null ? 'Editar Inventario' : 'Nuevo Inventario', ~{::section})">
+
+<section th:fragment="section">
+
+  <div class="page-header">
+    <div class="btn-group-header">
+      <h1>
+        <i class="bi" th:classappend="${inventario.id} != null ? 'bi-pencil-square' : 'bi-plus-circle'"></i>
+        <span th:text="${inventario.id} != null ? 'Editar Inventario' : 'Nuevo Inventario'"></span>
+      </h1>
+      <a th:href="@{/inventario}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Volver
+      </a>
+    </div>
+  </div>
+
+  <div class="content-section">
+    <form th:action="@{/inventario/save}" th:object="${inventario}" method="post">
+      <input type="hidden" th:field="*{id}" />
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-box me-1"></i>Producto *
+        </label>
+        <select class="form-select" th:field="*{productoId}" required>
+          <option value="">Seleccione un producto...</option>
+          <option th:each="producto : ${productos}" th:value="${producto.idProducto}" 
+                  th:text="${producto.nombre} + ' - $' + ${producto.precio}"></option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-stack me-1"></i>Cantidad Disponible *
+          </label>
+          <input type="number" class="form-control" th:field="*{cantidadDisponible}" 
+                 placeholder="100" required min="0" />
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-exclamation-triangle me-1"></i>Cantidad Mínima *
+          </label>
+          <input type="number" class="form-control" th:field="*{cantidadMinima}" 
+                 placeholder="10" required min="0" />
+        </div>
+      </div>
+
+      <div class="btn-toolbar">
+        <button type="submit" class="btn btn-success">
+          <i class="bi bi-check-circle me-2"></i>
+          <span th:text="${inventario.id} != null ? 'Actualizar' : 'Crear'"></span>
+        </button>
+        <a th:href="@{/inventario}" class="btn btn-secondary">
+          <i class="bi bi-x-circle me-2"></i>Cancelar
+        </a>
+      </div>
+    </form>
+  </div>
+
+</section>
+
+</html>

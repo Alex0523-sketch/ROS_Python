@@ -1,0 +1,257 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservas - OLLA Y Sazón</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="{% static 'css/public-style.css' %}" rel="stylesheet">
+</head>
+<body class="wrapper typography-public reserva-page">
+    {% include 'public/partials/nav_public.html' %}
+
+    <div class="content">
+        {% if messages %}
+        <div class="container reserva-page__messages mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{% if message.level_tag == 'error' %}danger{% else %}{{ message.level_tag }}{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <section class="reserva-section reserva-section--light reserva-page__section">
+            <div class="container">
+                <header class="reserva-page__intro text-center mb-4 mb-lg-5">
+                    <h1 class="reserva-page__title">Reserva tu mesa</h1>
+                    <p class="reserva-page__subtitle">Elige fecha y hora; te confirmamos disponibilidad al instante.</p>
+                </header>
+
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-6">
+                    <div class="card reserva-page__card">
+                        <div class="card-header reserva-page__card-head">
+                            <h2 class="reserva-page__card-title h5 mb-0"><i class="fas fa-calendar-plus me-2" aria-hidden="true"></i>Nueva reserva</h2>
+                        </div>
+                        <div class="card-body reserva-page__card-body">
+                            <form action="{% url 'reserva_crear' %}" method="post" id="reservaForm" class="reserva-page__form" novalidate>
+                                {% csrf_token %}
+                                <div class="reserva-page__field mb-3">
+                                    <label class="form-label">Nombre completo</label>
+                                    <input type="text" class="form-control" name="nombre" required minlength="3" maxlength="100"
+                                      pattern="[A-Za-z\u00C1\u00C9\u00CD\u00D3\u00DA\u00E1\u00E9\u00ED\u00F3\u00FA\u00D1\u00F1\u00DC\u00FC ]+"
+                                      title="Solo letras, sin numeros">
+                                    <div class="invalid-feedback">El nombre no puede contener numeros (minimo 3 caracteres)</div>
+                                </div>
+                                <div class="reserva-page__field mb-3">
+                                    <label class="form-label">Telefono</label>
+                                    <input type="tel" class="form-control" name="telefono" required
+                                      pattern="[0-9]{10}" maxlength="10" placeholder="Ej: 3001234567"
+                                      title="Exactamente 10 digitos">
+                                    <div class="invalid-feedback">Ingrese exactamente 10 digitos</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" name="email" required
+                                      pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}"
+                                      title="Debe tener @ y dominio valido">
+                                    <div class="invalid-feedback">Ingrese un email valido con @</div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3 reserva-page__field">
+                                        <label class="form-label">Fecha</label>
+                                        <input type="date" class="form-control" name="fecha" id="fechaReserva" required>
+                                        <div class="invalid-feedback">Seleccione una fecha válida</div>
+                                    </div>
+                                    <div class="col-md-6 mb-3 reserva-page__field">
+                                        <label class="form-label">Hora</label>
+                                        <select class="form-control" name="hora" id="horaReserva" required>
+                                            <option value="">Seleccionar hora</option>
+                                            <option value="12:00">12:00 PM</option>
+                                            <option value="12:30">12:30 PM</option>
+                                            <option value="13:00">1:00 PM</option>
+                                            <option value="13:30">1:30 PM</option>
+                                            <option value="14:00">2:00 PM</option>
+                                            <option value="18:00">6:00 PM</option>
+                                            <option value="18:30">6:30 PM</option>
+                                            <option value="19:00">7:00 PM</option>
+                                            <option value="19:30">7:30 PM</option>
+                                            <option value="20:00">8:00 PM</option>
+                                        </select>
+                                        <div class="invalid-feedback">Seleccione una hora</div>
+                                    </div>
+                                </div>
+                                <div class="reserva-page__field mb-3">
+                                    <label class="form-label">Número de personas</label>
+                                    <select class="form-control" name="personas" required>
+                                        <option value="">Seleccionar</option>
+                                        <option value="1">1 persona</option>
+                                        <option value="2">2 personas</option>
+                                        <option value="3">3 personas</option>
+                                        <option value="4">4 personas</option>
+                                        <option value="5">5 personas</option>
+                                        <option value="6">6 personas</option>
+                                        <option value="7">7 personas</option>
+                                        <option value="8">8 personas</option>
+                                    </select>
+                                    <div class="invalid-feedback">Seleccione el número de personas</div>
+                                </div>
+
+                                <div id="disponibilidadMesas" class="mb-3" style="display: none;">
+                                    <div class="alert alert-info reserva-page__alert">
+                                        <h6 class="mb-2"><i class="fas fa-info-circle me-1" aria-hidden="true"></i> Disponibilidad</h6>
+                                        <div id="mesasInfo"></div>
+                                    </div>
+                                </div>
+
+                                <div class="reserva-page__field mb-3">
+                                    <label class="form-label">Comentarios especiales</label>
+                                    <textarea class="form-control" name="comentarios" rows="3" maxlength="500" placeholder="Ocasión especial, alergias, etc."></textarea>
+                                </div>
+                                <button type="submit" class="btn reserva-page__submit w-100">
+                                    <i class="fas fa-check me-2" aria-hidden="true"></i>Confirmar reserva
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card reserva-page__card reserva-page__card--aside">
+                        <div class="card-header reserva-page__card-head reserva-page__card-head--soft">
+                            <h2 class="reserva-page__card-title h5 mb-0"><i class="fas fa-info-circle me-2" aria-hidden="true"></i>Información</h2>
+                        </div>
+                        <div class="card-body reserva-page__card-body reserva-page__card-body--aside">
+                            <h3 class="reserva-page__aside-h"><i class="fas fa-clock me-2" aria-hidden="true"></i>Horarios de atención</h3>
+                            <p class="reserva-page__aside-text">Lunes a viernes: 11:00 – 22:00</p>
+                            <p class="reserva-page__aside-text">Sábados: 12:00 – 23:00</p>
+                            <p class="reserva-page__aside-text reserva-page__aside-text--last">Domingos: 12:00 – 21:00</p>
+
+                            <h3 class="reserva-page__aside-h"><i class="fas fa-utensils me-2" aria-hidden="true"></i>Capacidad</h3>
+                            <p class="reserva-page__aside-text">Mesas 2–4 personas: 6 mesas</p>
+                            <p class="reserva-page__aside-text">Mesas 6 personas: 2 mesas</p>
+                            <p class="reserva-page__aside-text reserva-page__aside-text--last">Mesas 8 personas: 2 mesas</p>
+
+                            <h3 class="reserva-page__aside-h"><i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>Políticas</h3>
+                            <p class="reserva-page__aside-text">Reservas con máximo 7 días de anticipación.</p>
+                            <p class="reserva-page__aside-text">Contactar al restaurante para cancelar reservación </p>
+                            <p class="reserva-page__aside-text mb-0">Grupos de más de 8 personas: contactar al restaurante.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+    </div>
+
+    {% include 'public/partials/footer_public.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_DISPONIBILIDAD = "{% url 'api_mesas_disponibilidad' %}";
+        document.addEventListener('DOMContentLoaded', function() {
+            const fechaInput = document.querySelector('#fechaReserva');
+            const horaInput = document.querySelector('#horaReserva');
+            const form = document.querySelector('#reservaForm');
+
+            const today = new Date();
+            const minDate = today.toISOString().split('T')[0];
+            fechaInput.setAttribute('min', minDate);
+
+            const maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 7);
+            fechaInput.setAttribute('max', maxDate.toISOString().split('T')[0]);
+
+            function verificarDisponibilidad() {
+                const fecha = fechaInput.value;
+                const hora = horaInput.value;
+
+                if (fecha && hora) {
+                    const url = API_DISPONIBILIDAD + '?fecha=' + encodeURIComponent(fecha) + '&hora=' + encodeURIComponent(hora);
+                    fetch(url)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) return;
+                            mostrarDisponibilidad(data);
+                        })
+                        .catch(error => {
+                            console.error('Error al verificar disponibilidad:', error);
+                        });
+                }
+            }
+
+            function mostrarDisponibilidad(data) {
+                const disponibilidadDiv = document.getElementById('disponibilidadMesas');
+                const mesasInfo = document.getElementById('mesasInfo');
+
+                if (data.totalDisponibles === 0) {
+                    mesasInfo.innerHTML = `
+                        <p class="text-danger mb-0">
+                            <i class="fas fa-times-circle"></i>
+                            <strong>No hay mesas disponibles</strong> para esta fecha y hora.
+                            Por favor seleccione otro horario.
+                        </p>
+                    `;
+                    disponibilidadDiv.style.display = 'block';
+                } else {
+                    let mesasHtml = `
+                        <p class="text-success mb-2">
+                            <i class="fas fa-check-circle"></i>
+                            <strong>${data.totalDisponibles} mesa(s) disponible(s)</strong>
+                        </p>
+                    `;
+
+                    if (data.disponibles && data.disponibles.length > 0) {
+                        mesasHtml += '<div class="mb-2"><small><strong>Disponibles:</strong> ';
+                        data.disponibles.forEach((mesa, index) => {
+                            mesasHtml += `Mesa ${mesa.numeroMesa} (${mesa.capacidad} personas)`;
+                            if (index < data.disponibles.length - 1) mesasHtml += ', ';
+                        });
+                        mesasHtml += '</small></div>';
+                    }
+
+                    if (data.reservadas && data.reservadas.length > 0) {
+                        mesasHtml += '<div><small class="text-muted"><strong>Reservadas:</strong> ';
+                        data.reservadas.forEach((mesa, index) => {
+                            mesasHtml += `Mesa ${mesa.numeroMesa}`;
+                            if (index < data.reservadas.length - 1) mesasHtml += ', ';
+                        });
+                        mesasHtml += '</small></div>';
+                    }
+
+                    mesasInfo.innerHTML = mesasHtml;
+                    disponibilidadDiv.style.display = 'block';
+                }
+            }
+
+            fechaInput.addEventListener('change', verificarDisponibilidad);
+            horaInput.addEventListener('change', verificarDisponibilidad);
+
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            const telefonoInput = document.querySelector('input[name="telefono"]');
+            telefonoInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+            });
+            // Solo letras en nombre
+            const nombreInput = document.querySelector('input[name="nombre"]');
+            if (nombreInput) nombreInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[0-9]/g, '');
+            });
+        });
+    </script>
+</body>
+</html>
