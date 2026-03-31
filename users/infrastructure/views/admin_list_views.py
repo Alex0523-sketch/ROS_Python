@@ -1287,6 +1287,23 @@ def reserva_create_view(request):
         nombre_cliente = (request.POST.get('nombre_cliente') or '').strip() or None
         email_cliente = (request.POST.get('email_cliente') or '').strip() or None
         telefono_cliente = (request.POST.get('telefono_cliente') or '').strip() or None
+
+        if nombre_cliente and any(c.isdigit() for c in nombre_cliente):
+            messages.error(request, 'El nombre del cliente no puede contener números.')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/reserva_form.html', ctx, status=400)
+        if email_cliente and ('@' not in email_cliente or '.' not in email_cliente.split('@')[-1]):
+            messages.error(request, 'Indica un email válido.')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/reserva_form.html', ctx, status=400)
+        if telefono_cliente and not all(c in '0123456789+-() ' for c in telefono_cliente):
+            messages.error(request, 'El teléfono solo puede contener números, +, - y espacios.')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/reserva_form.html', ctx, status=400)
+        if d < date.today():
+            messages.error(request, 'La fecha de la reserva no puede ser en el pasado.')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/reserva_form.html', ctx, status=400)
         comentarios = (request.POST.get('comentarios') or '').strip() or None
         user_id = _optional_int(request.POST.get('user_id'))
 
@@ -1333,10 +1350,20 @@ def pedido_create_view(request):
         user_id = _optional_int(request.POST.get('user_id'))
         reserva_id = _optional_int(request.POST.get('reserva_id'))
         empleado_id = _optional_int(request.POST.get('empleado_id'))
+        if any(c.isdigit() for c in cliente_nombre):
+            messages.error(request, 'El nombre del cliente no puede contener números.')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/pedido_form.html', ctx, status=400)
+        if numero_mesa and not numero_mesa.isdigit():
+            messages.error(request, 'El número de mesa solo puede contener dígitos.')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/pedido_form.html', ctx, status=400)
         try:
             total = float(total_raw.replace(',', '.'))
+            if total < 0:
+                raise ValueError
         except ValueError:
-            messages.error(request, 'El total debe ser un número válido.')
+            messages.error(request, 'El total debe ser un número válido mayor o igual a 0.')
             ctx['posted'] = request.POST
             return render(request, 'admin/pedido_form.html', ctx, status=400)
         pedido_data = {
@@ -1428,6 +1455,20 @@ def horario_create_view(request):
         hora_fin = (request.POST.get('hora_fin') or '').strip()
         if not user_id or not UserModel.objects.filter(pk=user_id).exists():
             messages.error(request, 'Selecciona un empleado válido.')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/horario_form.html', ctx, status=400)
+        import re
+        _time_re = re.compile(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$')
+        if not _time_re.match(hora_inicio):
+            messages.error(request, 'La hora de inicio debe tener formato HH:MM (ej. 08:00).')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/horario_form.html', ctx, status=400)
+        if not _time_re.match(hora_fin):
+            messages.error(request, 'La hora de fin debe tener formato HH:MM (ej. 17:00).')
+            ctx['posted'] = request.POST
+            return render(request, 'admin/horario_form.html', ctx, status=400)
+        if hora_fin <= hora_inicio:
+            messages.error(request, 'La hora de fin debe ser mayor que la hora de inicio.')
             ctx['posted'] = request.POST
             return render(request, 'admin/horario_form.html', ctx, status=400)
         try:

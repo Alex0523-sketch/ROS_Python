@@ -47,6 +47,12 @@ from users.infrastructure.views.panel_views import (
     mi_perfil_view,
     pedidos_asignados_view,
 )
+from users.infrastructure.views.insumo_views import (
+    insumos_list_view,
+    insumo_create_view,
+    insumo_edit_view,
+    reporte_reposicion_view,
+)
 from users.infrastructure.views.reportes_views import reportes_admin_view, reportes_pdf_view
 from users.infrastructure.views.public_views import (
     api_mesas_disponibilidad,
@@ -118,6 +124,10 @@ urlpatterns = [
     path('promociones/', promociones_list_view, name='admin_promociones'),
     path('inventario/nuevo/', inventario_create_view, name='admin_inventario_nuevo'),
     path('inventario/', inventario_list_view, name='admin_inventario'),
+    path('insumos/nuevo/', insumo_create_view, name='admin_insumo_nuevo'),
+    path('insumos/<int:pk>/editar/', insumo_edit_view, name='admin_insumo_edit'),
+    path('insumos/', insumos_list_view, name='admin_insumos'),
+    path('reposicion/', reporte_reposicion_view, name='admin_reposicion'),
     path('mesas/nuevo/', mesa_create_view, name='admin_mesa_nuevo'),
     path('mesas/<int:pk>/edit/', mesa_edit_view, name='admin_mesa_edit'),
     path('mesas/', mesas_list_view, name='admin_mesas'),

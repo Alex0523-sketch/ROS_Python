@@ -9,6 +9,8 @@
     <div class="mb-3">
       <label class="form-label">Nombre</label>
       <input type="text" name="nombre" class="form-control" required
+             pattern="[^0-9]*" title="El nombre no puede contener números"
+             oninput="this.setCustomValidity((/[0-9]/.test(this.value)) ? 'El nombre no puede contener números' : '')"
              value="{% if insumo %}{{ insumo.nombre }}{% endif %}">
     </div>
     <div class="mb-3">

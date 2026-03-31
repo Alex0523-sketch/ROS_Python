@@ -1,4 +1,5 @@
 {% extends 'layout/base.html' %}
+{% load money_filters %}
 {% block title %}Horarios{% endblock %}
 {% block page_title %}Horarios{% endblock %}
 {% block content %}
@@ -29,8 +30,8 @@
           <td>{{ h.id }}</td>
           <td>{{ h.user.nombre }} {{ h.user.apellido }}</td>
           <td>{{ h.dia_semana }}</td>
-          <td>{{ h.hora_inicio }}</td>
-          <td>{{ h.hora_fin }}</td>
+          <td>{{ h.hora_inicio|hora12 }}</td>
+          <td>{{ h.hora_fin|hora12 }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="5" class="text-center text-muted py-4">No hay horarios.</td></tr>

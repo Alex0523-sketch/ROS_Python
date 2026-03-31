@@ -19,3 +19,15 @@ def money_filter(value, decimal_places=2):
     else:
         dp = 2
     return format_money_display(value, decimal_places=dp)
+
+
+@register.filter(name="hora12")
+def hora12_filter(value):
+    try:
+        parts = str(value).strip().split(':')
+        h, m = int(parts[0]), int(parts[1])
+        periodo = 'AM' if h < 12 else 'PM'
+        h12 = h % 12 or 12
+        return f'{h12}:{m:02d} {periodo}'
+    except (ValueError, IndexError, AttributeError):
+        return value

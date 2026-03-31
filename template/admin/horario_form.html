@@ -37,11 +37,13 @@
         </div>
         <div class="col-md-6">
           <label class="form-label" for="hora_inicio">Hora inicio</label>
-          <input type="text" class="form-control" id="hora_inicio" name="hora_inicio" required placeholder="08:00" value="{% if posted %}{{ posted.hora_inicio }}{% endif %}">
+          <input type="time" class="form-control" id="hora_inicio" name="hora_inicio" required
+                 value="{% if posted %}{{ posted.hora_inicio }}{% endif %}">
         </div>
         <div class="col-md-6">
           <label class="form-label" for="hora_fin">Hora fin</label>
-          <input type="text" class="form-control" id="hora_fin" name="hora_fin" required placeholder="17:00" value="{% if posted %}{{ posted.hora_fin }}{% endif %}">
+          <input type="time" class="form-control" id="hora_fin" name="hora_fin" required
+                 value="{% if posted %}{{ posted.hora_fin }}{% endif %}">
         </div>
         <div class="col-12 mt-3">
           <button type="submit" class="btn btn-warning text-dark fw-semibold"><i class="bi bi-check2 me-1"></i>Crear horario</button>

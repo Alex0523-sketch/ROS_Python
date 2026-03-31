@@ -29,7 +29,9 @@
         </div>
         <div class="col-md-3">
           <label class="form-label" for="hora">Hora</label>
-          <input type="text" class="form-control" id="hora" name="hora" required placeholder="20:30" value="{% if posted %}{{ posted.hora }}{% else %}12:00{% endif %}">
+          <input type="text" class="form-control" id="hora" name="hora" required placeholder="20:30"
+                 pattern="^([01]?[0-9]|2[0-3]):[0-5][0-9]$" title="Formato HH:MM (ej. 20:30)"
+                 value="{% if posted %}{{ posted.hora }}{% else %}12:00{% endif %}">
         </div>
         <div class="col-md-4">
           <label class="form-label" for="numero_personas">Personas</label>
@@ -58,15 +60,22 @@
         </div>
         <div class="col-md-6">
           <label class="form-label" for="nombre_cliente">Nombre cliente (sin cuenta)</label>
-          <input type="text" class="form-control" id="nombre_cliente" name="nombre_cliente" maxlength="100" value="{% if posted %}{{ posted.nombre_cliente }}{% endif %}">
+          <input type="text" class="form-control" id="nombre_cliente" name="nombre_cliente" maxlength="100"
+                 pattern="[^0-9]*" title="El nombre no puede contener números"
+                 oninput="this.setCustomValidity(/[0-9]/.test(this.value) ? 'El nombre no puede contener números' : '')"
+                 value="{% if posted %}{{ posted.nombre_cliente }}{% endif %}">
         </div>
         <div class="col-md-6">
           <label class="form-label" for="email_cliente">Email</label>
-          <input type="email" class="form-control" id="email_cliente" name="email_cliente" maxlength="100" value="{% if posted %}{{ posted.email_cliente }}{% endif %}">
+          <input type="email" class="form-control" id="email_cliente" name="email_cliente" maxlength="100"
+                 value="{% if posted %}{{ posted.email_cliente }}{% endif %}">
         </div>
         <div class="col-md-6">
           <label class="form-label" for="telefono_cliente">Teléfono</label>
-          <input type="text" class="form-control" id="telefono_cliente" name="telefono_cliente" maxlength="20" value="{% if posted %}{{ posted.telefono_cliente }}{% endif %}">
+          <input type="text" class="form-control" id="telefono_cliente" name="telefono_cliente" maxlength="20"
+                 pattern="[0-9+\-\s()]*" title="El teléfono solo puede contener números, +, - y espacios"
+                 oninput="this.setCustomValidity(/[^0-9+\-\s()]/.test(this.value) ? 'Solo números, +, - y espacios' : '')"
+                 value="{% if posted %}{{ posted.telefono_cliente }}{% endif %}">
         </div>
         <div class="col-12">
           <label class="form-label" for="comentarios">Comentarios</label>
@@ -77,6 +86,7 @@
           <a href="{% url 'admin_reservas' %}" class="btn btn-outline-light ms-2">Cancelar</a>
         </div>
       </form>
+      <script>document.getElementById('fecha').min = new Date().toISOString().split('T')[0];</script>
     </div>
   </div>
 </div>

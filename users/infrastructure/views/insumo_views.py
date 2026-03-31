@@ -61,6 +61,9 @@ def insumo_create_view(request):
         if not nombre:
             messages.error(request, 'El nombre es obligatorio.')
             return render(request, 'admin/insumo_form.html', {'posted': request.POST}, status=400)
+        if any(c.isdigit() for c in nombre):
+            messages.error(request, 'El nombre no puede contener números.')
+            return render(request, 'admin/insumo_form.html', {'posted': request.POST}, status=400)
 
         InsumoModel.objects.create(nombre=nombre, unidad=unidad,
                                    stock_actual=stock_actual, stock_minimo=stock_minimo)
@@ -89,6 +92,10 @@ def insumo_edit_view(request, pk):
             return render(request, 'admin/insumo_form.html',
                           {'posted': request.POST, 'insumo': insumo}, status=400)
 
+        if any(c.isdigit() for c in nombre):
+            messages.error(request, 'El nombre no puede contener números.')
+            return render(request, 'admin/insumo_form.html',
+                          {'posted': request.POST, 'insumo': insumo}, status=400)
         insumo.nombre = nombre
         insumo.unidad = unidad
         insumo.stock_actual = stock_actual

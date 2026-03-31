@@ -15,11 +15,14 @@
         {% csrf_token %}
         <div class="col-md-6">
           <label class="form-label" for="cliente_nombre">Nombre del cliente <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" required maxlength="100" value="{% if posted %}{{ posted.cliente_nombre }}{% endif %}">
+          <input type="text" class="form-control" id="cliente_nombre" name="cliente_nombre" required maxlength="100"
+                 pattern="[^0-9]*" title="El nombre no puede contener números"
+                 oninput="this.setCustomValidity(/[0-9]/.test(this.value) ? 'El nombre no puede contener números' : '')"
+                 value="{% if posted %}{{ posted.cliente_nombre }}{% endif %}">
         </div>
         <div class="col-md-3">
           <label class="form-label" for="total">Total</label>
-          <input type="text" class="form-control" id="total" name="total" required inputmode="decimal" placeholder="0.00" value="{% if posted %}{{ posted.total }}{% endif %}">
+          <input type="number" class="form-control" id="total" name="total" required min="0" step="0.01" placeholder="0.00" value="{% if posted %}{{ posted.total }}{% endif %}">
         </div>
         <div class="col-md-3">
           <label class="form-label" for="estado">Estado</label>
@@ -31,7 +34,10 @@
         </div>
         <div class="col-md-4">
           <label class="form-label" for="numero_mesa">Número de mesa</label>
-          <input type="text" class="form-control" id="numero_mesa" name="numero_mesa" maxlength="10" value="{% if posted %}{{ posted.numero_mesa }}{% endif %}">
+          <input type="text" class="form-control" id="numero_mesa" name="numero_mesa" maxlength="10"
+                 pattern="[0-9]*" title="El número de mesa solo puede contener dígitos"
+                 oninput="this.setCustomValidity(/[^0-9]/.test(this.value) ? 'Solo se permiten números' : '')"
+                 value="{% if posted %}{{ posted.numero_mesa }}{% endif %}">
         </div>
         <div class="col-md-4">
           <label class="form-label" for="user_id">Cliente (usuario)</label>
