@@ -1,4 +1,8 @@
 import uuid
+<<<<<<< HEAD
+=======
+import unicodedata
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 from datetime import datetime, timedelta
 
 from django.conf import settings
@@ -12,6 +16,11 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+<<<<<<< HEAD
+=======
+from users.infrastructure.models import UserModel
+from users.infrastructure.models import HorarioModel
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 from users.infrastructure.models.promocion_model import PromocionModel
 from users.infrastructure.models.noticia_model import NoticiaModel
 from users.infrastructure.models.categoria_model import CategoriaModel
@@ -26,6 +35,87 @@ from users.utils.money import format_money_display
 
 _CANCELADAS = ('CANCELADO', 'CANCELADA')
 
+<<<<<<< HEAD
+=======
+def _obtener_mesero_para_asignar():
+    """
+    Selecciona un empleado para asignar el pedido.
+    Prioridad: empleados con horario activo en este momento.
+    Fallback: si no hay horarios activos, asigna el que tenga menos pedidos pendientes.
+    """
+    def _normalize_day_str(val: str) -> str:
+        raw = (val or '').strip().upper()
+        # Quita tildes/acentos para comparar (ej: "MIÉRCOLES" == "MIERCOLES").
+        raw = unicodedata.normalize('NFD', raw)
+        raw = ''.join(ch for ch in raw if unicodedata.category(ch) != 'Mn')
+        return raw
+
+    now = timezone.localtime(timezone.now())
+    # Mapeo estable (evita depender de locale del SO).
+    weekday_map = {
+        0: 'LUNES',
+        1: 'MARTES',
+        2: 'MIERCOLES',
+        3: 'JUEVES',
+        4: 'VIERNES',
+        5: 'SABADO',
+        6: 'DOMINGO',
+    }
+    today_day_norm = weekday_map.get(now.weekday())
+
+    empleados = (
+        UserModel.objects.filter(activo=True, rol__nombre__iexact='EMPLEADO')
+        .select_related('rol')
+        .order_by('id_user')
+    )
+    if not empleados.exists():
+        return None
+
+    # Filtra empleados por horario activo.
+    horarios = HorarioModel.objects.filter(user__in=empleados).select_related('user')
+    disponibles_ids = set()
+    t_now = now.time()
+    for h in horarios:
+        if today_day_norm is None:
+            break
+        if _normalize_day_str(h.dia_semana) != today_day_norm:
+            continue
+
+        try:
+            start_t = datetime.strptime((h.hora_inicio or '').strip(), '%H:%M').time()
+            end_t = datetime.strptime((h.hora_fin or '').strip(), '%H:%M').time()
+        except ValueError:
+            continue
+
+        if start_t <= end_t:
+            activo = start_t <= t_now <= end_t
+        else:
+            # Soporta rangos nocturnos (ej: 22:00 - 02:00).
+            activo = t_now >= start_t or t_now <= end_t
+
+        if activo and h.user_id:
+            disponibles_ids.add(h.user_id)
+
+    candidatos = empleados
+    if disponibles_ids:
+        candidatos = empleados.filter(pk__in=disponibles_ids)
+
+    # Elegimos el empleado con menos pedidos activos (no entregados/cancelados).
+    mejor = None
+    mejor_cantidad = None
+    for emp in candidatos:
+        pendientes = (
+            PedidoModel.objects.filter(empleado_asignado=emp)
+            .exclude(estado__iexact='ENTREGADO')
+            .exclude(estado__in=_CANCELADAS)
+            .count()
+        )
+        if mejor_cantidad is None or pendientes < mejor_cantidad:
+            mejor = emp
+            mejor_cantidad = pendientes
+    return mejor
+
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 
 def _rol_upper_public(user):
     r = getattr(user, 'rol', None)
@@ -188,7 +278,10 @@ def reserva_crear_view(request):
         return redirect('reserva')
 
     codigo = f'RES-{uuid.uuid4().hex[:8].upper()}'
+<<<<<<< HEAD
     user_obj = request.user if request.user.is_authenticated else None
+=======
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     for _ in range(5):
         try:
             ReservaModel.objects.create(
@@ -202,7 +295,10 @@ def reserva_crear_view(request):
                 numero_personas=personas,
                 estado='PENDIENTE',
                 comentarios=comentarios,
+<<<<<<< HEAD
                 user=user_obj,
+=======
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             )
             return redirect(f"{reverse('reserva_confirmada')}?codigo={codigo}")
         except IntegrityError:
@@ -231,14 +327,21 @@ def carrito_view(request):
         {
             'items': items,
             'total': total,
+<<<<<<< HEAD
             'puede_finalizar': bool(items),
             'requiere_login_para_comprar': False,
             'rol_no_cliente': bool(items) and user.is_authenticated and rol not in ('CLIENTE', ''),
             'es_invitado': bool(items) and not user.is_authenticated,
+=======
+            'puede_finalizar': bool(items) and user.is_authenticated and rol == 'CLIENTE',
+            'requiere_login_para_comprar': bool(items) and not user.is_authenticated,
+            'rol_no_cliente': bool(items) and user.is_authenticated and rol != 'CLIENTE',
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         },
     )
 
 
+<<<<<<< HEAD
 @require_POST
 def carrito_checkout_view(request):
     user = request.user
@@ -247,11 +350,25 @@ def carrito_checkout_view(request):
 
     if es_autenticado and rol not in ('CLIENTE', ''):
         messages.warning(request, 'Solo cuentas de cliente o invitados pueden hacer pedidos.')
+=======
+@login_required(login_url='/login/')
+@require_POST
+def carrito_checkout_view(request):
+    if _rol_upper_public(request.user) != 'CLIENTE':
+        messages.warning(
+            request,
+            'Solo las cuentas de cliente pueden finalizar compras desde el sitio web.',
+        )
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         return redirect('carrito')
 
     items = _carrito_items(request)
     if not items:
+<<<<<<< HEAD
         messages.error(request, 'Tu carrito esta vacio.')
+=======
+        messages.error(request, 'Tu carrito está vacío.')
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         return redirect('carrito')
 
     comentarios = (request.POST.get('comentarios') or '').strip() or None
@@ -264,12 +381,17 @@ def carrito_checkout_view(request):
             pid = int(raw['producto_id'])
             qty = int(raw['cantidad'])
         except (TypeError, ValueError, KeyError):
+<<<<<<< HEAD
             messages.error(request, 'Datos del carrito no validos.')
+=======
+            messages.error(request, 'Datos del carrito no válidos.')
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             return redirect('carrito')
         if qty < 1:
             continue
         producto = ProductoModel.objects.filter(pk=pid).first()
         if not producto:
+<<<<<<< HEAD
             messages.error(request, f'El producto "{raw.get("nombre", "desconocido")}" ya no esta disponible.')
             return redirect('carrito')
         precio = float(producto.precio)
@@ -297,6 +419,38 @@ def carrito_checkout_view(request):
                 codigo_pedido=codigo,
                 total=total,
                 estado='CONFIRMADO',
+=======
+            messages.error(
+                request,
+                f'El producto «{raw.get("nombre", "desconocido")}» ya no está disponible. Actualiza el carrito.',
+            )
+            return redirect('carrito')
+        precio = float(producto.precio)
+        lineas.append(
+            {
+                'producto': producto,
+                'cantidad': qty,
+                'precio': precio,
+                'subtotal': precio * qty,
+            }
+        )
+
+    if not lineas:
+        messages.error(request, 'No quedaron productos válidos en el carrito.')
+        return redirect('carrito')
+
+    total = sum(l['subtotal'] for l in lineas)
+    user = request.user
+    nombre = f'{user.nombre} {user.apellido}'.strip() or user.email
+
+    try:
+        with transaction.atomic():
+            pedido = PedidoModel.objects.create(
+                user=user,
+                cliente_nombre=nombre,
+                total=total,
+                estado='PENDIENTE',
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
                 comentarios=comentarios,
             )
             for ln in lineas:
@@ -306,6 +460,7 @@ def carrito_checkout_view(request):
                     cantidad=ln['cantidad'],
                     precio=ln['precio'],
                 )
+<<<<<<< HEAD
             from users.application.use_cases.inventario_usecase import DescontarInventarioPorPedidoUseCase
             from users.application.use_cases.asignacion_usecase import AsignarEmpleadoPedidoUseCase
             DescontarInventarioPorPedidoUseCase().execute(pedido.pk)
@@ -370,6 +525,85 @@ def pedido_confirmado_publico_view(request, pk):
         pk=pk,
     )
     return render(request, 'public/pedido_confirmado.html', {'pedido': pedido})
+=======
+            PagoModel.objects.create(
+                pedido=pedido,
+                user=user,
+                metodo_pago='WEB_PENDIENTE',
+                monto_total=total,
+                estado='PENDIENTE',
+            )
+
+            # Asignación automática del mesero para que el dashboard del empleado funcione.
+            mesero = _obtener_mesero_para_asignar()
+            if mesero:
+                pedido.empleado_asignado = mesero
+                pedido.save(update_fields=['empleado_asignado'])
+    except Exception:
+        messages.error(
+            request,
+            'No se pudo registrar el pedido. Intenta de nuevo en unos minutos.',
+        )
+        return redirect('carrito')
+
+    _carrito_guardar(request, [])
+    messages.success(
+        request,
+        f'¡Pedido #{pedido.pk} registrado! Te contactaremos o podrás pagar al recoger.',
+    )
+    return redirect('pedido_confirmado_publico', pk=pedido.pk)
+
+
+@login_required(login_url='/login/')
+@require_GET
+def pedido_confirmado_publico_view(request, pk):
+    # Solo cuentas de cliente deben poder ver su pedido confirmado.
+    if _rol_upper_public(request.user) != 'CLIENTE':
+        messages.warning(request, 'No tienes permiso para ver pedidos confirmados.')
+        return redirect('index')
+
+    # Validación básica del parámetro URL.
+    try:
+        pk_int = int(pk)
+    except (TypeError, ValueError):
+        messages.warning(request, 'Número de pedido inválido.')
+        return redirect('mi_perfil')
+
+    if pk_int < 1:
+        messages.warning(request, 'Número de pedido inválido.')
+        return redirect('mi_perfil')
+
+    pedido = (
+        PedidoModel.objects.select_related('user', 'empleado_asignado')
+        .prefetch_related('detalles__producto')
+        .filter(pk=pk_int, user=request.user)
+        .first()
+    )
+    if not pedido:
+        # Si existe el pedido pero no pertenece al usuario, mostramos un mensaje más claro.
+        pedido_existe = PedidoModel.objects.filter(pk=pk_int).only('id').exists()
+        if pedido_existe:
+            messages.warning(request, 'Ese pedido no pertenece a tu cuenta.')
+        else:
+            messages.warning(
+                request,
+                'No encontramos ese pedido. Revisa el numero de pedido o crea uno nuevo.',
+            )
+        return redirect('mi_perfil')
+
+    # Validación extra: el template asume que existen detalles (items).
+    if not pedido.detalles.exists():
+        messages.warning(
+            request,
+            'Este pedido no tiene productos asociados para mostrarlo.',
+        )
+        return redirect('mi_perfil')
+    return render(
+        request,
+        'public/pedido_confirmado.html',
+        {'pedido': pedido},
+    )
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 
 
 @require_POST

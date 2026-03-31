@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 Django>=4.2
+=======
+Django>=5.0
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 reportlab>=4.0

@@ -17,7 +17,11 @@
       align-items: center;
       justify-content: center;
       padding: 1.5rem;
+<<<<<<< HEAD
       background: linear-gradient(135deg, #f5efe6 0%, #ede0d0 100%);
+=======
+      background: radial-gradient(ellipse at top, #4a4a4a 0%, #1e1e1e 55%, #121212 100%);
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     }
     .auth-card {
       width: 100%;
@@ -120,6 +124,7 @@
         <div class="row g-2 mb-3">
           <div class="col-md-6">
             <label class="form-label" for="nombre">Nombre</label>
+<<<<<<< HEAD
             <input type="text" class="form-control" id="nombre" name="nombre" required minlength="2" maxlength="100"
               pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü ]+"
               title="Solo letras, sin numeros"
@@ -145,6 +150,21 @@
               value="{% if posted %}{{ posted.email }}{% endif %}" autocomplete="email"/>
           </div>
           <div class="invalid-feedback">Ingresa un email valido con @ y dominio.</div>
+=======
+            <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="100" value="{% if posted %}{{ posted.nombre }}{% endif %}" autocomplete="given-name"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="apellido">Apellido</label>
+            <input type="text" class="form-control" id="apellido" name="apellido" required maxlength="100" value="{% if posted %}{{ posted.apellido }}{% endif %}" autocomplete="family-name"/>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="email">Correo electrónico</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+            <input type="email" class="form-control" id="email" name="email" required value="{% if posted %}{{ posted.email }}{% endif %}" autocomplete="email"/>
+          </div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         </div>
         <div class="mb-3">
           <label class="form-label" for="password">Contraseña</label>
@@ -182,6 +202,7 @@
     if (!backForward && window.performance && window.performance.navigation) {
       try { backForward = window.performance.navigation.type === 2; } catch (e2) {}
     }
+<<<<<<< HEAD
     if (event.persisted || backForward) window.location.reload();
   });
   // Validacion HTML5
@@ -195,6 +216,11 @@
     if (el) el.addEventListener('input', function() {
       this.value = this.value.replace(/[0-9]/g, '');
     });
+=======
+    if (event.persisted || backForward) {
+      window.location.reload();
+    }
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
   });
 </script>
 </body>

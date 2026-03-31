@@ -9,7 +9,11 @@ from django.db.models.functions import TruncDate
 from django.shortcuts import redirect, render
 from django.utils import timezone
 
+<<<<<<< HEAD
 from users.application.use_cases.pedido_usecase import CambiarEstadoPedidoUseCase
+=======
+from users.application.application.use_cases.pedido_usecase import CambiarEstadoPedidoUseCase
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
 from users.infrastructure.models import (
     DetallePedidoModel,
     MesaModel,
@@ -161,10 +165,15 @@ def pedidos_asignados_view(request):
     repo = PedidoRepositoryImpl()
     qs = (
         PedidoModel.objects.select_related('user', 'empleado_asignado')
+<<<<<<< HEAD
+=======
+        .prefetch_related('detalles__producto')
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         .filter(empleado_asignado=request.user)
         .order_by('-fecha_creacion')
     )
 
+<<<<<<< HEAD
     estados = ['CONFIRMADO', 'PENDIENTE', 'EN_PREPARACION', 'LISTO', 'ENTREGADO', 'CANCELADO']
     pedidos_counts = {e: qs.filter(estado=e).count() for e in estados}
     pedidos_en_marcha = qs.filter(estado__in=('CONFIRMADO', 'PENDIENTE', 'EN_PREPARACION', 'LISTO')).count()
@@ -173,6 +182,14 @@ def pedidos_asignados_view(request):
     transiciones = {
         'CONFIRMADO': ['EN_PREPARACION', 'CANCELADO'],
         'PENDIENTE':  ['EN_PREPARACION', 'CANCELADO'],
+=======
+    estados = ['PENDIENTE', 'EN_PREPARACION', 'LISTO', 'ENTREGADO', 'CANCELADO']
+    pedidos_counts = {e: qs.filter(estado=e).count() for e in estados}
+
+    # Transiciones permitidas para empleados.
+    transiciones = {
+        'PENDIENTE': ['EN_PREPARACION', 'CANCELADO'],
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
         'EN_PREPARACION': ['LISTO', 'CANCELADO'],
         'LISTO': ['ENTREGADO', 'CANCELADO'],
         'ENTREGADO': [],
@@ -224,8 +241,11 @@ def pedidos_asignados_view(request):
         {
             'pedidos': pedidos,
             'pedidos_counts': pedidos_counts,
+<<<<<<< HEAD
             'pedidos_en_marcha': pedidos_en_marcha,
             'puede_recibir_mas': puede_recibir_mas,
+=======
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
             'transiciones': transiciones,
         },
     )

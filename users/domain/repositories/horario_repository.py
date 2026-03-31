@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
@@ -30,3 +31,37 @@ class HorarioRepository(ABC):
     @abstractmethod
     def delete(self, horario_id: int) -> bool:
         pass
+=======
+from abc import ABC, abstractmethod
+from typing import List, Optional
+
+from ..entities.horario import Horario
+
+
+class HorarioRepository(ABC):
+    """Contrato alineado con `HorarioRepositoryImpl`."""
+
+    @abstractmethod
+    def get_all(self) -> List[Horario]:
+        pass
+
+    @abstractmethod
+    def get_by_id(self, horario_id: int) -> Optional[Horario]:
+        pass
+
+    @abstractmethod
+    def get_by_user(self, user_id: int) -> List[Horario]:
+        pass
+
+    @abstractmethod
+    def create(self, horario: Horario) -> Horario:
+        pass
+
+    @abstractmethod
+    def update(self, horario_id: int, horario: Horario) -> Horario:
+        pass
+
+    @abstractmethod
+    def delete(self, horario_id: int) -> bool:
+        pass
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0

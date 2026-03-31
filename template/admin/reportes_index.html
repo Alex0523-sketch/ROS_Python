@@ -6,7 +6,11 @@
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
     <div>
       <h1 class="panel-page-title mb-1"><i class="bi bi-graph-up me-2"></i>Reportes</h1>
+<<<<<<< HEAD
       <p style="color:#ffffff !important;font-weight:500" class="mb-0">Filtra por periodo y criterios; previsualiza y descarga un PDF con todas las secciones seleccionadas.</p>
+=======
+      <p class="text-muted mb-0">Filtra por periodo y criterios; previsualiza y descarga un PDF con todas las secciones seleccionadas.</p>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     <div class="d-flex flex-wrap gap-2">
       <a href="{% url 'reportes_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-warning text-dark fw-semibold"><i class="bi bi-file-earmark-pdf me-1"></i>Descargar PDF</a>
@@ -20,7 +24,11 @@
 
   <div class="row g-3 mb-4">
     <div class="col-12">
+<<<<<<< HEAD
       <h2 class="h5 mb-3" style="color:#5a3e10"><i class="bi bi-funnel me-2"></i>Periodo y busqueda</h2>
+=======
+      <h2 class="h5 text-white mb-3"><i class="bi bi-funnel me-2"></i>Periodo y búsqueda</h2>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     <div class="col-md-3">
       <label class="form-label" for="fecha_desde">Desde</label>
@@ -38,7 +46,11 @@
 
   <div class="row g-3 mb-4">
     <div class="col-12">
+<<<<<<< HEAD
       <h2 class="h5 mb-3" style="color:#5a3e10"><i class="bi bi-sliders me-2"></i>Filtros por tipo</h2>
+=======
+      <h2 class="h5 text-white mb-3"><i class="bi bi-sliders me-2"></i>Filtros por tipo</h2>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     <div class="col-md-3">
       <label class="form-label" for="estado_pedido">Estado pedido</label>
@@ -105,8 +117,13 @@
 
   <div class="row g-3 mb-4">
     <div class="col-12">
+<<<<<<< HEAD
       <h2 class="h5 mb-3" style="color:#5a3e10"><i class="bi bi-check2-square me-2"></i>Incluir en el PDF</h2>
       <p class="small" style="color:#7a5c1e">Marca las secciones que quieres exportar. Pulsa <strong>Aplicar filtros</strong> para actualizar la vista previa.</p>
+=======
+      <h2 class="h5 text-white mb-3"><i class="bi bi-check2-square me-2"></i>Incluir en el PDF</h2>
+      <p class="text-muted small">Marca las secciones que quieres exportar. Pulsa <strong>Aplicar filtros</strong> para actualizar la vista previa.</p>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     <div class="col-6 col-md-4 col-lg-3">
       <div class="form-check">
@@ -178,62 +195,110 @@
 
 <div class="content-section">
   <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+<<<<<<< HEAD
     <h2 class="h5 mb-0" style="color:#5a3e10"><i class="bi bi-table me-2"></i>Vista previa (resumen)</h2>
     <a href="{% url 'reportes_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-sm btn-warning text-dark fw-semibold"><i class="bi bi-download me-1"></i>PDF con estos filtros</a>
   </div>
   <div class="row g-2 small mb-3" style="color:#7a5c1e">
     <div class="col-md-6">Periodo: <strong style="color:#3a2a0a">{{ f.fecha_desde|date:"d/m/Y" }}</strong> — <strong style="color:#3a2a0a">{{ f.fecha_hasta|date:"d/m/Y" }}</strong></div>
+=======
+    <h2 class="h5 text-white mb-0"><i class="bi bi-table me-2"></i>Vista previa (resumen)</h2>
+    <a href="{% url 'reportes_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-sm btn-warning text-dark fw-semibold"><i class="bi bi-download me-1"></i>PDF con estos filtros</a>
+  </div>
+  <div class="row g-2 text-white-50 small mb-3">
+    <div class="col-md-6">Periodo: <strong class="text-white">{{ f.fecha_desde|date:"d/m/Y" }}</strong> — <strong class="text-white">{{ f.fecha_hasta|date:"d/m/Y" }}</strong></div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     <div class="col-md-6">Totales pedidos (S/): <strong class="text-warning">{{ report.total_pedidos_monto|money }}</strong> · Pagos (S/): <strong class="text-warning">{{ report.total_pagos_monto|money }}</strong></div>
   </div>
   <div class="row g-3">
     {% if f.secciones.pedidos %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Pedidos</strong>: {{ report.pedidos_count }} registro(s)</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Pedidos</strong>: {{ report.pedidos_count }} registro(s)</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.pagos %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Pagos</strong>: {{ report.pagos_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Pagos</strong>: {{ report.pagos_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.reservas %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Reservas</strong>: {{ report.reservas_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Reservas</strong>: {{ report.reservas_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.mesas %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Mesas</strong>: {{ report.mesas_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Mesas</strong>: {{ report.mesas_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.usuarios %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Usuarios</strong>: {{ report.usuarios_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Usuarios</strong>: {{ report.usuarios_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.productos %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Productos</strong>: {{ report.productos_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Productos</strong>: {{ report.productos_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.noticias %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Noticias</strong>: {{ report.noticias_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Noticias</strong>: {{ report.noticias_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.horarios %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Horarios</strong>: {{ report.horarios_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Horarios</strong>: {{ report.horarios_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.inventario %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Inventario</strong>: {{ report.inventario_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Inventario</strong>: {{ report.inventario_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
     {% if f.secciones.promociones %}
     <div class="col-md-6">
+<<<<<<< HEAD
       <div class="p-3 rounded border" style="border-color:#d4a843!important;background:#fffaf2"><strong style="color:#3a2a0a">Promociones</strong>: {{ report.promociones_count }}</div>
+=======
+      <div class="p-3 rounded border border-secondary"><strong class="text-white">Promociones</strong>: {{ report.promociones_count }}</div>
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     </div>
     {% endif %}
   </div>

@@ -1,6 +1,10 @@
 from django.db import models
 
 class PedidoModel(models.Model):
+<<<<<<< HEAD
+=======
+    # Cliente (puede ser nulo si es venta directa)
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     user = models.ForeignKey(
         'User', 
         on_delete=models.SET_NULL, 
@@ -10,7 +14,10 @@ class PedidoModel(models.Model):
         related_name='pedidos_cliente'
     )
     
+<<<<<<< HEAD
     codigo_pedido = models.CharField(max_length=20, unique=True, null=True, blank=True)
+=======
+>>>>>>> 8611a3375ca4fbda1576200cb6dbacd6df17f1f0
     cliente_nombre = models.CharField(max_length=100, null=True, blank=True)
     numero_mesa = models.CharField(max_length=10, null=True, blank=True)
     
