@@ -51,6 +51,7 @@ from users.infrastructure.views.insumo_views import (
     insumos_list_view,
     insumo_create_view,
     insumo_edit_view,
+    receta_view,
     reporte_reposicion_view,
 )
 from users.infrastructure.views.reportes_views import reportes_admin_view, reportes_pdf_view
@@ -65,6 +66,7 @@ from users.infrastructure.views.public_views import (
     menu_view,
     noticias_view,
     pedido_confirmado_publico_view,
+    pedido_procesar_pago_view,
     reserva_confirmada_view,
     reserva_crear_view,
     reserva_view,
@@ -127,6 +129,7 @@ urlpatterns = [
     path('insumos/nuevo/', insumo_create_view, name='admin_insumo_nuevo'),
     path('insumos/<int:pk>/editar/', insumo_edit_view, name='admin_insumo_edit'),
     path('insumos/', insumos_list_view, name='admin_insumos'),
+    path('productos/<int:producto_pk>/receta/', receta_view, name='admin_receta'),
     path('reposicion/', reporte_reposicion_view, name='admin_reposicion'),
     path('mesas/nuevo/', mesa_create_view, name='admin_mesa_nuevo'),
     path('mesas/<int:pk>/edit/', mesa_edit_view, name='admin_mesa_edit'),
@@ -145,6 +148,7 @@ urlpatterns = [
     path('carrito/quitar/', carrito_quitar_view, name='carrito_quitar'),
     path('carrito/vaciar/', carrito_vaciar_view, name='carrito_vaciar'),
     path('carrito/finalizar/', carrito_checkout_view, name='carrito_finalizar'),
+    path('pedido/pago/', pedido_procesar_pago_view, name='pedido_procesar_pago'),
     path('pedido/confirmado/<int:pk>/', pedido_confirmado_publico_view, name='pedido_confirmado_publico'),
     path('carrito/', carrito_view, name='carrito'),
     path('menu/', menu_view, name='menu'),

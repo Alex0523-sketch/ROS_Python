@@ -241,18 +241,44 @@ def register_view(request):
     if request.method == 'POST':
         nombre = (request.POST.get('nombre') or '').strip()
         apellido = (request.POST.get('apellido') or '').strip()
-        email = (request.POST.get('email') or '').strip()
+        email = (request.POST.get('email') or '').strip().lower()
         password = (request.POST.get('password') or '').strip()
         password2 = (request.POST.get('password2') or '').strip()
 
-        posted = {
-            'nombre': nombre,
-            'apellido': apellido,
-            'email': email,
-        }
+        posted = {'nombre': nombre, 'apellido': apellido, 'email': email}
+        errors = []
+
+        if not nombre or len(nombre) < 2:
+            errors.append('El nombre debe tener al menos 2 caracteres.')
+        elif any(c.isdigit() for c in nombre):
+            errors.append('El nombre no puede contener números.')
+
+        if not apellido or len(apellido) < 2:
+            errors.append('El apellido debe tener al menos 2 caracteres.')
+        elif any(c.isdigit() for c in apellido):
+            errors.append('El apellido no puede contener números.')
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            errors.append('Ingresa un correo electrónico válido.')
+        else:
+            if UserModel.objects.filter(email__iexact=email).exists():
+                errors.append('Este correo ya está registrado.')
+
+        if len(password) < 8:
+            errors.append('La contraseña debe tener al menos 8 caracteres.')
+        elif not any(c.isupper() for c in password):
+            errors.append('La contraseña debe tener al menos una letra mayúscula.')
+        elif not any(c.isdigit() for c in password):
+            errors.append('La contraseña debe contener al menos un número.')
 
         if password != password2:
-            messages.error(request, 'Las contraseñas no coinciden.')
+            errors.append('Las contraseñas no coinciden.')
+
+        if errors:
+            for e in errors:
+                messages.error(request, e)
             return render(request, 'auth/register.html', {'posted': posted}, status=400)
 
         try:

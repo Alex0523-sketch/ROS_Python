@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pedido confirmado #{{ pedido.pk }} — Olla y Sazon</title>
+  <title>Elige tu método de pago — Olla y Sazon</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
@@ -18,16 +18,9 @@
   <!-- HERO: Pedido confirmado -->
   <header class="cart-page-hero cart-page-hero--success text-center">
     <div class="container py-4">
-      <div class="cart-success-icon mb-3"><i class="fas fa-check-circle"></i></div>
-      <h1 class="display-4 font-display mb-2 fw-bold">¡Pedido confirmado!</h1>
-      <p class="lead mb-1">Numero de pedido: <strong class="text-warning">#{{ pedido.pk }}</strong></p>
-      <p class="mb-0 opacity-75">
-        {% if pedido.empleado_asignado %}
-          Tu pedido fue asignado a <strong class="text-warning">{{ pedido.empleado_asignado.nombre }} {{ pedido.empleado_asignado.apellido }}</strong>
-        {% else %}
-          Tu pedido esta siendo asignado a un empleado
-        {% endif %}
-      </p>
+      <div class="cart-success-icon mb-3"><i class="fas fa-credit-card"></i></div>
+      <h1 class="display-4 font-display mb-2 fw-bold">Elige cómo pagar</h1>
+      <p class="lead mb-0">Revisa tu pedido y selecciona el método de pago.</p>
     </div>
   </header>
 
@@ -57,25 +50,25 @@
               </div>
               <table class="table align-middle mb-0">
                 <tbody>
-                  {% for d in pedido.detalles.all %}
+                  {% for l in lineas %}
                   <tr>
-                    <td class="text-dark fw-semibold">{{ d.producto.nombre }}</td>
-                    <td class="text-center text-muted">x{{ d.cantidad }}</td>
-                    <td class="text-end fw-semibold text-dark">$ {{ d.subtotal_linea|money }}</td>
+                    <td class="text-dark fw-semibold">{{ l.producto.nombre }}</td>
+                    <td class="text-center text-muted">x{{ l.cantidad }}</td>
+                    <td class="text-end fw-semibold text-dark">$ {{ l.subtotal|money }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
                 <tfoot>
                   <tr class="table-warning">
                     <td colspan="2" class="fw-bold text-dark">Total a pagar</td>
-                    <td class="text-end fw-bold text-dark">$ {{ pedido.total|money }}</td>
+                    <td class="text-end fw-bold text-dark">$ {{ total|money }}</td>
                   </tr>
                 </tfoot>
               </table>
             </div>
-            {% if pedido.comentarios %}
+            {% if comentarios %}
             <div class="alert alert-light border small mb-0">
-              <i class="fas fa-comment-alt me-2 text-warning"></i>{{ pedido.comentarios }}
+              <i class="fas fa-comment-alt me-2 text-warning"></i>{{ comentarios }}
             </div>
             {% endif %}
           </div>
@@ -86,7 +79,7 @@
               <p class="text-uppercase small opacity-75 mb-1" style="letter-spacing:0.08em;">Ahora elige como pagar</p>
               <p class="small opacity-60 mb-3">Puedes pagar ahora en linea o al recibir tu pedido en el local.</p>
 
-              <form method="post" action="{% url 'pedido_procesar_pago' pk=pedido.pk %}" id="pagoForm">
+              <form method="post" action="{% url 'pedido_procesar_pago' %}" id="pagoForm">
                 {% csrf_token %}
 
                 <p class="small text-warning mb-2 fw-bold"><i class="fas fa-store me-1"></i> Pago en el local</p>
@@ -131,31 +124,37 @@
                 <!-- Campos tarjeta virtual -->
                 <div id="campos_tarjeta_virtual" class="p-3 mb-3 rounded" style="display:none;background:rgba(255,255,255,0.07);border:1px solid rgba(255,215,0,0.3)">
                   <p class="small text-warning mb-2"><i class="fas fa-lock me-1"></i> Datos de tarjeta (simulado)</p>
-                  <input type="text" name="tarjeta_numero" id="tarjeta_numero" class="form-control form-control-sm mb-2"
+                  <input type="text" name="tarjeta_numero" id="tarjeta_numero" class="form-control form-control-sm mb-1"
                     placeholder="Numero de tarjeta (16 digitos)" maxlength="19" autocomplete="off">
-                  <div class="row g-2 mb-2">
+                  <div class="invalid-feedback mb-2" id="err_tarjeta_numero"></div>
+                  <div class="row g-2 mb-1">
                     <div class="col-6">
-                      <input type="text" name="tarjeta_vencimiento" class="form-control form-control-sm" placeholder="MM/AA" maxlength="5">
+                      <input type="text" name="tarjeta_vencimiento" id="tarjeta_vencimiento" class="form-control form-control-sm" placeholder="MM/AA" maxlength="5">
+                      <div class="invalid-feedback" id="err_tarjeta_vencimiento"></div>
                     </div>
                     <div class="col-6">
-                      <input type="text" name="tarjeta_cvv" class="form-control form-control-sm" placeholder="CVV" maxlength="3">
+                      <input type="text" name="tarjeta_cvv" id="tarjeta_cvv" class="form-control form-control-sm" placeholder="CVV" maxlength="3">
+                      <div class="invalid-feedback" id="err_tarjeta_cvv"></div>
                     </div>
                   </div>
-                  <input type="text" name="tarjeta_nombre" class="form-control form-control-sm" placeholder="Nombre en la tarjeta" maxlength="100">
+                  <input type="text" name="tarjeta_nombre" id="tarjeta_nombre" class="form-control form-control-sm mt-2" placeholder="Nombre en la tarjeta" maxlength="100">
+                  <div class="invalid-feedback" id="err_tarjeta_nombre"></div>
                 </div>
 
                 <!-- Campos Nequi -->
                 <div id="campos_nequi" class="p-3 mb-3 rounded" style="display:none;background:rgba(255,255,255,0.07);border:1px solid rgba(255,215,0,0.3)">
                   <p class="small text-warning mb-2"><i class="fas fa-mobile-alt me-1"></i> Datos Nequi (simulado)</p>
-                  <input type="text" name="nequi_celular" class="form-control form-control-sm"
+                  <input type="text" name="nequi_celular" id="nequi_celular" class="form-control form-control-sm"
                     placeholder="Numero celular Nequi (10 digitos)" maxlength="10">
+                  <div class="invalid-feedback" id="err_nequi_celular"></div>
                 </div>
 
                 <!-- Campos Daviplata -->
                 <div id="campos_daviplata" class="p-3 mb-3 rounded" style="display:none;background:rgba(255,255,255,0.07);border:1px solid rgba(255,215,0,0.3)">
                   <p class="small text-warning mb-2"><i class="fas fa-wallet me-1"></i> Datos Daviplata (simulado)</p>
-                  <input type="text" name="daviplata_celular" class="form-control form-control-sm"
+                  <input type="text" name="daviplata_celular" id="daviplata_celular" class="form-control form-control-sm"
                     placeholder="Numero celular Daviplata (10 digitos)" maxlength="10">
+                  <div class="invalid-feedback" id="err_daviplata_celular"></div>
                 </div>
 
                 <div class="d-grid mt-3">
@@ -180,6 +179,7 @@
       'NEQUI': 'campos_nequi',
       'DAVIPLATA': 'campos_daviplata',
     };
+
     document.querySelectorAll('.metodo-radio').forEach(function(radio) {
       radio.addEventListener('change', function() {
         Object.values(camposPorMetodo).forEach(function(id) {
@@ -193,6 +193,8 @@
         }
       });
     });
+
+    // Formateo automático
     var numTarjeta = document.getElementById('tarjeta_numero');
     if (numTarjeta) {
       numTarjeta.addEventListener('input', function() {
@@ -200,6 +202,96 @@
         this.value = v.match(/.{1,4}/g)?.join(' ') || v;
       });
     }
+
+    var venc = document.getElementById('tarjeta_vencimiento');
+    if (venc) {
+      venc.addEventListener('input', function() {
+        var v = this.value.replace(/\D/g, '').slice(0, 4);
+        if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+        this.value = v;
+      });
+    }
+
+    var cvvInput = document.getElementById('tarjeta_cvv');
+    if (cvvInput) {
+      cvvInput.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 3);
+      });
+    }
+
+    var nombreTarjeta = document.getElementById('tarjeta_nombre');
+    if (nombreTarjeta) {
+      nombreTarjeta.addEventListener('input', function() {
+        this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ ]/g, '');
+      });
+    }
+
+    ['nequi_celular','daviplata_celular'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '').slice(0, 10);
+      });
+    });
+
+    function setError(inputId, errId, msg) {
+      var inp = document.getElementById(inputId);
+      var err = document.getElementById(errId);
+      if (!inp || !err) return;
+      if (msg) {
+        inp.classList.add('is-invalid');
+        err.textContent = msg;
+        err.style.display = 'block';
+      } else {
+        inp.classList.remove('is-invalid');
+        inp.classList.add('is-valid');
+        err.style.display = 'none';
+      }
+    }
+
+    function validarTarjeta() {
+      var ok = true;
+      var num = document.getElementById('tarjeta_numero').value.replace(/\s/g,'');
+      if (!/^\d{16}$/.test(num)) { setError('tarjeta_numero','err_tarjeta_numero','Ingresa los 16 dígitos de la tarjeta.'); ok=false; }
+      else setError('tarjeta_numero','err_tarjeta_numero','');
+
+      var vencVal = document.getElementById('tarjeta_vencimiento').value;
+      var vencMatch = vencVal.match(/^(\d{2})\/(\d{2})$/);
+      if (!vencMatch) { setError('tarjeta_vencimiento','err_tarjeta_vencimiento','Formato inválido. Usa MM/AA.'); ok=false; }
+      else {
+        var mes = parseInt(vencMatch[1]), anio = parseInt('20'+vencMatch[2]);
+        var hoy = new Date(), mesHoy = hoy.getMonth()+1, anioHoy = hoy.getFullYear();
+        if (mes < 1 || mes > 12) { setError('tarjeta_vencimiento','err_tarjeta_vencimiento','Mes inválido.'); ok=false; }
+        else if (anio < anioHoy || (anio === anioHoy && mes < mesHoy)) { setError('tarjeta_vencimiento','err_tarjeta_vencimiento','La tarjeta está vencida.'); ok=false; }
+        else setError('tarjeta_vencimiento','err_tarjeta_vencimiento','');
+      }
+
+      var cvv = document.getElementById('tarjeta_cvv').value;
+      if (!/^\d{3}$/.test(cvv)) { setError('tarjeta_cvv','err_tarjeta_cvv','El CVV debe tener 3 dígitos.'); ok=false; }
+      else setError('tarjeta_cvv','err_tarjeta_cvv','');
+
+      var nombre = document.getElementById('tarjeta_nombre').value.trim();
+      if (nombre.length < 3 || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ ]+$/.test(nombre)) { setError('tarjeta_nombre','err_tarjeta_nombre','Ingresa el nombre tal como aparece en la tarjeta (solo letras).'); ok=false; }
+      else setError('tarjeta_nombre','err_tarjeta_nombre','');
+
+      return ok;
+    }
+
+    function validarCelular(inputId, errId) {
+      var val = document.getElementById(inputId).value;
+      if (!/^3\d{9}$/.test(val)) { setError(inputId, errId, 'Ingresa un celular colombiano válido (10 dígitos, empieza en 3).'); return false; }
+      setError(inputId, errId, '');
+      return true;
+    }
+
+    document.getElementById('pagoForm').addEventListener('submit', function(e) {
+      var metodo = document.querySelector('input[name="metodo_pago"]:checked');
+      if (!metodo) { e.preventDefault(); return; }
+      var ok = true;
+      if (metodo.value === 'TARJETA_VIRTUAL') ok = validarTarjeta();
+      else if (metodo.value === 'NEQUI') ok = validarCelular('nequi_celular','err_nequi_celular');
+      else if (metodo.value === 'DAVIPLATA') ok = validarCelular('daviplata_celular','err_daviplata_celular');
+      if (!ok) e.preventDefault();
+    });
   </script>
 </body>
 </html>

@@ -3313,7 +3313,7 @@ body.reserva-confirmada-page .reserva-confirmada-footer {
 }
 
 .noticias-section__inner {
-    max-width: 920px;
+    max-width: 1200px;
 }
 
 .noticias-intro {
@@ -3356,7 +3356,10 @@ body.reserva-confirmada-page .reserva-confirmada-footer {
     box-shadow:
         0 12px 40px rgba(26, 22, 18, 0.08),
         0 1px 0 rgba(255, 255, 255, 0.9) inset;
-    padding: 1.5rem 1.5rem 1.65rem;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
 }
 
@@ -3372,7 +3375,7 @@ body.reserva-confirmada-page .reserva-confirmada-footer {
     display: flex;
     align-items: flex-start;
     gap: 1.25rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.85rem;
 }
 
 .noticias-card__date {
@@ -3437,24 +3440,33 @@ body.reserva-confirmada-page .reserva-confirmada-footer {
 }
 
 .noticias-card__figure {
-    margin: 0 0 1.15rem;
-    border-radius: 14px;
+    margin: 0;
+    border-radius: 0;
     overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.06);
     background: #f0ebe4;
+    width: 100%;
+    height: 220px;
+    flex-shrink: 0;
 }
 
 .noticias-card__img {
     display: block;
     width: 100%;
-    max-height: 320px;
+    height: 100%;
     object-fit: cover;
     vertical-align: middle;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.noticias-card:hover .noticias-card__img {
+    transform: scale(1.04);
 }
 
 .noticias-card__body {
-    border-top: 1px solid rgba(42, 42, 42, 0.08);
-    padding-top: 1rem;
+    padding: 1.25rem 1.35rem 1.35rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .noticias-card__text {

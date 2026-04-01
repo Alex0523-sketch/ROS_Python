@@ -340,6 +340,7 @@ def carrito_checkout_view(request):
         comentarios = comentarios[:500]
 
     lineas = []
+    total = 0
     for raw in items:
         try:
             pid = int(raw['producto_id'])
@@ -357,22 +358,56 @@ def carrito_checkout_view(request):
             )
             return redirect('carrito')
         precio = float(producto.precio)
-        lineas.append(
-            {
-                'producto': producto,
-                'cantidad': qty,
-                'precio': precio,
-                'subtotal': precio * qty,
-            }
-        )
+        subtotal = precio * qty
+        total += subtotal
+        lineas.append({'producto': producto, 'cantidad': qty, 'precio': precio, 'subtotal': subtotal})
 
     if not lineas:
         messages.error(request, 'No quedaron productos válidos en el carrito.')
         return redirect('carrito')
 
-    total = sum(l['subtotal'] for l in lineas)
+    # Guardar datos del pedido en sesión para usarlos al confirmar el pago
+    request.session['pedido_pendiente'] = {
+        'comentarios': comentarios,
+        'total': total,
+        'lineas': [{'producto_id': l['producto'].pk, 'cantidad': l['cantidad'], 'precio': l['precio']} for l in lineas],
+    }
+    request.session.modified = True
+
+    # Mostrar pantalla de métodos de pago
+    return render(request, 'public/pago_pedido.html', {
+        'lineas': lineas,
+        'total': total,
+        'comentarios': comentarios,
+    })
+
+
+@login_required(login_url='/login/')
+@require_POST
+def pedido_procesar_pago_view(request):
+    if _rol_upper_public(request.user) != 'CLIENTE':
+        return redirect('carrito')
+
+    pedido_data = request.session.get('pedido_pendiente')
+    if not pedido_data:
+        messages.error(request, 'Sesión expirada. Vuelve a intentarlo.')
+        return redirect('carrito')
+
+    METODOS_VALIDOS = {'EFECTIVO', 'DATAFONO', 'TARJETA_VIRTUAL', 'NEQUI', 'DAVIPLATA'}
+    metodo = (request.POST.get('metodo_pago') or '').strip().upper()
+    if metodo not in METODOS_VALIDOS:
+        messages.error(request, 'Selecciona un método de pago válido.')
+        return redirect('carrito_finalizar')
+
     user = request.user
     nombre = f'{user.nombre} {user.apellido}'.strip() or user.email
+    total = pedido_data['total']
+    comentarios = pedido_data.get('comentarios')
+
+    # Métodos digitales se marcan PAGADO, los presenciales quedan PENDIENTE
+    DIGITALES = {'TARJETA_VIRTUAL', 'NEQUI', 'DAVIPLATA'}
+    estado_pago = 'PAGADO' if metodo in DIGITALES else 'PENDIENTE'
+    estado_pedido = 'CONFIRMADO' if metodo in DIGITALES else 'PENDIENTE'
 
     try:
         with transaction.atomic():
@@ -380,41 +415,36 @@ def carrito_checkout_view(request):
                 user=user,
                 cliente_nombre=nombre,
                 total=total,
-                estado='PENDIENTE',
+                estado=estado_pedido,
                 comentarios=comentarios,
             )
-            for ln in lineas:
+            for ln in pedido_data['lineas']:
+                producto = ProductoModel.objects.get(pk=ln['producto_id'])
                 DetallePedidoModel.objects.create(
                     pedido=pedido,
-                    producto=ln['producto'],
+                    producto=producto,
                     cantidad=ln['cantidad'],
                     precio=ln['precio'],
                 )
             PagoModel.objects.create(
                 pedido=pedido,
                 user=user,
-                metodo_pago='WEB_PENDIENTE',
+                metodo_pago=metodo,
                 monto_total=total,
-                estado='PENDIENTE',
+                estado=estado_pago,
             )
-
-            # Asignación automática del mesero para que el dashboard del empleado funcione.
             mesero = _obtener_mesero_para_asignar()
             if mesero:
                 pedido.empleado_asignado = mesero
                 pedido.save(update_fields=['empleado_asignado'])
     except Exception:
-        messages.error(
-            request,
-            'No se pudo registrar el pedido. Intenta de nuevo en unos minutos.',
-        )
+        messages.error(request, 'No se pudo registrar el pedido. Intenta de nuevo.')
         return redirect('carrito')
 
     _carrito_guardar(request, [])
-    messages.success(
-        request,
-        f'¡Pedido #{pedido.pk} registrado! Te contactaremos o podrás pagar al recoger.',
-    )
+    del request.session['pedido_pendiente']
+    request.session.modified = True
+
     return redirect('pedido_confirmado_publico', pk=pedido.pk)
 
 

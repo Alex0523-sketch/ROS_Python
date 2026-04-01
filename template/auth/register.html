@@ -120,34 +120,49 @@
         <div class="row g-2 mb-3">
           <div class="col-md-6">
             <label class="form-label" for="nombre">Nombre</label>
-            <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="100" value="{% if posted %}{{ posted.nombre }}{% endif %}" autocomplete="given-name"/>
+            <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="100"
+              value="{% if posted %}{{ posted.nombre }}{% endif %}" autocomplete="given-name"
+              pattern="[A-Za-zÀ-ɏ\s]+" title="Solo letras, sin números"/>
+            <div class="invalid-feedback">Solo letras, mínimo 2 caracteres.</div>
           </div>
           <div class="col-md-6">
             <label class="form-label" for="apellido">Apellido</label>
-            <input type="text" class="form-control" id="apellido" name="apellido" required maxlength="100" value="{% if posted %}{{ posted.apellido }}{% endif %}" autocomplete="family-name"/>
+            <input type="text" class="form-control" id="apellido" name="apellido" required maxlength="100"
+              value="{% if posted %}{{ posted.apellido }}{% endif %}" autocomplete="family-name"
+              pattern="[A-Za-zÀ-ɏ\s]+" title="Solo letras, sin números"/>
+            <div class="invalid-feedback">Solo letras, mínimo 2 caracteres.</div>
           </div>
         </div>
         <div class="mb-3">
           <label class="form-label" for="email">Correo electrónico</label>
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
-            <input type="email" class="form-control" id="email" name="email" required value="{% if posted %}{{ posted.email }}{% endif %}" autocomplete="email"/>
+            <input type="email" class="form-control" id="email" name="email" required
+              value="{% if posted %}{{ posted.email }}{% endif %}" autocomplete="email"/>
           </div>
+          <div class="invalid-feedback">Ingresa un correo válido.</div>
         </div>
         <div class="mb-3">
           <label class="form-label" for="password">Contraseña</label>
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-            <input type="password" class="form-control" id="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"/>
+            <input type="password" class="form-control" id="password" name="password" required
+              minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres"/>
           </div>
-          <p class="hint mt-1 mb-0">Al menos 8 caracteres.</p>
+          <div id="pwd-hints" class="mt-1">
+            <small id="hint-len" class="hint d-block"><i class="bi bi-x-circle-fill text-danger me-1"></i>Mínimo 8 caracteres</small>
+            <small id="hint-upper" class="hint d-block"><i class="bi bi-x-circle-fill text-danger me-1"></i>Al menos una mayúscula</small>
+            <small id="hint-num" class="hint d-block"><i class="bi bi-x-circle-fill text-danger me-1"></i>Al menos un número</small>
+          </div>
         </div>
         <div class="mb-4">
           <label class="form-label" for="password2">Confirmar contraseña</label>
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
-            <input type="password" class="form-control" id="password2" name="password2" required minlength="8" autocomplete="new-password"/>
+            <input type="password" class="form-control" id="password2" name="password2" required
+              minlength="8" autocomplete="new-password"/>
           </div>
+          <small id="hint-match" class="hint d-block mt-1" style="display:none!"></small>
         </div>
         <button type="submit" class="btn btn-auth-primary w-100 mb-3">
           <i class="bi bi-check2-circle me-2"></i>Registrarme
@@ -161,17 +176,83 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  window.addEventListener('pageshow', function(event) {
-    var backForward = false;
-    try {
-      var nav = performance.getEntriesByType('navigation')[0];
-      if (nav && nav.type === 'back_forward') backForward = true;
-    } catch (e) {}
-    if (!backForward && window.performance && window.performance.navigation) {
-      try { backForward = window.performance.navigation.type === 2; } catch (e2) {}
+  // Back/forward cache reload
+  window.addEventListener('pageshow', function(e) {
+    var bf = false;
+    try { var n = performance.getEntriesByType('navigation')[0]; if (n && n.type === 'back_forward') bf = true; } catch(e){}
+    if (!bf && window.performance && window.performance.navigation) { try { bf = window.performance.navigation.type === 2; } catch(e2){} }
+    if (e.persisted || bf) window.location.reload();
+  });
+
+  const soloLetras = /^[A-Za-zÀ-ɏ\s]+$/;
+
+  function validarTexto(input) {
+    const v = input.value.trim();
+    const ok = v.length >= 2 && soloLetras.test(v);
+    input.classList.toggle('is-invalid', !ok);
+    input.classList.toggle('is-valid', ok);
+  }
+
+  ['nombre','apellido'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', function() {
+      // Bloquear números al escribir
+      this.value = this.value.replace(/[0-9]/g, '');
+      validarTexto(this);
+    });
+    el.addEventListener('blur', function() { validarTexto(this); });
+  });
+
+  // Contraseña: hints en tiempo real
+  var pwdInput = document.getElementById('password');
+  var pwd2Input = document.getElementById('password2');
+
+  function setHint(id, ok) {
+    var el = document.getElementById(id);
+    var icon = el.querySelector('i');
+    if (ok) {
+      icon.className = 'bi bi-check-circle-fill text-success me-1';
+      el.style.color = 'rgba(255,255,255,0.75)';
+    } else {
+      icon.className = 'bi bi-x-circle-fill text-danger me-1';
+      el.style.color = 'rgba(255,255,255,0.55)';
     }
-    if (event.persisted || backForward) {
-      window.location.reload();
+  }
+
+  pwdInput.addEventListener('input', function() {
+    var v = this.value;
+    setHint('hint-len', v.length >= 8);
+    setHint('hint-upper', /[A-Z]/.test(v));
+    setHint('hint-num', /[0-9]/.test(v));
+    checkMatch();
+  });
+
+  function checkMatch() {
+    var el = document.getElementById('hint-match');
+    if (!pwd2Input.value) { el.textContent = ''; return; }
+    var match = pwdInput.value === pwd2Input.value;
+    el.innerHTML = match
+      ? '<i class="bi bi-check-circle-fill text-success me-1"></i>Las contraseñas coinciden'
+      : '<i class="bi bi-x-circle-fill text-danger me-1"></i>Las contraseñas no coinciden';
+    pwd2Input.classList.toggle('is-invalid', !match);
+    pwd2Input.classList.toggle('is-valid', match);
+  }
+
+  pwd2Input.addEventListener('input', checkMatch);
+
+  // Bloquear submit si hay errores
+  document.querySelector('form').addEventListener('submit', function(e) {
+    var nombre = document.getElementById('nombre');
+    var apellido = document.getElementById('apellido');
+    validarTexto(nombre);
+    validarTexto(apellido);
+    var pwd = pwdInput.value;
+    var pwdOk = pwd.length >= 8 && /[A-Z]/.test(pwd) && /[0-9]/.test(pwd);
+    var matchOk = pwdInput.value === pwd2Input.value;
+    if (nombre.classList.contains('is-invalid') || apellido.classList.contains('is-invalid') || !pwdOk || !matchOk) {
+      e.preventDefault();
+      if (!pwdOk) pwdInput.classList.add('is-invalid');
+      if (!matchOk) pwd2Input.classList.add('is-invalid');
     }
   });
 </script>

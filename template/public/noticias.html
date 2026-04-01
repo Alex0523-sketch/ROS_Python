@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{% static 'css/public-style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/public-style.css' %}?v=2" rel="stylesheet">
 </head>
 <body class="wrapper typography-public noticias-page">
     {% include 'public/partials/nav_public.html' %}
@@ -24,50 +24,46 @@
                     <p class="noticias-intro__lead">Recetas, eventos y anuncios del restaurante.</p>
                 </header>
 
-                <div class="row g-4 justify-content-center">
+                <div class="row g-4">
                     {% for noticia in noticias %}
-                    <div class="col-12 col-lg-8">
-                        <article class="noticias-card">
-                            <div class="noticias-card__top">
-                                <div class="noticias-card__date" aria-hidden="true">
-                                    {% if noticia.fecha_publicacion %}
-                                    <span class="noticias-card__day">{{ noticia.fecha_publicacion|date:"d" }}</span>
-                                    <span class="noticias-card__month">{{ noticia.fecha_publicacion|date:"M"|upper }}</span>
-                                    {% else %}
-                                    <span class="noticias-card__day">—</span>
-                                    <span class="noticias-card__month">N/D</span>
-                                    {% endif %}
-                                </div>
-                                <div class="noticias-card__headline">
-                                    <h2 class="noticias-card__title">{{ noticia.titulo }}</h2>
-                                    <div class="noticias-card__meta">
-                                        <span class="noticias-card__meta-item">
-                                            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
-                                            {% if noticia.fecha_publicacion %}
-                                            {{ noticia.fecha_publicacion|date:"d/m/Y" }}
-                                            {% else %}
-                                            Sin fecha
-                                            {% endif %}
-                                        </span>
-                                        <span class="noticias-card__meta-item">
-                                            <i class="fas fa-user" aria-hidden="true"></i>
-                                            Administración
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="col-lg-4 col-md-6">
+                        <article class="noticias-card h-100">
                             {% if noticia.imagen %}
-                            <figure class="noticias-card__figure">
+                            <figure class="noticias-card__figure mb-0">
                                 <img src="{{ noticia.imagen }}" alt="{{ noticia.titulo }}" class="noticias-card__img" loading="lazy">
                             </figure>
                             {% endif %}
                             <div class="noticias-card__body">
-                                <p class="noticias-card__text">{{ noticia.contenido }}</p>
+                                <div class="noticias-card__top mb-2">
+                                    <div class="noticias-card__date" aria-hidden="true">
+                                        {% if noticia.fecha_publicacion %}
+                                        <span class="noticias-card__day">{{ noticia.fecha_publicacion|date:"d" }}</span>
+                                        <span class="noticias-card__month">{{ noticia.fecha_publicacion|date:"M"|upper }}</span>
+                                        {% else %}
+                                        <span class="noticias-card__day">—</span>
+                                        <span class="noticias-card__month">N/D</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="noticias-card__headline">
+                                        <h2 class="noticias-card__title">{{ noticia.titulo }}</h2>
+                                        <div class="noticias-card__meta">
+                                            <span class="noticias-card__meta-item">
+                                                <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                                                {% if noticia.fecha_publicacion %}{{ noticia.fecha_publicacion|date:"d/m/Y" }}{% else %}Sin fecha{% endif %}
+                                            </span>
+                                            <span class="noticias-card__meta-item">
+                                                <i class="fas fa-user" aria-hidden="true"></i>
+                                                Administración
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="noticias-card__text">{{ noticia.contenido|truncatewords:30 }}</p>
                             </div>
                         </article>
                     </div>
                     {% empty %}
-                    <div class="col-12 col-lg-8">
+                    <div class="col-12">
                         <div class="noticias-empty" role="status">
                             <div class="noticias-empty__icon" aria-hidden="true"><i class="fas fa-newspaper"></i></div>
                             <p class="noticias-empty__title">No hay noticias por ahora</p>
