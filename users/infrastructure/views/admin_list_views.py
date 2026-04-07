@@ -1485,6 +1485,135 @@ def horario_create_view(request):
 
 
 @admin_only
+def enviar_correo_masivo_view(request):
+    from users.infrastructure.models import NoticiaModel, PromocionModel
+    noticias = NoticiaModel.objects.order_by('-fecha_publicacion')
+    promociones = PromocionModel.objects.order_by('-fecha_inicio')
+
+    if request.method == 'POST':
+        tipo = (request.POST.get('tipo') or '').strip()
+        subject = (request.POST.get('subject') or '').strip()
+        noticias_ids = request.POST.getlist('noticias_ids')
+        promociones_ids = request.POST.getlist('promociones_ids')
+
+        incluir_noticias = tipo in ('noticias', 'ambas')
+        incluir_promociones = tipo in ('promociones', 'ambas')
+
+        sel_noticias = NoticiaModel.objects.filter(pk__in=noticias_ids) if incluir_noticias and noticias_ids else (
+            NoticiaModel.objects.order_by('-fecha_publicacion') if incluir_noticias else []
+        )
+        sel_promociones = PromocionModel.objects.filter(pk__in=promociones_ids) if incluir_promociones and promociones_ids else (
+            PromocionModel.objects.order_by('-fecha_inicio') if incluir_promociones else []
+        )
+
+        if not sel_noticias and not sel_promociones:
+            messages.error(request, 'Selecciona al menos una noticia o promoción.')
+            return render(request, 'admin/correo_masivo_form.html', {'noticias': noticias, 'promociones': promociones})
+
+        # Construir asunto automático
+        if not subject:
+            partes = []
+            if sel_noticias: partes.append('Noticias')
+            if sel_promociones: partes.append('Promociones')
+            subject = f"{'  y '.join(partes)} de Olla y Sazón 🍽️"
+
+        # Construir cuerpo HTML profesional
+        def abs_img(url):
+            """Convierte ruta relativa /media/... en URL absoluta accesible desde internet."""
+            if not url:
+                return ''
+            if url.startswith('http'):
+                return url
+            return request.build_absolute_uri(url)
+
+        bloques = []
+        if sel_noticias:
+            bloques.append(
+                '<tr><td style="padding:8px 32px 4px">'
+                '<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#b8860b">&#128240; Noticias del restaurante</p>'
+                '</td></tr>'
+            )
+            for n in sel_noticias:
+                img_url = abs_img(n.imagen)
+                img = (f'<tr><td style="padding:0 32px 12px">'
+                       f'<img src="{img_url}" style="width:100%;max-width:536px;border-radius:8px;display:block">'
+                       f'</td></tr>') if img_url else ''
+                bloques.append(
+                    f'{img}'
+                    f'<tr><td style="padding:0 32px 24px;border-bottom:1px solid #f0e6c8">'
+                    f'<h3 style="margin:0 0 8px;font-size:18px;color:#1a1a1a;font-family:Georgia,serif">{n.titulo}</h3>'
+                    f'<p style="margin:0;font-size:14px;color:#555;line-height:1.6">{n.contenido}</p>'
+                    f'</td></tr>'
+                )
+        if sel_promociones:
+            bloques.append(
+                '<tr><td style="padding:24px 32px 4px">'
+                '<p style="margin:0;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#b8860b">&#127991; Promociones especiales</p>'
+                '</td></tr>'
+            )
+            for p in sel_promociones:
+                img_url = abs_img(p.imagen_url)
+                img = (f'<tr><td style="padding:0 32px 12px">'
+                       f'<img src="{img_url}" style="width:100%;max-width:536px;border-radius:8px;display:block">'
+                       f'</td></tr>') if img_url else ''
+                desc = f'<p style="margin:6px 0 0;font-size:14px;color:#555;line-height:1.6">{p.descripcion}</p>' if p.descripcion else ''
+                bloques.append(
+                    f'{img}'
+                    f'<tr><td style="padding:0 32px 24px;border-bottom:1px solid #f0e6c8">'
+                    f'<h3 style="margin:0 0 6px;font-size:18px;color:#1a1a1a;font-family:Georgia,serif">{p.titulo}</h3>'
+                    f'<span style="display:inline-block;background:#ffd700;color:#1a1a1a;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;margin-bottom:4px">{p.descuento}% de descuento</span>'
+                    f'<p style="margin:4px 0 0;font-size:12px;color:#888">Válido del {p.fecha_inicio} al {p.fecha_fin}</p>'
+                    f'{desc}'
+                    f'</td></tr>'
+                )
+
+        html_body = (
+            '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body style="margin:0;padding:0;background:#f5f0e8">'
+            '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0e8;padding:32px 0">'
+            '<tr><td align="center">'
+            '<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10)">'
+            # Header
+            '<tr><td style="background:#1a1a1a;padding:28px 32px;text-align:center">'
+            '<h1 style="margin:0;font-family:Georgia,serif;font-size:28px;color:#ffd700;letter-spacing:1px">&#127869;&#65039; Olla y Saz&#243;n</h1>'
+            '<p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.6)">Sabor que enamora</p>'
+            '</td></tr>'
+            # Divider
+            '<tr><td style="background:#ffd700;height:4px"></td></tr>'
+            # Content
+            '<tr><td style="padding:28px 32px 8px">'
+            '<p style="margin:0;font-size:15px;color:#333;line-height:1.6">Hola, te compartimos las últimas novedades de nuestro restaurante. &#128522;</p>'
+            '</td></tr>'
+            + ''.join(bloques) +
+            # Footer
+            '<tr><td style="background:#1a1a1a;padding:20px 32px;text-align:center">'
+            '<p style="margin:0 0 8px;font-size:12px;color:rgba(255,255,255,0.5)">&copy; Restaurante Olla y Saz&#243;n &nbsp;|&nbsp; Gracias por ser parte de nuestra familia</p>'
+            '<p style="margin:0;font-size:11px"><a href="{unsubscribe}" style="color:#ffd700;text-decoration:underline">Cancelar suscripci&#243;n</a></p>'
+            '</td></tr>'
+            '</table>'
+            '</td></tr></table>'
+            '</body></html>'
+        )
+
+        try:
+            from users.utils.sendpulse import enviar_promocion_a_clientes
+            enviar_promocion_a_clientes(subject=subject, html_body=html_body)
+            messages.success(request, 'Correo masivo enviado correctamente a todos los clientes activos.')
+        except RuntimeError as exc:
+            msg = str(exc)
+            if 'Sender is not valid' in msg:
+                messages.error(request, 'El remitente no está verificado en SendPulse. Ve a app.sendpulse.com → Email → Senders y verifica oscar14leguizamon@gmail.com')
+            elif 'auth error' in msg:
+                messages.error(request, f'Error de autenticación con SendPulse: {msg}')
+            else:
+                messages.error(request, f'Error al enviar: {msg}')
+        except Exception as exc:
+            messages.error(request, f'Error inesperado: {exc}')
+        return redirect('admin_correo_masivo')
+
+    return render(request, 'admin/correo_masivo_form.html', {'noticias': noticias, 'promociones': promociones})
+
+
+@admin_only
 def noticia_admin_create_view(request):
     ctx = {'posted': None}
     if request.method == 'POST':

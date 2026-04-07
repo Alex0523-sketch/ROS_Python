@@ -1,0 +1,172 @@
+{% extends "layout/base.html" %}
+{% block title %}Correos masivos{% endblock %}
+{% block page_title %}Correos masivos{% endblock %}
+
+{% block extra_css %}
+<style>
+  .tipo-card { cursor: pointer; transition: border-color .15s, box-shadow .15s; color: #fff; }
+  .tipo-card:hover { border-color: #ffd700 !important; }
+  .tipo-card.selected { border-color: #ffd700 !important; box-shadow: 0 0 0 2px rgba(255,215,0,.35); }
+  .tipo-card .fw-semibold { color: #fff !important; }
+  .item-card { cursor: pointer; transition: border-color .15s, background .15s; color: #fff; }
+  .item-card:hover { border-color: #ffd700 !important; }
+  .item-card.selected { border-color: #ffd700 !important; background: rgba(255,215,0,.08) !important; }
+  .item-card .fw-semibold { color: #fff !important; }
+  .item-card .text-muted { color: rgba(255,255,255,0.6) !important; }
+  .item-card .text-white-50 { color: rgba(255,255,255,0.5) !important; }
+  .item-card .check-icon { display:none; color:#ffd700; font-size:1.2rem; }
+  .item-card.selected .check-icon { display:inline; }
+  /* Las secciones están en el DOM siempre; JS las muestra/oculta visualmente */
+  #seccion-noticias, #seccion-promociones, #seccion-asunto { visibility:hidden; max-height:0; overflow:hidden; margin:0; padding:0; opacity:0; transition: opacity .2s; }
+  #seccion-noticias.visible, #seccion-promociones.visible, #seccion-asunto.visible { visibility:visible; max-height:none; overflow:visible; margin-bottom:1.5rem!important; padding:0; opacity:1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid" style="max-width:860px">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h4 class="mb-0"><i class="bi bi-envelope-paper me-2 text-warning"></i>Enviar correo masivo a clientes</h4>
+  </div>
+
+  <form method="post" id="form-correo">
+    {% csrf_token %}
+
+    {# ── PASO 1: tipo ── #}
+    <div class="card mb-4">
+      <div class="card-header fw-semibold"><span class="badge bg-warning text-dark me-2">1</span>¿Qué quieres enviar?</div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <div class="tipo-card card border-secondary p-3 text-center" data-tipo="noticias">
+              <i class="bi bi-newspaper fs-2 text-warning mb-2"></i>
+              <div class="fw-semibold">Solo noticias</div>
+              <input type="radio" name="tipo" value="noticias" class="d-none">
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="tipo-card card border-secondary p-3 text-center" data-tipo="promociones">
+              <i class="bi bi-tag fs-2 text-warning mb-2"></i>
+              <div class="fw-semibold">Solo promociones</div>
+              <input type="radio" name="tipo" value="promociones" class="d-none">
+            </div>
+          </div>
+          <div class="col-12 col-md-4">
+            <div class="tipo-card card border-secondary p-3 text-center" data-tipo="ambas">
+              <i class="bi bi-collection fs-2 text-warning mb-2"></i>
+              <div class="fw-semibold">Noticias y promociones</div>
+              <input type="radio" name="tipo" value="ambas" class="d-none">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# ── PASO 2: seleccionar noticias ── #}
+    <div class="card mb-4" id="seccion-noticias">
+      <div class="card-header fw-semibold"><span class="badge bg-warning text-dark me-2">2a</span>Selecciona las noticias</div>
+      <div class="card-body">
+        {% if noticias %}
+        <div class="row g-2">
+          {% for n in noticias %}
+          <div class="col-12 col-md-6">
+            <div class="item-card card border-secondary p-3" data-group="noticia" data-id="{{ n.id }}">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div>
+                  <div class="fw-semibold">{{ n.titulo }}</div>
+                  <div class="text-muted small">{{ n.fecha_publicacion|default:"Sin fecha" }}</div>
+                  <div class="small mt-1 text-white-50">{{ n.contenido|truncatechars:80 }}</div>
+                </div>
+                <i class="bi bi-check-circle-fill check-icon flex-shrink-0"></i>
+              </div>
+              <input type="checkbox" name="noticias_ids" value="{{ n.id }}" class="d-none item-check">
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No hay noticias publicadas. <a href="{% url 'admin_noticia_nuevo' %}" class="link-warning">Crear una</a>.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── PASO 2: seleccionar promociones ── #}
+    <div class="card mb-4" id="seccion-promociones">
+      <div class="card-header fw-semibold"><span class="badge bg-warning text-dark me-2">2b</span>Selecciona las promociones</div>
+      <div class="card-body">
+        {% if promociones %}
+        <div class="row g-2">
+          {% for p in promociones %}
+          <div class="col-12 col-md-6">
+            <div class="item-card card border-secondary p-3" data-group="promocion" data-id="{{ p.id_promocion }}">
+              <div class="d-flex justify-content-between align-items-start gap-2">
+                <div>
+                  <div class="fw-semibold">{{ p.titulo }}</div>
+                  <div class="text-muted small">{{ p.fecha_inicio }} → {{ p.fecha_fin }} · <span class="text-warning">{{ p.descuento }}% dto.</span></div>
+                  {% if p.descripcion %}<div class="small mt-1 text-white-50">{{ p.descripcion|truncatechars:80 }}</div>{% endif %}
+                </div>
+                <i class="bi bi-check-circle-fill check-icon flex-shrink-0"></i>
+              </div>
+              <input type="checkbox" name="promociones_ids" value="{{ p.id_promocion }}" class="d-none item-check">
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-muted mb-0">No hay promociones activas. <a href="{% url 'admin_promocion_nuevo' %}" class="link-warning">Crear una</a>.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ── PASO 3: asunto personalizado ── #}
+    <div class="card mb-4" id="seccion-asunto">
+      <div class="card-header fw-semibold"><span class="badge bg-warning text-dark me-2">3</span>Asunto del correo <span class="text-muted fw-normal">(opcional)</span></div>
+      <div class="card-body">
+        <input type="text" name="subject" class="form-control" placeholder="Se generará automáticamente si lo dejas vacío">
+      </div>
+    </div>
+
+    <div id="btn-enviar-wrap" style="display:none">
+      <button type="submit" class="btn btn-warning fw-bold px-4">
+        <i class="bi bi-send me-2"></i>Enviar a todos los clientes
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const tipoCards = document.querySelectorAll('.tipo-card');
+  const secNoticias = document.getElementById('seccion-noticias');
+  const secPromociones = document.getElementById('seccion-promociones');
+  const secAsunto = document.getElementById('seccion-asunto');
+  const btnWrap = document.getElementById('btn-enviar-wrap');
+
+  function mostrar(el) { el.classList.add('visible'); }
+  function ocultar(el) { el.classList.remove('visible'); }
+
+  tipoCards.forEach(card => {
+    card.addEventListener('click', function () {
+      tipoCards.forEach(c => { c.classList.remove('selected'); c.querySelector('input[type=radio]').checked = false; });
+      this.classList.add('selected');
+      this.querySelector('input[type=radio]').checked = true;
+      const tipo = this.dataset.tipo;
+
+      tipo === 'noticias' || tipo === 'ambas' ? mostrar(secNoticias) : ocultar(secNoticias);
+      tipo === 'promociones' || tipo === 'ambas' ? mostrar(secPromociones) : ocultar(secPromociones);
+      mostrar(secAsunto);
+      btnWrap.style.display = '';
+    });
+  });
+
+  document.querySelectorAll('.item-card').forEach(card => {
+    card.addEventListener('click', function () {
+      this.classList.toggle('selected');
+      this.querySelector('.item-check').checked = this.classList.contains('selected');
+    });
+  });
+});
+</script>
+{% endblock %}

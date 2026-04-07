@@ -301,6 +301,22 @@ def register_view(request):
         user = UserModel.objects.get(email__iexact=email.lower())
         login(request, user)
         messages.success(request, '¡Cuenta creada! Ya puedes usar el sistema.')
+
+        # Enviar bienvenida + promociones actuales al nuevo cliente
+        try:
+            from users.utils.sendpulse import enviar_promocion_a_clientes
+            enviar_promocion_a_clientes(
+                subject='¡Bienvenido a Olla y Sazón! Conoce nuestras promociones',
+                html_body=(
+                    f'<h2>Hola {nombre}, bienvenido/a a Olla y Sazón 🍽️</h2>'
+                    '<p>Gracias por registrarte. A partir de ahora recibirás '
+                    'nuestras mejores promociones y noticias del restaurante.</p>'
+                ),
+            )
+        except Exception as exc:
+            if getattr(django_settings, 'DEBUG', False):
+                print('SendPulse registro error:', exc)
+
         return redirect(post_login_redirect_url(user))
 
     return render(request, 'auth/register.html', {'posted': None})
