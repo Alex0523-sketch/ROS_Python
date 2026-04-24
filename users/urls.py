@@ -54,6 +54,7 @@ from users.infrastructure.views.insumo_views import (
     insumo_edit_view,
     receta_view,
     reporte_reposicion_view,
+    insumo_carga_masiva_view,
 )
 from users.infrastructure.views.reportes_views import reportes_admin_view, reportes_pdf_view
 from users.infrastructure.views.public_views import (
@@ -129,6 +130,7 @@ urlpatterns = [
     path('inventario/', inventario_list_view, name='admin_inventario'),
     path('insumos/nuevo/', insumo_create_view, name='admin_insumo_nuevo'),
     path('insumos/<int:pk>/editar/', insumo_edit_view, name='admin_insumo_edit'),
+    path('insumos/carga-masiva/', insumo_carga_masiva_view, name='admin_insumo_carga_masiva'),
     path('insumos/', insumos_list_view, name='admin_insumos'),
     path('productos/<int:producto_pk>/receta/', receta_view, name='admin_receta'),
     path('reposicion/', reporte_reposicion_view, name='admin_reposicion'),

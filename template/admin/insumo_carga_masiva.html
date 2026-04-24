@@ -1,0 +1,55 @@
+{% extends "layout/base.html" %}
+{% block title %}Carga masiva de insumos{% endblock %}
+{% block page_title %}Carga masiva de insumos{% endblock %}
+{% block content %}
+<div class="container mt-4" style="max-width:620px">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'admin_insumos' %}" class="btn btn-outline-light btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h4 class="mb-0"><i class="bi bi-upload me-2 text-success"></i>Carga masiva de insumos</h4>
+  </div>
+
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert {% if 'error' in message.tags %}alert-danger{% elif 'warning' in message.tags %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show">
+    {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="card mb-4">
+    <div class="card-header fw-semibold"><i class="bi bi-info-circle me-2 text-warning"></i>Instrucciones</div>
+    <div class="card-body small">
+      <p class="mb-2">El archivo CSV debe tener exactamente estas columnas en la primera fila:</p>
+      <code>nombre, unidad, stock_actual, stock_minimo</code>
+      <ul class="mt-2 mb-2">
+        <li><strong>nombre</strong>: texto sin números (ej: <em>Harina de trigo</em>)</li>
+        <li><strong>unidad</strong>: <code>g</code> (gramos) o <code>ml</code> (mililitros)</li>
+        <li><strong>stock_actual</strong> y <strong>stock_minimo</strong>: números decimales (ej: <code>1500.5</code>)</li>
+      </ul>
+      <p class="mb-0">Si un insumo con el mismo nombre ya existe, se <strong>actualiza</strong>. Si no existe, se <strong>crea</strong>.</p>
+    </div>
+    <div class="card-footer">
+      <a href="{% url 'admin_insumo_carga_masiva' %}?plantilla=1" class="btn btn-outline-success btn-sm">
+        <i class="bi bi-download me-1"></i>Descargar plantilla CSV
+      </a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header fw-semibold"><span class="badge bg-warning text-dark me-2">1</span>Sube tu archivo</div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Archivo CSV</label>
+          <input type="file" name="archivo_csv" accept=".csv" class="form-control" required>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-success fw-bold"><i class="bi bi-upload me-2"></i>Cargar insumos</button>
+          <a href="{% url 'admin_insumos' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

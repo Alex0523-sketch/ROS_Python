@@ -50,12 +50,15 @@
                 <div class="row g-4 g-xl-5 menu-product-grid">
                     {% for producto in productos %}
                     <div class="col-lg-4 col-md-6">
-                        <article class="menu-card menu-card--editorial h-100">
+                        <article class="menu-card menu-card--editorial h-100{% if producto.sin_stock %} menu-card--agotado{% endif %}">
                             <div class="menu-image">
                                 {% if producto.imagen_url %}
                                 <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" loading="lazy" width="400" height="250">
                                 {% else %}
                                 <span class="menu-image__placeholder" aria-hidden="true"><i class="fas fa-utensils"></i></span>
+                                {% endif %}
+                                {% if producto.sin_stock %}
+                                <span class="menu-card__agotado-badge"><i class="fas fa-ban me-1"></i>No disponible</span>
                                 {% endif %}
                             </div>
                             <div class="menu-content">
@@ -67,6 +70,11 @@
                                         <span class="menu-card__currency">$</span>
                                         <span class="menu-card__amount">{{ producto.precio|money }}</span>
                                     </span>
+                                    {% if producto.sin_stock %}
+                                    <button type="button" class="btn menu-card__add btn-sm" disabled>
+                                        <i class="fas fa-ban me-1" aria-hidden="true"></i>No disponible
+                                    </button>
+                                    {% else %}
                                     <form method="post" action="{% url 'carrito_agregar' %}" class="d-inline">
                                         {% csrf_token %}
                                         <input type="hidden" name="producto_id" value="{{ producto.pk }}">
@@ -75,6 +83,7 @@
                                             <i class="fas fa-plus me-1" aria-hidden="true"></i>Agregar
                                         </button>
                                     </form>
+                                    {% endif %}
                                 </div>
                             </div>
                         </article>

@@ -157,9 +157,22 @@ def menu_view(request):
         except (TypeError, ValueError):
             categoria_seleccionada = None
     if categoria_seleccionada is not None:
-        productos = productos_qs.filter(categoria_id=categoria_seleccionada)
-    else:
-        productos = productos_qs
+        productos_qs = productos_qs.filter(categoria_id=categoria_seleccionada)
+
+    # Determinar qué productos tienen algún insumo bajo el stock mínimo
+    from users.infrastructure.models.receta_item_model import RecetaItemModel
+    from django.db.models import F
+    insumos_sin_stock = set(
+        RecetaItemModel.objects
+        .filter(insumo__stock_actual__lt=F('insumo__stock_minimo'))
+        .values_list('producto_id', flat=True)
+    )
+
+    productos = []
+    for p in productos_qs:
+        p.sin_stock = p.pk in insumos_sin_stock
+        productos.append(p)
+
     return render(request, 'public/menu.html', {
         'categorias': categorias,
         'productos': productos,
@@ -307,33 +320,44 @@ def carrito_view(request):
     total = sum(float(i['precio']) * int(i['cantidad']) for i in items)
     user = request.user
     rol = _rol_upper_public(user) if user.is_authenticated else ''
+    es_cliente = user.is_authenticated and rol == 'CLIENTE'
+    es_invitado = not user.is_authenticated
     return render(
         request,
         'public/carrito.html',
         {
             'items': items,
             'total': total,
-            'puede_finalizar': bool(items) and user.is_authenticated and rol == 'CLIENTE',
-            'requiere_login_para_comprar': bool(items) and not user.is_authenticated,
-            'rol_no_cliente': bool(items) and user.is_authenticated and rol != 'CLIENTE',
+            'puede_finalizar': bool(items) and (es_cliente or es_invitado),
+            'requiere_login_para_comprar': False,
+            'rol_no_cliente': bool(items) and user.is_authenticated and rol not in ('CLIENTE', ''),
+            'es_invitado': es_invitado,
         },
     )
 
 
-@login_required(login_url='/login/')
 @require_POST
 def carrito_checkout_view(request):
-    if _rol_upper_public(request.user) != 'CLIENTE':
-        messages.warning(
-            request,
-            'Solo las cuentas de cliente pueden finalizar compras desde el sitio web.',
-        )
+    user = request.user
+    if user.is_authenticated and _rol_upper_public(user) not in ('CLIENTE', ''):
+        messages.warning(request, 'Solo las cuentas de cliente pueden finalizar compras desde el sitio web.')
         return redirect('carrito')
 
     items = _carrito_items(request)
     if not items:
         messages.error(request, 'Tu carrito está vacío.')
         return redirect('carrito')
+
+    # Resolver identidad
+    if user.is_authenticated:
+        nombre = f'{user.nombre} {user.apellido}'.strip() or user.email
+        user_obj = user
+    else:
+        nombre = (request.POST.get('nombre_invitado') or '').strip()
+        if len(nombre) < 3:
+            messages.error(request, 'Ingresa tu nombre para continuar como invitado.')
+            return redirect('carrito')
+        user_obj = None
 
     comentarios = (request.POST.get('comentarios') or '').strip() or None
     if comentarios and len(comentarios) > 500:
@@ -352,10 +376,7 @@ def carrito_checkout_view(request):
             continue
         producto = ProductoModel.objects.filter(pk=pid).first()
         if not producto:
-            messages.error(
-                request,
-                f'El producto «{raw.get("nombre", "desconocido")}» ya no está disponible. Actualiza el carrito.',
-            )
+            messages.error(request, f'El producto «{raw.get("nombre", "desconocido")}» ya no está disponible.')
             return redirect('carrito')
         precio = float(producto.precio)
         subtotal = precio * qty
@@ -366,137 +387,120 @@ def carrito_checkout_view(request):
         messages.error(request, 'No quedaron productos válidos en el carrito.')
         return redirect('carrito')
 
-    # Guardar datos del pedido en sesión para usarlos al confirmar el pago
-    request.session['pedido_pendiente'] = {
-        'comentarios': comentarios,
-        'total': total,
-        'lineas': [{'producto_id': l['producto'].pk, 'cantidad': l['cantidad'], 'precio': l['precio']} for l in lineas],
-    }
-    request.session.modified = True
+    # Registrar el pedido INMEDIATAMENTE en estado PENDIENTE
+    try:
+        with transaction.atomic():
+            pedido = PedidoModel.objects.create(
+                user=user_obj,
+                cliente_nombre=nombre,
+                total=total,
+                estado='PENDIENTE',
+                comentarios=comentarios,
+            )
+            for l in lineas:
+                DetallePedidoModel.objects.create(
+                    pedido=pedido,
+                    producto=l['producto'],
+                    cantidad=l['cantidad'],
+                    precio=l['precio'],
+                )
+            mesero = _obtener_mesero_para_asignar()
+            if mesero:
+                pedido.empleado_asignado = mesero
+                pedido.save(update_fields=['empleado_asignado'])
 
-    # Mostrar pantalla de métodos de pago
-    return render(request, 'public/pago_pedido.html', {
-        'lineas': lineas,
-        'total': total,
-        'comentarios': comentarios,
-    })
-
-
-@login_required(login_url='/login/')
-@require_POST
-def pedido_procesar_pago_view(request):
-    if _rol_upper_public(request.user) != 'CLIENTE':
+            # Descontar stock de insumos según receta de cada producto
+            from users.application.use_cases.inventario_usecase import DescontarInventarioPorPedidoUseCase
+            DescontarInventarioPorPedidoUseCase().execute(pedido.pk)
+    except Exception:
+        messages.error(request, 'No se pudo registrar el pedido. Intenta de nuevo.')
         return redirect('carrito')
 
-    pedido_data = request.session.get('pedido_pendiente')
-    if not pedido_data:
+    _carrito_guardar(request, [])
+    request.session['pedido_id'] = pedido.pk
+    request.session.modified = True
+
+    return redirect('pedido_confirmado_publico', pk=pedido.pk)
+
+
+@require_POST
+def pedido_procesar_pago_view(request):
+    user = request.user
+    if user.is_authenticated and _rol_upper_public(user) not in ('CLIENTE', ''):
+        return redirect('carrito')
+
+    pedido_id = request.session.get('pedido_id')
+    if not pedido_id:
         messages.error(request, 'Sesión expirada. Vuelve a intentarlo.')
+        return redirect('carrito')
+
+    pedido = PedidoModel.objects.filter(pk=pedido_id).first()
+    if not pedido:
+        messages.error(request, 'No se encontró el pedido.')
         return redirect('carrito')
 
     METODOS_VALIDOS = {'EFECTIVO', 'DATAFONO', 'TARJETA_VIRTUAL', 'NEQUI', 'DAVIPLATA'}
     metodo = (request.POST.get('metodo_pago') or '').strip().upper()
     if metodo not in METODOS_VALIDOS:
         messages.error(request, 'Selecciona un método de pago válido.')
-        return redirect('carrito_finalizar')
+        return redirect('pedido_confirmado_publico', pk=pedido_id)
 
-    user = request.user
-    nombre = f'{user.nombre} {user.apellido}'.strip() or user.email
-    total = pedido_data['total']
-    comentarios = pedido_data.get('comentarios')
-
-    # Métodos digitales se marcan PAGADO, los presenciales quedan PENDIENTE
     DIGITALES = {'TARJETA_VIRTUAL', 'NEQUI', 'DAVIPLATA'}
     estado_pago = 'PAGADO' if metodo in DIGITALES else 'PENDIENTE'
     estado_pedido = 'CONFIRMADO' if metodo in DIGITALES else 'PENDIENTE'
 
+    user_obj = user if user.is_authenticated else None
+
     try:
         with transaction.atomic():
-            pedido = PedidoModel.objects.create(
-                user=user,
-                cliente_nombre=nombre,
-                total=total,
-                estado=estado_pedido,
-                comentarios=comentarios,
-            )
-            for ln in pedido_data['lineas']:
-                producto = ProductoModel.objects.get(pk=ln['producto_id'])
-                DetallePedidoModel.objects.create(
-                    pedido=pedido,
-                    producto=producto,
-                    cantidad=ln['cantidad'],
-                    precio=ln['precio'],
-                )
             PagoModel.objects.create(
                 pedido=pedido,
-                user=user,
+                user=user_obj,
                 metodo_pago=metodo,
-                monto_total=total,
+                monto_total=pedido.total,
                 estado=estado_pago,
             )
-            mesero = _obtener_mesero_para_asignar()
-            if mesero:
-                pedido.empleado_asignado = mesero
-                pedido.save(update_fields=['empleado_asignado'])
+            pedido.estado = estado_pedido
+            pedido.save(update_fields=['estado'])
     except Exception:
-        messages.error(request, 'No se pudo registrar el pedido. Intenta de nuevo.')
-        return redirect('carrito')
+        messages.error(request, 'No se pudo registrar el pago. Intenta de nuevo.')
+        return redirect('pedido_confirmado_publico', pk=pedido_id)
 
-    _carrito_guardar(request, [])
-    del request.session['pedido_pendiente']
+    request.session.pop('pedido_id', None)
     request.session.modified = True
 
     return redirect('pedido_confirmado_publico', pk=pedido.pk)
 
 
-@login_required(login_url='/login/')
 @require_GET
 def pedido_confirmado_publico_view(request, pk):
-    # Solo cuentas de cliente deben poder ver su pedido confirmado.
-    if _rol_upper_public(request.user) != 'CLIENTE':
-        messages.warning(request, 'No tienes permiso para ver pedidos confirmados.')
-        return redirect('index')
-
-    # Validación básica del parámetro URL.
     try:
         pk_int = int(pk)
-    except (TypeError, ValueError):
+        assert pk_int > 0
+    except (TypeError, ValueError, AssertionError):
         messages.warning(request, 'Número de pedido inválido.')
-        return redirect('mi_perfil')
+        return redirect('index')
 
-    if pk_int < 1:
-        messages.warning(request, 'Número de pedido inválido.')
-        return redirect('mi_perfil')
+    # Verificar que el pedido pertenece a quien lo hizo (usuario o sesión invitado)
+    qs = PedidoModel.objects.select_related('user', 'empleado_asignado').prefetch_related('detalles__producto')
+    pedido = qs.filter(pk=pk_int).first()
 
-    pedido = (
-        PedidoModel.objects.select_related('user', 'empleado_asignado')
-        .prefetch_related('detalles__producto')
-        .filter(pk=pk_int, user=request.user)
-        .first()
-    )
     if not pedido:
-        # Si existe el pedido pero no pertenece al usuario, mostramos un mensaje más claro.
-        pedido_existe = PedidoModel.objects.filter(pk=pk_int).only('id').exists()
-        if pedido_existe:
-            messages.warning(request, 'Ese pedido no pertenece a tu cuenta.')
-        else:
-            messages.warning(
-                request,
-                'No encontramos ese pedido. Revisa el numero de pedido o crea uno nuevo.',
-            )
-        return redirect('mi_perfil')
+        messages.warning(request, 'No encontramos ese pedido.')
+        return redirect('index')
 
-    # Validación extra: el template asume que existen detalles (items).
+    user = request.user
+    if user.is_authenticated:
+        if pedido.user_id and pedido.user_id != user.pk:
+            messages.warning(request, 'Ese pedido no pertenece a tu cuenta.')
+            return redirect('mi_perfil')
+    # Para invitados no hay verificación adicional (el pk viene de la redirección inmediata)
+
     if not pedido.detalles.exists():
-        messages.warning(
-            request,
-            'Este pedido no tiene productos asociados para mostrarlo.',
-        )
-        return redirect('mi_perfil')
-    return render(
-        request,
-        'public/pedido_confirmado.html',
-        {'pedido': pedido},
-    )
+        messages.warning(request, 'Este pedido no tiene productos asociados.')
+        return redirect('index')
+
+    return render(request, 'public/pedido_confirmado.html', {'pedido': pedido})
 
 
 @require_POST

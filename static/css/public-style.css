@@ -3532,3 +3532,44 @@ body.reserva-confirmada-page .reserva-confirmada-footer {
         transform: none;
     }
 }
+
+/* —— Menú: producto sin stock —— */
+.menu-section.menu-section--light .menu-card--agotado {
+    opacity: 0.72;
+    filter: grayscale(0.35);
+}
+
+.menu-section.menu-section--light .menu-card--agotado:hover {
+    transform: none;
+    box-shadow:
+        0 2px 4px rgba(45, 42, 38, 0.03),
+        0 18px 44px rgba(45, 42, 38, 0.09);
+    border-color: rgba(212, 175, 55, 0.18) !important;
+}
+
+.menu-card__agotado-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 4;
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #fff;
+    background: rgba(180, 40, 40, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+}
+
+.menu-section.menu-section--light .menu-card--agotado .menu-card__add:disabled {
+    background: rgba(45, 42, 38, 0.12) !important;
+    border: 1px solid rgba(45, 42, 38, 0.15) !important;
+    color: #8b7d6b !important;
+    box-shadow: none;
+    cursor: not-allowed;
+}

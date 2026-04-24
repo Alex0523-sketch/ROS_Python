@@ -95,19 +95,20 @@
               <p class="summary-total mb-1">$ {{ total|money }}</p>
               <p class="small opacity-75 mb-3">Incluye productos del carrito. El pago se confirma al finalizar.</p>
 
-              {% if requiere_login_para_comprar %}
-              <div class="cart-alert-box mb-3">
-                <p class="small mb-2 mb-md-0"><i class="fas fa-user-lock me-2 text-warning"></i><strong>Inicia sesión</strong> con tu cuenta de cliente para comprar.</p>
-                <a href="{% url 'login' %}?next={{ request.path|urlencode }}" class="btn btn-warning w-100 text-dark fw-bold rounded-pill">Iniciar sesión</a>
-                <p class="small mt-2 mb-0 text-center"><a href="{% url 'register' %}" class="text-white-50">¿No tienes cuenta? Regístrate</a></p>
-              </div>
-              {% elif rol_no_cliente %}
+              {% if rol_no_cliente %}
               <div class="cart-alert-box cart-alert-box--warn mb-3">
                 <p class="small mb-0"><i class="fas fa-info-circle me-2"></i>Las compras web están disponibles para cuentas autenticadas, como <strong>cliente</strong> registrado.</p>
               </div>
               {% elif puede_finalizar %}
               <form method="post" action="{% url 'carrito_finalizar' %}" class="cart-checkout-form">
                 {% csrf_token %}
+                {% if es_invitado %}
+                <div class="mb-3">
+                  <label class="form-label small opacity-90 mb-1">Tu nombre <span class="text-danger">*</span></label>
+                  <input type="text" name="nombre_invitado" class="form-control form-control-sm cart-textarea-dark" required minlength="3" placeholder="Nombre completo">
+                  <p class="small opacity-60 mt-2 mb-0">O <a href="{% url 'login' %}?next={{ request.path|urlencode }}" class="text-warning">inicia sesión</a> / <a href="{% url 'register' %}" class="text-warning">regístrate</a> para guardar tu historial.</p>
+                </div>
+                {% endif %}
                 <label for="comentarios" class="form-label small opacity-90 mb-1">Notas al pedido <span class="opacity-50">(opcional)</span></label>
                 <textarea name="comentarios" id="comentarios" class="form-control form-control-sm mb-3 cart-textarea-dark" rows="3" maxlength="500" placeholder="Ej.: sin cebolla, envases separados…"></textarea>
                 <div class="d-grid gap-2">
@@ -137,19 +138,11 @@
               </div>
               {% endif %}
 
-              {% if not puede_finalizar and not requiere_login_para_comprar and not rol_no_cliente %}
-              <hr class="border-secondary my-3 opacity-50">
-              <p class="small opacity-80 mb-0">Añade productos desde el menú para ver el botón de compra.</p>
-              {% endif %}
-
               {% if puede_finalizar %}
               <hr class="border-secondary my-3 opacity-50">
               <p class="small opacity-75 mb-0">
-                Al finalizar se crea tu pedido y un pago pendiente. Podrás verlo en <a href="{% url 'mi_perfil' %}" class="text-warning text-decoration-none">Mi panel</a>.
+                {% if es_invitado %}Pedido como invitado. <a href="{% url 'register' %}" class="text-warning text-decoration-none">Regístrate</a> para guardar tu historial.{% else %}Al finalizar se crea tu pedido. Puedes verlo en <a href="{% url 'mi_perfil' %}" class="text-warning text-decoration-none">Mi panel</a>.{% endif %}
               </p>
-              {% elif requiere_login_para_comprar %}
-              <hr class="border-secondary my-3 opacity-50">
-              <p class="small opacity-75 mb-0">Tras iniciar sesión como cliente podrás confirmar la compra desde aquí.</p>
               {% elif rol_no_cliente %}
               <hr class="border-secondary my-3 opacity-50">
               <p class="small opacity-75 mb-0">Si necesitas comprar en línea, usa una cuenta con rol cliente o consulta al restaurante.</p>

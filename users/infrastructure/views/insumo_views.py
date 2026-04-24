@@ -1,8 +1,12 @@
+import csv
+import io
 from functools import wraps
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
+from django.db import transaction
 
 from users.application.use_cases.inventario_usecase import ReporteReposicionUseCase
 from users.infrastructure.models.insumo_model import InsumoModel
@@ -143,3 +147,95 @@ def reporte_reposicion_view(request):
     todos_insumos = InsumoModel.objects.all().order_by('nombre')
     return render(request, 'admin/reporte_reposicion.html',
                   {'items': items, 'todos_insumos': todos_insumos})
+
+
+@admin_only
+def insumo_carga_masiva_view(request):
+    if request.method == 'GET' and request.GET.get('plantilla') == '1':
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="plantilla_insumos.csv"'
+        response.write('\ufeff')  # BOM para Excel
+        writer = csv.writer(response)
+        writer.writerow(['nombre', 'unidad', 'stock_actual', 'stock_minimo'])
+        writer.writerow(['Harina de trigo', 'g', '5000', '1000'])
+        writer.writerow(['Aceite vegetal', 'ml', '3000', '500'])
+        return response
+
+    if request.method != 'POST':
+        return render(request, 'admin/insumo_carga_masiva.html')
+
+    archivo = request.FILES.get('archivo_csv')
+    if not archivo:
+        messages.error(request, 'Selecciona un archivo CSV.')
+        return render(request, 'admin/insumo_carga_masiva.html')
+
+    if not archivo.name.endswith('.csv'):
+        messages.error(request, 'El archivo debe ser .csv')
+        return render(request, 'admin/insumo_carga_masiva.html')
+
+    UNIDADES_VALIDAS = {'g', 'ml'}
+    creados = 0
+    actualizados = 0
+    errores = []
+
+    try:
+        texto = archivo.read().decode('utf-8-sig')  # utf-8-sig maneja BOM de Excel
+        reader = csv.DictReader(io.StringIO(texto))
+        columnas = {c.strip().lower() for c in (reader.fieldnames or [])}
+        if not {'nombre', 'unidad', 'stock_actual', 'stock_minimo'}.issubset(columnas):
+            messages.error(request, 'El CSV debe tener las columnas: nombre, unidad, stock_actual, stock_minimo.')
+            return render(request, 'admin/insumo_carga_masiva.html')
+
+        filas = list(reader)
+        if not filas:
+            messages.warning(request, 'El archivo no contiene filas de datos.')
+            return render(request, 'admin/insumo_carga_masiva.html')
+
+        with transaction.atomic():
+            for i, row in enumerate(filas, start=2):  # fila 1 = encabezado
+                nombre = (row.get('nombre') or '').strip()
+                unidad = (row.get('unidad') or '').strip().lower()
+                raw_actual = (row.get('stock_actual') or '0').strip().replace(',', '.')
+                raw_minimo = (row.get('stock_minimo') or '0').strip().replace(',', '.')
+
+                if not nombre:
+                    errores.append(f'Fila {i}: nombre vacío, se omite.')
+                    continue
+                if any(c.isdigit() for c in nombre):
+                    errores.append(f'Fila {i}: el nombre "{nombre}" contiene números, se omite.')
+                    continue
+                if unidad not in UNIDADES_VALIDAS:
+                    errores.append(f'Fila {i}: unidad "{unidad}" inválida (usa g o ml), se omite.')
+                    continue
+                try:
+                    stock_actual = float(raw_actual)
+                    stock_minimo = float(raw_minimo)
+                except ValueError:
+                    errores.append(f'Fila {i}: stock no numérico en "{nombre}", se omite.')
+                    continue
+
+                obj, created = InsumoModel.objects.update_or_create(
+                    nombre__iexact=nombre,
+                    defaults={
+                        'nombre': nombre,
+                        'unidad': unidad,
+                        'stock_actual': stock_actual,
+                        'stock_minimo': stock_minimo,
+                    },
+                )
+                if created:
+                    creados += 1
+                else:
+                    actualizados += 1
+
+    except Exception as e:
+        messages.error(request, f'Error al procesar el archivo: {e}')
+        return render(request, 'admin/insumo_carga_masiva.html')
+
+    if creados or actualizados:
+        messages.success(request, f'{creados} insumo(s) creado(s), {actualizados} actualizado(s).')
+    if errores:
+        for err in errores:
+            messages.warning(request, err)
+
+    return redirect('admin_insumos')
