@@ -982,12 +982,18 @@ def reservas_list_view(request):
                 messages.warning(request, 'Solo se pueden confirmar reservas en estado PENDIENTE.')
             else:
                 ReservaModel.objects.filter(pk=reserva_id).update(estado='CONFIRMADA')
+                reserva.refresh_from_db()
+                from users.services.sendpulse_service import enviar_correo_confirmacion
+                enviar_correo_confirmacion(reserva)
                 messages.success(request, 'Reserva confirmada.')
         elif accion == 'cancelar':
             if est in ('CANCELADA', 'CANCELADO', 'COMPLETADA'):
                 messages.warning(request, 'Esta reserva ya no admite cancelación desde aquí.')
             else:
                 ReservaModel.objects.filter(pk=reserva_id).update(estado='CANCELADA')
+                reserva.refresh_from_db()
+                from users.services.sendpulse_service import enviar_correo_rechazo
+                enviar_correo_rechazo(reserva)
                 messages.success(request, 'Reserva cancelada.')
         else:
             messages.error(request, 'Acción no válida.')
