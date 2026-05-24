@@ -19,9 +19,12 @@
         <tr>
           <th>ID</th>
           <th>Pedido</th>
+          <th>Cliente</th>
+          <th>Correo</th>
           <th>Método</th>
           <th>Monto</th>
           <th>Estado</th>
+          <th>Motivo rechazo</th>
           <th>Fecha</th>
           <th class="text-end">Acciones</th>
         </tr>
@@ -31,6 +34,16 @@
         <tr>
           <td>{{ p.id }}</td>
           <td>#{{ p.pedido.id }}</td>
+          <td>{{ p.pedido.cliente_nombre|default:"—" }}</td>
+          <td>
+            {% if p.email_cliente %}
+              <span class="small">{{ p.email_cliente }}</span>
+            {% elif p.pedido.email_cliente %}
+              <span class="small text-muted">{{ p.pedido.email_cliente }}</span>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
           <td>{{ p.metodo_pago }}</td>
           <td>$ {{ p.monto_total|money }}</td>
           <td>
@@ -44,31 +57,103 @@
             <span class="badge bg-secondary">{{ p.estado }}</span>
             {% endif %}
           </td>
+          <td>
+            {% if p.motivo_rechazo %}
+              <span class="small text-danger" title="{{ p.motivo_rechazo }}">
+                {{ p.motivo_rechazo|truncatechars:40 }}
+              </span>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
           <td>{{ p.fecha_creacion|date:"d/m/Y H:i" }}</td>
           <td class="text-end">
             {% if p.estado == 'PENDIENTE' %}
+            {# Botón Aceptar #}
             <form method="post" class="d-inline me-1">
               {% csrf_token %}
               <input type="hidden" name="pago_id" value="{{ p.id }}">
               <input type="hidden" name="accion" value="aceptar">
-              <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg me-1"></i>Aceptar</button>
+              <button type="submit" class="btn btn-sm btn-success">
+                <i class="bi bi-check-lg me-1"></i>Aceptar
+              </button>
             </form>
-            <form method="post" class="d-inline">
-              {% csrf_token %}
-              <input type="hidden" name="pago_id" value="{{ p.id }}">
-              <input type="hidden" name="accion" value="rechazar">
-              <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg me-1"></i>Rechazar</button>
-            </form>
+            {# Botón Rechazar — abre modal #}
+            <button type="button" class="btn btn-sm btn-outline-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalRechazo"
+                    data-pago-id="{{ p.id }}">
+              <i class="bi bi-x-lg me-1"></i>Rechazar
+            </button>
             {% else %}
             <span class="text-muted small">—</span>
             {% endif %}
           </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-center text-muted py-4">No hay pagos.</td></tr>
+        <tr><td colspan="10" class="text-center text-muted py-4">No hay pagos.</td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
 </div>
+
+{# Modal obligatorio para rechazo con motivo #}
+<div class="modal fade" id="modalRechazo" tabindex="-1" aria-labelledby="modalRechazoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-white border-danger">
+      <div class="modal-header border-danger">
+        <h5 class="modal-title text-danger" id="modalRechazoLabel">
+          <i class="bi bi-x-circle me-2"></i>Rechazar pago
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="post" id="formRechazo">
+        {% csrf_token %}
+        <input type="hidden" name="pago_id" id="rechazo_pago_id">
+        <input type="hidden" name="accion" value="rechazar">
+        <div class="modal-body">
+          <p class="text-white-50 small mb-3">
+            Se enviará un correo al cliente con el motivo del rechazo.
+          </p>
+          <label for="motivo_rechazo" class="form-label fw-semibold">
+            Motivo del rechazo <span class="text-danger">*</span>
+          </label>
+          <textarea
+            id="motivo_rechazo"
+            name="motivo_rechazo"
+            class="form-control bg-dark text-white border-secondary"
+            rows="4"
+            maxlength="500"
+            placeholder="Ej.: Pago no verificado, fondos insuficientes, datos incorrectos…"
+            required></textarea>
+          <div class="form-text text-white-50 mt-1">Máximo 500 caracteres.</div>
+        </div>
+        <div class="modal-footer border-secondary">
+          <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger btn-sm fw-bold">
+            <i class="bi bi-x-lg me-1"></i>Confirmar rechazo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('modalRechazo').addEventListener('show.bs.modal', function (e) {
+    var pagoId = e.relatedTarget.getAttribute('data-pago-id');
+    document.getElementById('rechazo_pago_id').value = pagoId;
+    document.getElementById('motivo_rechazo').value = '';
+  });
+
+  document.getElementById('formRechazo').addEventListener('submit', function (e) {
+    var motivo = document.getElementById('motivo_rechazo').value.trim();
+    if (!motivo) {
+      e.preventDefault();
+      document.getElementById('motivo_rechazo').classList.add('is-invalid');
+      document.getElementById('motivo_rechazo').focus();
+    }
+  });
+</script>
 {% endblock %}

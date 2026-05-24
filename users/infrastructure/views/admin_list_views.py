@@ -1098,12 +1098,25 @@ def pagos_list_view(request):
                     estado='COMPLETADO',
                     fecha_pago=date.today(),
                 )
+                pago.refresh_from_db()
+                from users.services.sendpulse_service import enviar_correo_pago_aprobado
+                enviar_correo_pago_aprobado(pago)
                 messages.success(request, 'Pago aceptado y marcado como completado.')
         elif accion == 'rechazar':
             if est != 'PENDIENTE':
                 messages.warning(request, 'Solo se pueden rechazar pagos pendientes.')
             else:
-                PagoModel.objects.filter(pk=pago_id).update(estado='RECHAZADO')
+                motivo = (request.POST.get('motivo_rechazo') or '').strip()
+                if not motivo:
+                    messages.error(request, 'Debes indicar el motivo del rechazo.')
+                    return redirect('admin_pagos')
+                PagoModel.objects.filter(pk=pago_id).update(
+                    estado='RECHAZADO',
+                    motivo_rechazo=motivo,
+                )
+                pago.refresh_from_db()
+                from users.services.sendpulse_service import enviar_correo_pago_rechazado
+                enviar_correo_pago_rechazado(pago)
                 messages.success(request, 'Pago rechazado.')
         else:
             messages.error(request, 'Acción no válida.')

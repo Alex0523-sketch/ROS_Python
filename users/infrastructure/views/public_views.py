@@ -351,11 +351,16 @@ def carrito_checkout_view(request):
     # Resolver identidad
     if user.is_authenticated:
         nombre = f'{user.nombre} {user.apellido}'.strip() or user.email
+        email_cliente = (request.POST.get('email_cliente') or '').strip() or user.email
         user_obj = user
     else:
         nombre = (request.POST.get('nombre_invitado') or '').strip()
+        email_cliente = (request.POST.get('email_invitado') or '').strip()
         if len(nombre) < 3:
             messages.error(request, 'Ingresa tu nombre para continuar como invitado.')
+            return redirect('carrito')
+        if not email_cliente or '@' not in email_cliente:
+            messages.error(request, 'Ingresa un correo electrónico válido para recibir la confirmación.')
             return redirect('carrito')
         user_obj = None
 
@@ -393,6 +398,7 @@ def carrito_checkout_view(request):
             pedido = PedidoModel.objects.create(
                 user=user_obj,
                 cliente_nombre=nombre,
+                email_cliente=email_cliente,
                 total=total,
                 estado='PENDIENTE',
                 comentarios=comentarios,
@@ -453,18 +459,24 @@ def pedido_procesar_pago_view(request):
 
     try:
         with transaction.atomic():
-            PagoModel.objects.create(
+            pago = PagoModel.objects.create(
                 pedido=pedido,
                 user=user_obj,
                 metodo_pago=metodo,
                 monto_total=pedido.total,
                 estado=estado_pago,
+                email_cliente=pedido.email_cliente,
             )
             pedido.estado = estado_pedido
             pedido.save(update_fields=['estado'])
     except Exception:
         messages.error(request, 'No se pudo registrar el pago. Intenta de nuevo.')
         return redirect('pedido_confirmado_publico', pk=pedido_id)
+
+    # Enviar factura automáticamente para pagos digitales
+    if metodo in DIGITALES:
+        from users.services.sendpulse_service import enviar_correo_pago_aprobado
+        enviar_correo_pago_aprobado(pago)
 
     request.session.pop('pedido_id', None)
     request.session.modified = True

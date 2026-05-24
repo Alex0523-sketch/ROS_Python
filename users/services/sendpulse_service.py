@@ -219,3 +219,125 @@ def enviar_correo_rechazo(reserva) -> bool:
     except RuntimeError as exc:
         logger.error('Error enviando rechazo reserva %s: %s', reserva.pk, exc)
         return False
+
+
+# ── Notificaciones de PAGOS ──────────────────────────────────────────────────
+
+def _get_email_pago(pago) -> tuple | None:
+    """Resuelve (email, nombre) del cliente del pago."""
+    if pago.email_cliente:
+        nombre = (pago.pedido.cliente_nombre or 'Cliente') if pago.pedido_id else 'Cliente'
+        return pago.email_cliente, nombre
+    if pago.user_id:
+        from users.infrastructure.models import UserModel
+        try:
+            user = UserModel.objects.get(pk=pago.user_id)
+            return user.email, f'{user.nombre} {user.apellido}'.strip()
+        except UserModel.DoesNotExist:
+            pass
+    if pago.pedido_id and pago.pedido.email_cliente:
+        return pago.pedido.email_cliente, (pago.pedido.cliente_nombre or 'Cliente')
+    return None
+
+
+def _build_factura_html(pago) -> str:
+    """Genera el HTML de la factura con el detalle del pedido."""
+    pedido = pago.pedido
+    nombre = pedido.cliente_nombre or 'Cliente'
+    detalles = pedido.detalles.select_related('producto').all()
+
+    filas = ''.join(
+        f'<tr>'
+        f'<td style="padding:6px 8px;border-bottom:1px solid #f0e6c8">{d.producto.nombre}</td>'
+        f'<td style="padding:6px 8px;border-bottom:1px solid #f0e6c8;text-align:center">{d.cantidad}</td>'
+        f'<td style="padding:6px 8px;border-bottom:1px solid #f0e6c8;text-align:right">${d.precio:,.0f}</td>'
+        f'<td style="padding:6px 8px;border-bottom:1px solid #f0e6c8;text-align:right">${d.precio * d.cantidad:,.0f}</td>'
+        f'</tr>'
+        for d in detalles
+    )
+
+    return (
+        '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>'
+        '<body style="margin:0;padding:0;background:#f5f0e8">'
+        '<table width="100%" cellpadding="0" cellspacing="0" style="padding:32px 0">'
+        '<tr><td align="center">'
+        '<table width="600" cellpadding="0" cellspacing="0" '
+        'style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.10)">'
+        '<tr><td style="background:#1a1a1a;padding:24px 32px;text-align:center">'
+        '<h1 style="margin:0;font-family:Georgia,serif;font-size:26px;color:#ffd700">&#127869;&#65039; Olla y Saz&#243;n</h1>'
+        '<p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,.5)">Factura de compra</p>'
+        '</td></tr>'
+        '<tr><td style="background:#28a745;height:4px"></td></tr>'
+        '<tr><td style="padding:28px 32px">'
+        f'<p style="margin:0 0 4px;font-size:15px;color:#333">Hola <strong>{nombre}</strong>,</p>'
+        '<p style="margin:0 0 20px;font-size:15px;color:#333">Tu pago fue aprobado exitosamente. Adjuntamos tu factura correspondiente.</p>'
+        f'<p style="margin:0 0 4px;font-size:12px;color:#888">Pedido <strong>#{pedido.pk}</strong> &nbsp;|&nbsp; '
+        f'Método: <strong>{pago.metodo_pago}</strong></p>'
+        '<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;border-collapse:collapse">'
+        '<thead><tr style="background:#f5f0e8">'
+        '<th style="padding:8px;text-align:left;font-size:12px">Producto</th>'
+        '<th style="padding:8px;text-align:center;font-size:12px">Cant.</th>'
+        '<th style="padding:8px;text-align:right;font-size:12px">Precio</th>'
+        '<th style="padding:8px;text-align:right;font-size:12px">Subtotal</th>'
+        '</tr></thead>'
+        f'<tbody>{filas}</tbody>'
+        '</table>'
+        f'<p style="margin:16px 0 0;font-size:16px;font-weight:700;text-align:right;color:#1a1a1a">'
+        f'Total: ${pago.monto_total:,.0f}</p>'
+        '</td></tr>'
+        '<tr><td style="background:#1a1a1a;padding:16px 32px;text-align:center">'
+        '<p style="margin:0;font-size:12px;color:rgba(255,255,255,.5)">'
+        '&copy; Restaurante Olla y Saz&#243;n &nbsp;|&nbsp; Gracias por tu compra</p>'
+        '</td></tr>'
+        '</table></td></tr></table></body></html>'
+    )
+
+
+def enviar_correo_pago_aprobado(pago) -> bool:
+    """Envía factura por correo cuando el admin aprueba el pago."""
+    destinatario = _get_email_pago(pago)
+    if not destinatario:
+        logger.warning('Pago %s sin email: no se envió factura.', pago.pk)
+        return False
+
+    email, nombre = destinatario
+    html = _build_factura_html(pago)
+
+    try:
+        _send_email(email, nombre, '✅ Pago aprobado - OLLA Y Sazón', html)
+        logger.info('Factura enviada a %s (pago %s).', email, pago.pk)
+        return True
+    except RuntimeError as exc:
+        logger.error('Error enviando factura pago %s: %s', pago.pk, exc)
+        return False
+
+
+def enviar_correo_pago_rechazado(pago) -> bool:
+    """Envía correo de rechazo con motivo cuando el admin rechaza el pago."""
+    destinatario = _get_email_pago(pago)
+    if not destinatario:
+        logger.warning('Pago %s sin email: no se envió rechazo.', pago.pk)
+        return False
+
+    email, nombre = destinatario
+    motivo = pago.motivo_rechazo or 'No especificado'
+
+    html = _build_html(
+        titulo='&#10007; Pago Rechazado',
+        mensaje=(
+            f'Hola <strong>{nombre}</strong>,<br><br>'
+            'Tu pago fue rechazado.<br><br>'
+            f'<strong>Motivo:</strong><br>'
+            f'<span style="color:#555">{motivo}</span><br><br>'
+            'Si tienes dudas, no dudes en contactarnos. ¡Esperamos verte pronto!'
+        ),
+        color_acento='#dc3545',
+    )
+
+    try:
+        _send_email(email, nombre, '❌ Pago rechazado - OLLA Y Sazón', html)
+        logger.info('Rechazo de pago enviado a %s (pago %s).', email, pago.pk)
+        return True
+    except RuntimeError as exc:
+        logger.error('Error enviando rechazo pago %s: %s', pago.pk, exc)
+        return False

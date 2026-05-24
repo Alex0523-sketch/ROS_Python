@@ -18,14 +18,13 @@ class PagoModel(models.Model):
         related_name='pagos'
     )
     
-    metodo_pago = models.CharField(max_length=50) # ej: EFECTIVO, TARJETA, YAPE
+    metodo_pago = models.CharField(max_length=50)
     monto_total = models.FloatField()
-    estado = models.CharField(max_length=50) # ej: COMPLETADO, PENDIENTE, RECHAZADO
-    
-    # @Temporal(TemporalType.DATE) -> Solo la fecha
+    estado = models.CharField(max_length=50)  # PENDIENTE, COMPLETADO, RECHAZADO
+    email_cliente = models.EmailField(max_length=150, null=True, blank=True)
+    motivo_rechazo = models.TextField(max_length=500, null=True, blank=True)
+
     fecha_pago = models.DateField(null=True, blank=True)
-    
-    # Timestamps de auditoría
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 

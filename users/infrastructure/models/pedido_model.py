@@ -12,6 +12,7 @@ class PedidoModel(models.Model):
     )
     
     cliente_nombre = models.CharField(max_length=100, null=True, blank=True)
+    email_cliente = models.EmailField(max_length=150, null=True, blank=True)
     numero_mesa = models.CharField(max_length=10, null=True, blank=True)
     
     # Relación con Reserva
