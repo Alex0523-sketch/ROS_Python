@@ -25,6 +25,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Cargando datos iniciales (roles y usuarios base)..."
+python manage.py loaddata users/fixtures/initial_data.json --app users || echo "Fixture ya cargado o sin cambios."
+
 echo "Iniciando gunicorn en puerto ${PORT:-8000}..."
 exec gunicorn config.wsgi:application \
     --bind 0.0.0.0:${PORT:-8000} \
