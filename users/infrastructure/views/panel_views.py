@@ -516,6 +516,22 @@ def marcar_notificaciones_leidas_view(request):
     return redirect('mis_notificaciones')
 
 
+@login_required(login_url='/login/')
+def mis_notificaciones_view(request):
+    if _rol_upper(request.user) != 'EMPLEADO':
+        messages.warning(request, 'No tienes permiso para acceder a esa sección.')
+        return redirect('index')
+    notificaciones = NotificacionModel.objects.filter(usuario=request.user)
+    return render(request, 'empleado/mis_notificaciones.html', {'notificaciones': notificaciones})
+
+
+@login_required(login_url='/login/')
+def marcar_notificaciones_leidas_view(request):
+    if request.method == 'POST':
+        NotificacionModel.objects.filter(usuario=request.user, leida=False).update(leida=True)
+    return redirect('mis_notificaciones')
+
+
 def reservas_sse_view(request):
     if not request.user.is_authenticated or _rol_upper(request.user) != 'EMPLEADO':
         return HttpResponseForbidden()

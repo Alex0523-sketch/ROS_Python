@@ -53,14 +53,28 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'testserver'] + [
     h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()
 ]
 
-# En producción acepta el host de Railway automáticamente
+# En producción acepta cualquier host y confía en dominios HTTPS
 if not DEBUG:
     ALLOWED_HOSTS += ['*']
-    CSRF_TRUSTED_ORIGINS = [
+    # Siempre incluir wildcards de Railway más cualquier dominio extra en CSRF_TRUSTED_ORIGINS
+    _extra_trusted = [
         f'https://{h.strip()}'
-        for h in os.environ.get('ALLOWED_HOSTS', '').split(',')
+        for h in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
         if h.strip()
-    ] or ['https://*.up.railway.app']
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.up.railway.app',
+        'https://*.railway.app',
+    ] + _extra_trusted
+    # Asegurar cookies seguras detrás del proxy de Railway
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        'http://127.0.0.1:8000',
+        'http://localhost:8000',
+    ]
 
 
 # Application definition
