@@ -16,7 +16,7 @@ COPY . .
 
 RUN mkdir -p /app/staticfiles /app/media
 
-RUN DATABASE_URL=sqlite:////tmp/build.db SECRET_KEY=build-only DEBUG=True python manage.py collectstatic --noinput --clear
+RUN SECRET_KEY=build-only DEBUG=True DATABASE_URL=sqlite:////tmp/build.db python manage.py collectstatic --noinput --clear
 
 RUN chmod +x start.sh
 

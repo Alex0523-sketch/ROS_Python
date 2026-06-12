@@ -140,12 +140,20 @@ _DB_URL = os.environ.get('DATABASE_URL') or (
     f"/{os.environ.get('POSTGRES_DB','ROS_db')}"
 )
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default=_DB_URL,
-        conn_max_age=600,
-    )
-}
+try:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=_DB_URL,
+            conn_max_age=600,
+        )
+    }
+except Exception:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': '/tmp/fallback.db',
+        }
+    }
 
 
 # Password validation
