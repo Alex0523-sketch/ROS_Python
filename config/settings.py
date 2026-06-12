@@ -114,16 +114,32 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB', 'ROS_db'),
-        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', '101606'),
-        'HOST': os.environ.get('POSTGRES_HOST', '127.0.0.1'),
-        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+# Railway provee DATABASE_URL; localmente se usan las variables separadas
+_DATABASE_URL = os.environ.get('DATABASE_URL')
+if _DATABASE_URL:
+    import urllib.parse as _up
+    _u = _up.urlparse(_DATABASE_URL)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': _u.path.lstrip('/'),
+            'USER': _u.username,
+            'PASSWORD': _u.password,
+            'HOST': _u.hostname,
+            'PORT': str(_u.port or 5432),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('POSTGRES_DB', 'ROS_db'),
+            'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.environ.get('POSTGRES_PASSWORD', '101606'),
+            'HOST': os.environ.get('POSTGRES_HOST', '127.0.0.1'),
+            'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        }
+    }
 
 
 # Password validation
