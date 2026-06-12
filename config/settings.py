@@ -205,23 +205,10 @@ AUTH_USER_MODEL = 'users.User'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# --- CONFIGURACIÓN DE CORREO ACTUALIZADA ---
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND') or 'django.core.mail.backends.smtp.EmailBackend'
-
-if EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend' or os.environ.get('SMTP_HOST'):
-    EMAIL_HOST = os.environ.get('SMTP_HOST') or 'smtp.gmail.com'
-    EMAIL_PORT = int(os.environ.get('SMTP_PORT', '587'))
-    EMAIL_HOST_USER = os.environ.get('SMTP_USER') or 'jeisonpinilla14@gmail.com'
-    EMAIL_HOST_PASSWORD = os.environ.get('SMTP_PASSWORD') or 'welk kamo aise qrsf'
-    EMAIL_USE_TLS = os.environ.get('SMTP_USE_TLS', 'true').lower() in ('1', 'true', 'yes')
-    EMAIL_USE_SSL = os.environ.get('SMTP_USE_SSL', 'false').lower() in ('1', 'true', 'yes')
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-DEFAULT_FROM_EMAIL = (
-    os.environ.get('EMAIL_FROM')
-    or f"Olla y Sazón <{EMAIL_HOST_USER}>" 
-)
+# --- CONFIGURACIÓN DE CORREO EVITA ERROR 500 ---
+# Forzamos temporalmente a que imprima los correos en la consola para saltarnos el bloqueo de Gmail
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = "Olla y Sazón <jeisonpinilla14@gmail.com>"
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 PASSWORD_RESET_TIMEOUT = 180  # 3 minutos (solo pruebas)
