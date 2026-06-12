@@ -53,6 +53,7 @@ from users.infrastructure.views.auth_views import (
 from users.infrastructure.views.panel_views import (
     admin_dashboard_view,
     cancelar_reserva_cliente_view,
+    home_redirect_view,
     mi_horario_view,
     mi_perfil_view,
     pedidos_asignados_view,
@@ -91,7 +92,7 @@ from users.infrastructure.views.public_views import (
 )
 
 urlpatterns = [
-    path('', index_view, name='index'),
+    path('', home_redirect_view, name='index'),
     # Alias: rutas típicas de Django / tutoriales que si no existen devuelven 404
     path(
         'recuperar-contrasena',

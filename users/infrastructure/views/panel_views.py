@@ -306,6 +306,16 @@ def pedidos_asignados_view(request):
 
 
 @login_required(login_url='/login/')
+def home_redirect_view(request):
+    rol = _rol_upper(request.user)
+    if rol == 'ADMINISTRADOR':
+        return redirect('admin_dashboard')
+    if rol == 'EMPLEADO':
+        return redirect('pedidos_asignados')
+    return redirect('mi_perfil')
+
+
+@login_required(login_url='/login/')
 def admin_dashboard_view(request):
     if _rol_upper(request.user) != 'ADMINISTRADOR':
         messages.warning(request, 'No tienes permiso para acceder a esa sección.')
